@@ -1,10 +1,9 @@
-
 'use client';
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Eye, Code, ExternalLink } from 'lucide-react';
+import { Download, Eye, Code } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { generatePresellHTML, PresellData } from '@/lib/presell-template';
 
@@ -20,9 +19,9 @@ export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
         <div className="bg-muted p-4 rounded-full mb-4">
           <Eye className="h-8 w-8 text-muted-foreground" />
         </div>
-        <CardTitle className="text-xl mb-2">Live Preview Area</CardTitle>
+        <CardTitle className="text-xl mb-2">Área de Visualização</CardTitle>
         <CardDescription className="max-w-[280px]">
-          Configure your product details and click generate to see the magic happen here.
+          Configure os detalhes do seu produto e clique em gerar para ver a mágica acontecer aqui.
         </CardDescription>
       </Card>
     );
@@ -36,24 +35,24 @@ export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
         <div>
           <CardTitle className="text-xl font-bold flex items-center gap-2">
             <Eye className="h-5 w-5 text-accent" />
-            Page Preview
+            Visualização da Página
           </CardTitle>
-          <CardDescription>Visual output of your presell page</CardDescription>
+          <CardDescription>Veja como sua pré-venda ficou</CardDescription>
         </div>
         <Button onClick={onDownload} size="sm" className="gap-2 bg-accent hover:bg-accent/90">
           <Download className="h-4 w-4" />
-          Download HTML
+          Baixar HTML
         </Button>
       </CardHeader>
       
       <Tabs defaultValue="preview" className="flex-1 flex flex-col">
         <div className="px-6 py-2 bg-muted/30 border-b flex justify-center">
-          <TabsList className="grid grid-cols-2 w-[200px]">
+          <TabsList className="grid grid-cols-2 w-[240px]">
             <TabsTrigger value="preview" className="flex items-center gap-2">
-              <Eye className="h-3 w-3" /> Preview
+              <Eye className="h-3 w-3" /> Visualizar
             </TabsTrigger>
             <TabsTrigger value="code" className="flex items-center gap-2">
-              <Code className="h-3 w-3" /> Code
+              <Code className="h-3 w-3" /> Ver Código
             </TabsTrigger>
           </TabsList>
         </div>

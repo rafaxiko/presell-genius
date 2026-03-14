@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -9,15 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Sparkles, ArrowRight, Palette, Link as LinkIcon, ListChecks } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 const formSchema = z.object({
-  salesPageDescription: z.string().min(10, 'Please provide more detail about the product.'),
-  keySellingPoints: z.string().min(5, 'At least one key selling point is required.'),
-  buttonColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Must be a valid hex color.'),
-  targetUrl: z.string().url('Please enter a valid URL.'),
+  salesPageDescription: z.string().min(10, 'Por favor, forneça mais detalhes sobre o produto.'),
+  keySellingPoints: z.string().min(5, 'Pelo menos um ponto forte de venda é necessário.'),
+  buttonColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Deve ser uma cor hexadecimal válida.'),
+  targetUrl: z.string().url('Por favor, insira uma URL válida.'),
 });
 
 export type PresellFormValues = z.infer<typeof formSchema>;
@@ -34,7 +32,7 @@ export function PresellForm({ onSubmit, isGenerating }: PresellFormProps) {
       salesPageDescription: '',
       keySellingPoints: '',
       buttonColor: '#2952A3',
-      targetUrl: 'https://example.com/checkout',
+      targetUrl: 'https://seulink.com/checkout',
     },
   });
 
@@ -43,10 +41,10 @@ export function PresellForm({ onSubmit, isGenerating }: PresellFormProps) {
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold flex items-center gap-2">
           <Sparkles className="h-6 w-6 text-primary" />
-          Configure Generator
+          Configurar Gerador
         </CardTitle>
         <CardDescription>
-          Input your product details and the AI will craft your presell page.
+          Insira os detalhes da oferta e a IA criará sua copy de pré-venda.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -59,11 +57,11 @@ export function PresellForm({ onSubmit, isGenerating }: PresellFormProps) {
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
                     <ListChecks className="h-4 w-4" />
-                    Product Description
+                    Descrição do Produto/Oferta
                   </FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Describe your product, service, and who it's for..." 
+                      placeholder="Descreva o produto, a dor que ele resolve e para quem ele é..." 
                       className="min-h-[120px] resize-none"
                       {...field} 
                     />
@@ -78,12 +76,12 @@ export function PresellForm({ onSubmit, isGenerating }: PresellFormProps) {
               name="keySellingPoints"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Key Selling Points</FormLabel>
+                  <FormLabel>Principais Benefícios</FormLabel>
                   <FormControl>
-                    <Input placeholder="Fast delivery, 24/7 Support, Eco-friendly..." {...field} />
+                    <Input placeholder="Acesso vitalício, Suporte VIP, Bônus exclusivo..." {...field} />
                   </FormControl>
                   <FormDescription>
-                    Separate points with commas.
+                    Separe os pontos por vírgulas.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -98,7 +96,7 @@ export function PresellForm({ onSubmit, isGenerating }: PresellFormProps) {
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
                       <Palette className="h-4 w-4" />
-                      Button Color
+                      Cor do Botão (CTA)
                     </FormLabel>
                     <FormControl>
                       <div className="flex gap-2">
@@ -126,7 +124,7 @@ export function PresellForm({ onSubmit, isGenerating }: PresellFormProps) {
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
                       <LinkIcon className="h-4 w-4" />
-                      Target Link
+                      Link do Checkout/Venda
                     </FormLabel>
                     <FormControl>
                       <Input placeholder="https://..." {...field} />
@@ -145,11 +143,11 @@ export function PresellForm({ onSubmit, isGenerating }: PresellFormProps) {
               {isGenerating ? (
                 <div className="flex items-center gap-2">
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  Generating Copy...
+                  Criando Copy Poderosa...
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  Generate Presell Page
+                  Gerar Página de Pré-venda
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </div>
               )}

@@ -1,10 +1,10 @@
 'use server';
 /**
- * @fileOverview A Genkit flow that generates high-converting presell page content (headline, body copy, CTA).
+ * @fileOverview Um fluxo Genkit que gera conteúdo de página de pré-venda de alta conversão em Português do Brasil.
  *
- * - generatePresellContent - A function that handles the content generation process.
- * - GeneratePresellContentInput - The input type for the generatePresellContent function.
- * - GeneratePresellContentOutput - The return type for the generatePresellContent function.
+ * - generatePresellContent - Uma função que lida com o processo de geração de conteúdo.
+ * - GeneratePresellContentInput - O tipo de entrada para a função generatePresellContent.
+ * - GeneratePresellContentOutput - O tipo de retorno para a função generatePresellContent.
  */
 
 import {ai} from '@/ai/genkit';
@@ -14,20 +14,20 @@ const GeneratePresellContentInputSchema = z.object({
   salesPageDescription: z
     .string()
     .describe(
-      'A detailed description of the product or service for the sales page.'
+      'Uma descrição detalhada do produto ou serviço para a página de vendas.'
     ),
   keySellingPoints: z
     .array(z.string())
-    .describe('A list of key selling points to highlight in the presell content.'),
+    .describe('Uma lista de pontos-chave de venda para destacar no conteúdo.'),
 });
 export type GeneratePresellContentInput = z.infer<
   typeof GeneratePresellContentInputSchema
 >;
 
 const GeneratePresellContentOutputSchema = z.object({
-  headline: z.string().describe('A high-converting headline for the presell page.'),
-  bodyCopy: z.string().describe('Engaging body copy for the presell page.'),
-  callToAction: z.string().describe('A compelling call-to-action.'),
+  headline: z.string().describe('Uma headline de alta conversão em Português.'),
+  bodyCopy: z.string().describe('Um texto de apoio (copy) envolvente em Português.'),
+  callToAction: z.string().describe('Uma chamada para ação (CTA) poderosa em Português.'),
 });
 export type GeneratePresellContentOutput = z.infer<
   typeof GeneratePresellContentOutputSchema
@@ -43,21 +43,23 @@ const prompt = ai.definePrompt({
   name: 'generatePresellContentPrompt',
   input: {schema: GeneratePresellContentInputSchema},
   output: {schema: GeneratePresellContentOutputSchema},
-  prompt: `You are an expert AI copywriter specializing in creating high-converting presell page content.
+  prompt: `Você é um copywriter especialista em marketing de afiliados no Brasil, focado em alta conversão.
 
-Your task is to generate a compelling headline, engaging body copy, and a strong call-to-action based on the provided sales page description and key selling points.
+Sua tarefa é gerar uma headline matadora, um corpo de texto persuasivo (copy de pré-venda) e uma chamada para ação (CTA) forte com base na descrição do produto e nos pontos de venda fornecidos.
 
-Ensure the content is persuasive, highlights the unique benefits, and encourages the user to proceed to the main sales page.
+O conteúdo deve ser escrito INTEIRAMENTE EM PORTUGUÊS DO BRASIL, usando um tom amigável, mas extremamente persuasivo. O objetivo da página de pré-venda é "aquecer" o tráfego frio, quebrando as principais objeções e gerando curiosidade antes do clique para a página de vendas oficial.
 
-Sales Page Description:
+Use gatilhos mentais como autoridade, escassez ou prova social se fizer sentido com o contexto.
+
+Descrição da Página de Vendas/Produto:
 {{{salesPageDescription}}}
 
-Key Selling Points:
+Pontos Fortes de Venda:
 {{#each keySellingPoints}}
 - {{{this}}}
 {{/each}}
 
-Generate the content in JSON format according to the output schema.`,
+Gere o conteúdo em formato JSON de acordo com o esquema de saída.`,
 });
 
 const generatePresellContentFlow = ai.defineFlow(

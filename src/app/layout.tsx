@@ -2,8 +2,8 @@ import type {Metadata} from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Presell Genius | AI-Powered Presell Page Generator',
-  description: 'Generate high-converting presell pages in seconds with AI.',
+  title: 'Presell Genius | Gerador de Páginas de Pré-venda com IA',
+  description: 'Gere páginas de pré-venda de alta conversão em segundos com inteligência artificial.',
 };
 
 export default function RootLayout({
@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
