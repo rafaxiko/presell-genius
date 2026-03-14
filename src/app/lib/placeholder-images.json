@@ -1,0 +1,17 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-illustration",
+      "description": "Abstract professional business growth illustration",
+      "imageUrl": "https://picsum.photos/seed/presell1/1200/600",
+      "imageHint": "business growth"
+    },
+    {
+      "id": "app-logo",
+      "description": "Abstract geometric logo",
+      "imageUrl": "https://picsum.photos/seed/logo42/200/200",
+      "imageHint": "minimalist logo"
+    }
+  ]
+}
