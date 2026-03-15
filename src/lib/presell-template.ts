@@ -38,9 +38,31 @@ export type PresellData = {
 };
 
 /**
- * Generates the full HTML for the presell page with strict image hierarchy.
+ * Generates the full HTML for the presell page with strict image hierarchy and responsiveness.
  */
-export function generatePresellHTML(data: PresellData, wrapForElementor = false): string {
+export function generatePresellHTML(data: PresellData | null, wrapForElementor = false): string {
+  // Placeholder data for initial render
+  const defaultData: PresellData = {
+    productName: "Seu Produto Premium",
+    headline: "O Título Magnético Aparecerá Aqui Após a Geração",
+    subheadline: "Um subtítulo persuasivo para aquecer sua audiência e preparar para a oferta.",
+    bodyCopy: "Este é um rascunho do seu conteúdo. Após preencher o formulário e clicar em gerar, nossa IA criará uma copy de alta conversão baseada no seu produto.",
+    benefits: ["Benefício 01: Exemplo de valor", "Benefício 02: Resultado esperado", "Benefício 03: Transformação real"],
+    ingredients: ["Ingrediente Natural", "Tecnologia Avançada", "Fórmula Exclusiva"],
+    faqs: [{ q: "Como funciona?", a: "Explicação clara e objetiva sobre o produto." }],
+    pricing: [
+      { quantity: "01 Frasco", discount: "Preço Regular", price: "R$ 197", isBestValue: false },
+      { quantity: "03 Frascos", discount: "50% de Desconto", price: "R$ 447", isBestValue: true },
+      { quantity: "06 Frascos", discount: "Maior Desconto", price: "R$ 697", isBestValue: false }
+    ],
+    callToAction: "QUERO GARANTIR MEU ACESSO",
+    buttonColor: "#2952A3",
+    targetUrl: "#",
+    templateType: "Robust",
+    productImageUrls: []
+  };
+
+  const finalData = data || defaultData;
   const { 
     productName, 
     headline, 
@@ -60,12 +82,12 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
     trackingLink, 
     clarityScript,
     templateType
-  } = data;
+  } = finalData;
   
   const ctaLink = trackingLink || targetUrl;
   
-  // Image Hierarchy Logic
-  const primaryImg = productImageUrls[0] || 'https://picsum.photos/seed/product/800/450';
+  // Strict Image Hierarchy Logic
+  const primaryImg = productImageUrls.length > 0 ? productImageUrls[0] : 'https://picsum.photos/seed/product/800/450';
   const secondaryImages = productImageUrls.length > 1 ? productImageUrls.slice(1, productImageUrls.length > 2 ? -1 : undefined) : [];
   const trustBadgeImg = productImageUrls.length > 2 ? productImageUrls[productImageUrls.length - 1] : null;
 
@@ -80,13 +102,13 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
     }
     .pg-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.6; -webkit-font-smoothing: antialiased; }
     .pg-container { max-width: 800px; margin: 0 auto; padding: 40px 20px; box-sizing: border-box; }
-    .pg-card { background: var(--card-bg); border-radius: var(--radius); padding: 40px; border: 1px solid #e2e8f0; box-shadow: var(--shadow); margin-bottom: 40px; overflow: hidden; }
-    .pg-btn { display: block; width: 100%; background: var(--primary); color: #fff; text-align: center; padding: 22px; border-radius: 12px; font-weight: 800; font-size: 1.3rem; text-decoration: none; text-transform: uppercase; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-sizing: border-box; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    .pg-card { background: var(--card-bg); border-radius: var(--radius); padding: 40px; border: 1px solid #e2e8f0; box-shadow: var(--shadow); margin-bottom: 40px; overflow: hidden; position: relative; }
+    .pg-btn { display: block; width: 100%; background: var(--primary); color: #fff; text-align: center; padding: 22px; border-radius: 12px; font-weight: 800; font-size: 1.3rem; text-decoration: none; text-transform: uppercase; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-sizing: border-box; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border: none; cursor: pointer; }
     .pg-btn:hover { transform: translateY(-3px); filter: brightness(1.1); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); }
-    .pg-img-hero { width: 100%; max-width: 600px; border-radius: 15px; display: block; margin: 0 auto 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-    .pg-img-secondary { width: 100%; border-radius: 12px; display: block; margin: 0 auto; transition: transform 0.3s ease; }
+    .pg-img-hero { width: 100%; max-width: 100%; height: auto; border-radius: 15px; display: block; margin: 0 auto 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); object-fit: contain; }
+    .pg-img-secondary { width: 100%; height: auto; max-width: 100%; border-radius: 12px; display: block; margin: 0 auto; transition: transform 0.3s ease; }
     .pg-img-secondary:hover { transform: scale(1.02); }
-    .pg-img-trust { max-width: 250px; height: auto; display: block; margin: 20px auto 0; opacity: 0.9; }
+    .pg-img-trust { max-width: 250px; width: 100%; height: auto; display: block; margin: 20px auto 0; opacity: 0.9; }
     .pg-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin: 40px 0; }
     .pg-footer { text-align: center; padding: 60px 40px; color: #64748b; font-size: 0.85rem; line-height: 1.8; }
     .pg-badge { background: #f1f5f9; padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 700; color: var(--primary); margin-bottom: 20px; display: inline-block; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid #e2e8f0; }
@@ -100,8 +122,7 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
   `;
 
   let content = '';
-
-  const renderTrustBadge = () => trustBadgeImg ? `<img src="${trustBadgeImg}" class="pg-img-trust" alt="Segurança">` : '';
+  const renderTrustBadge = () => trustBadgeImg ? `<img src="${trustBadgeImg}" class="pg-img-trust" alt="Garantia">` : '';
 
   switch (templateType) {
     case 'Launch':
@@ -136,9 +157,7 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
         <div class="pg-card">
           <h1 style="font-size: 2.8rem; line-height: 1.1; margin-bottom: 30px;">${headline}</h1>
           <p style="font-size: 1.2rem; color: #64748b; margin-bottom: 30px; text-align: center;">${subheadline || ''}</p>
-          
           <img src="${primaryImg}" class="pg-img-hero">
-          
           <div style="font-size: 1.15rem; color: #334155; margin-bottom: 40px;">${bodyCopy}</div>
           
           ${secondaryImages.length > 0 ? `
@@ -166,11 +185,11 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
           ` : ''}
         </div>
 
-        <h2 style="text-align: center; margin-bottom: 40px; font-size: 2rem;">Escolha o Melhor Plano</h2>
+        <h2 style="text-align: center; margin-bottom: 40px; font-size: 2rem;">Oferta Especial Hoje</h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px; margin-bottom: 60px;">
           ${pricing.length ? pricing.map(p => `
             <div class="pg-card" style="text-align: center; padding: 40px 25px; border: ${p.isBestValue ? '3px solid var(--primary)' : '1px solid #e2e8f0'}; position: relative; margin-bottom: 0;">
-              ${p.isBestValue ? '<div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; padding: 6px 20px; border-radius: 30px; font-size: 0.75rem; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">O MAIS DESEJADO</div>' : ''}
+              ${p.isBestValue ? '<div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; padding: 6px 20px; border-radius: 30px; font-size: 0.75rem; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">MELHOR ESCOLHA</div>' : ''}
               <div style="font-size: 1.4rem; font-weight: 800; margin-bottom: 5px;">${p.quantity}</div>
               <div style="font-size: 0.85rem; color: #16a34a; font-weight: 700;">${p.discount}</div>
               <div style="font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 25px 0;">${p.price}</div>
@@ -230,7 +249,7 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
 
           <div style="background: #0f172a; padding: 40px; border-radius: 15px; color: #fff; text-align: center;">
             <h3 style="color: #fff; margin-top: 0; font-size: 1.8rem;">Veredito Final</h3>
-            <p style="color: #94a3b8; margin-bottom: 30px;">Nossa análise técnica concluiu que o ${productName} é a solução mais eficaz testada este ano.</p>
+            <p style="color: #94a3b8; margin-bottom: 30px;">Nossa análise técnica concluiu que o ${productName} é a solução recomendada.</p>
             <a href="${ctaLink}" class="pg-btn" style="background: #fff; color: #0f172a;">Ver Site Oficial</a>
             ${renderTrustBadge()}
           </div>
@@ -241,17 +260,17 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
     case 'List':
       content = `
         <div class="pg-card">
-          <h1 style="font-size: 2.6rem; text-align: center; margin-bottom: 20px;">Top Produtos para 2026</h1>
-          <p style="text-align: center; color: #64748b; font-size: 1.1rem; margin-bottom: 50px;">Comparativo técnico imparcial baseado em Pureza e Resultados.</p>
+          <h1 style="font-size: 2.6rem; text-align: center; margin-bottom: 20px;">Top Produtos de 2026</h1>
+          <p style="text-align: center; color: #64748b; font-size: 1.1rem; margin-bottom: 50px;">Comparativo técnico baseado em Pureza e Resultados.</p>
           
           <div style="margin-bottom: 60px;">
             <div style="background: #fffbeb; border: 3px solid #fbbf24; padding: 40px; border-radius: 20px; position: relative;">
-              <div style="position: absolute; top: -18px; left: 30px; background: #fbbf24; color: #fff; padding: 8px 25px; border-radius: 30px; font-weight: 900; font-size: 0.8rem;">TOP #1 RECOMENDADO</div>
+              <div style="position: absolute; top: -18px; left: 30px; background: #fbbf24; color: #fff; padding: 8px 25px; border-radius: 30px; font-weight: 900; font-size: 0.8rem;">RECOMENDADO</div>
               <div style="display: flex; gap: 40px; align-items: center; flex-wrap: wrap;">
                 <img src="${primaryImg}" style="width: 180px; height: 180px; object-fit: cover; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                 <div style="flex: 1; min-width: 250px;">
                   <h2 style="margin: 0 0 10px; font-size: 2rem; text-align: left;">${productName}</h2>
-                  <p style="font-size: 1rem; color: #78350f; margin-bottom: 25px;">Vencedor absoluto em absorção e custo-benefício.</p>
+                  <p style="font-size: 1rem; color: #78350f; margin-bottom: 25px;">Vencedor em absorção e custo-benefício.</p>
                   <a href="${ctaLink}" class="pg-btn" style="background: #0f172a; font-size: 1rem; padding: 18px;">Ver Desconto Exclusivo</a>
                 </div>
               </div>
@@ -265,17 +284,19 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
                 <tr style="background: #f8fafc;">
                   <th style="padding: 20px; border-bottom: 1px solid #e2e8f0;">Critério</th>
                   <th style="padding: 20px; border-bottom: 1px solid #e2e8f0; background: #fffbeb; text-align: center;">${productName}</th>
-                  <th style="padding: 20px; border-bottom: 1px solid #e2e8f0; text-align: center;">Média Mercado</th>
+                  <th style="padding: 20px; border-bottom: 1px solid #e2e8f0; text-align: center;">Marcas Comuns</th>
                 </tr>
               </thead>
               <tbody>
-                ${comparisonTable.map(row => `
+                ${comparisonTable.length > 0 ? comparisonTable.map(row => `
                   <tr>
                     <td style="padding: 18px 20px; border-bottom: 1px solid #f1f5f9; font-weight: 700;">${row.feature}</td>
                     <td style="padding: 18px 20px; border-bottom: 1px solid #f1f5f9; background: #fffbeb; color: #166534; font-weight: 700; text-align: center;">${row.product}</td>
                     <td style="padding: 18px 20px; border-bottom: 1px solid #f1f5f9; color: #991b1b; text-align: center;">${row.competitor}</td>
                   </tr>
-                `).join('')}
+                `).join('') : `
+                  <tr><td colspan="3" style="padding: 20px; text-align: center;">Dados em análise...</td></tr>
+                `}
               </tbody>
             </table>
           </div>
@@ -290,7 +311,7 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
         ${content}
     </div>
     <footer class="pg-footer">
-        AVISO: Este site não é afiliado ao Facebook ou Google. Os resultados individuais podem variar.<br>
+        AVISO: Este site não é afiliado ao Facebook ou Google. Resultados podem variar.<br>
         Copyright 2026 ${productName}. Todos os direitos reservados.
     </footer>
   `;

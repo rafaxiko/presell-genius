@@ -29,7 +29,7 @@ export default function PresellGeniusApp() {
         templateType: values.templateType as any,
       });
 
-      setGeneratedData({
+      const newData: PresellData = {
         productName: values.productName,
         headline: result.headline,
         subheadline: result.subheadline,
@@ -44,22 +44,24 @@ export default function PresellGeniusApp() {
         callToAction: result.callToAction,
         buttonColor: values.buttonColor,
         targetUrl: values.targetUrl,
-        productImageUrls: productImageUrls,
+        productImageUrls: productImageUrls, // Use manually uploaded images
         trackingLink: values.trackingLink,
         clarityScript: values.clarityScript,
         templateType: values.templateType as any,
-      });
+      };
+
+      setGeneratedData(newData);
 
       toast({
-        title: "Sucesso!",
-        description: "Página de pré-venda gerada com sucesso.",
+        title: "Página Gerada!",
+        description: "Confira o preview ao lado.",
       });
     } catch (error) {
       console.error(error);
       toast({
         variant: "destructive",
-        title: "Erro na IA",
-        description: "Não foi possível gerar o conteúdo. Tente novamente.",
+        title: "Erro na Geração",
+        description: "A IA encontrou um problema. Verifique sua descrição.",
       });
     } finally {
       setIsGenerating(false);
@@ -82,26 +84,27 @@ export default function PresellGeniusApp() {
   };
 
   const handleDownload = (wrapForElementor: boolean) => {
-    if (!generatedData) return;
+    const dataToUse = generatedData || null; // generatePresellHTML handles null
+    const html = generatePresellHTML(dataToUse, wrapForElementor);
+    
+    if (typeof window !== 'undefined') {
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const fileName = generatedData?.productName ? generatedData.productName.toLowerCase().replace(/\s+/g, '-') : 'minha-presell';
+      const suffix = wrapForElementor ? '-elementor' : '-presell';
+      a.download = `${fileName}${suffix}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-    const html = generatePresellHTML(generatedData, wrapForElementor);
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    const suffix = wrapForElementor ? '-elementor' : '-presell';
-    a.download = `${generatedData.productName.toLowerCase().replace(/\s+/g, '-')}${suffix}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    toast({
-      title: "Download Concluído",
-      description: wrapForElementor 
-        ? "Código pronto para o Elementor." 
-        : "Arquivo HTML salvo com sucesso.",
-    });
+      toast({
+        title: "Download Concluído",
+        description: "Arquivo salvo com sucesso.",
+      });
+    }
   };
 
   if (!isMounted) return null;
@@ -126,17 +129,18 @@ export default function PresellGeniusApp() {
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
             <Rocket className="h-3.5 w-3.5" />
-            SISTEMA DE ALTA CONVERSÃO
+            ESTRATÉGIA VSL 2026
           </div>
           <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded text-[10px] font-bold text-yellow-700 border border-yellow-100">
             <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-            ACESSO PREMIUM
+            PREMIUM
           </div>
         </div>
       </header>
 
       <main className="flex-1 flex overflow-hidden">
-        <aside className="w-[440px] shrink-0 h-full border-r bg-slate-50/20 p-6 overflow-hidden flex flex-col">
+        {/* Sidebar Configuration */}
+        <aside className="w-[440px] shrink-0 h-full border-r bg-slate-50/20 p-6 flex flex-col overflow-hidden">
           <PresellForm 
             onSubmit={handleGenerate} 
             onClear={handleClear}
@@ -146,7 +150,8 @@ export default function PresellGeniusApp() {
           />
         </aside>
 
-        <section className="flex-1 h-full overflow-hidden bg-slate-100/30 flex flex-col">
+        {/* Live Preview Panel */}
+        <section className="flex-1 h-full bg-slate-100/50 flex flex-col overflow-hidden">
           <div className="flex-1 p-6 md:p-8 overflow-auto">
             <PresellPreview 
               data={generatedData} 
