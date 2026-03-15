@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Eye, Code, FileCode, Sparkles } from 'lucide-react';
+import { Download, Eye, Code, FileCode, Monitor, Smartphone, Copy } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { generatePresellHTML, PresellData } from '@/lib/presell-template';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface PresellPreviewProps {
   data: PresellData | null;
@@ -16,6 +17,8 @@ interface PresellPreviewProps {
 
 export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
   const [isClient, setIsClient] = useState(false);
+  const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -25,6 +28,13 @@ export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
   // Memoize HTML generation to avoid unnecessary re-renders
   const html = useMemo(() => {
     return generatePresellHTML(data);
+  }, [data]);
+
+  // Auto-scroll to top when data changes (new generation)
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }, [data]);
 
   const copyToClipboard = () => {
@@ -52,11 +62,11 @@ export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => onDownload(true)} className="gap-2 text-xs h-8">
+          <Button variant="outline" size="sm" onClick={() => onDownload(true)} className="gap-2 text-[10px] h-8">
             <FileCode className="h-4 w-4" />
-            Exportar Elementor
+            Elementor
           </Button>
-          <Button onClick={() => onDownload(false)} className="gap-2 shadow-lg h-8">
+          <Button size="sm" onClick={() => onDownload(false)} className="gap-2 shadow-md h-8 text-[10px] bg-primary hover:bg-primary/90">
             <Download className="h-4 w-4" />
             Baixar HTML
           </Button>
@@ -65,32 +75,63 @@ export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
       
       <Tabs defaultValue="preview" className="flex-1 flex flex-col overflow-hidden">
         <div className="px-6 py-2 bg-white border-b flex justify-between items-center shrink-0">
-          <TabsList className="bg-slate-100 p-1 h-8">
-            <TabsTrigger value="preview" className="data-[state=active]:bg-white text-[10px] px-3">Desktop</TabsTrigger>
-            <TabsTrigger value="code" className="data-[state=active]:bg-white text-[10px] px-3">Código</TabsTrigger>
-          </TabsList>
+          <div className="flex items-center gap-4">
+            <TabsList className="bg-slate-100 p-1 h-8">
+              <TabsTrigger value="preview" className="data-[state=active]:bg-white text-[10px] px-3">Visualizar</TabsTrigger>
+              <TabsTrigger value="code" className="data-[state=active]:bg-white text-[10px] px-3">Código</TabsTrigger>
+            </TabsList>
+            
+            <div className="flex bg-slate-100 p-1 rounded-md h-8">
+              <button 
+                onClick={() => setViewMode('desktop')}
+                className={cn(
+                  "px-2 rounded flex items-center justify-center transition-all",
+                  viewMode === 'desktop' ? "bg-white shadow-sm text-primary" : "text-slate-400 hover:text-slate-600"
+                )}
+                title="Desktop"
+              >
+                <Monitor className="h-4 w-4" />
+              </button>
+              <button 
+                onClick={() => setViewMode('mobile')}
+                className={cn(
+                  "px-2 rounded flex items-center justify-center transition-all",
+                  viewMode === 'mobile' ? "bg-white shadow-sm text-primary" : "text-slate-400 hover:text-slate-600"
+                )}
+                title="Mobile"
+              >
+                <Smartphone className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
           
           <TabsContent value="code" className="m-0">
             <Button variant="ghost" size="sm" onClick={copyToClipboard} className="text-[10px] h-6 gap-1 px-2">
-              <Code className="h-3 w-3" />
-              Copiar Tudo
+              <Copy className="h-3 w-3" />
+              Copiar
             </Button>
           </TabsContent>
         </div>
         
-        <TabsContent value="preview" className="flex-1 m-0 bg-slate-100/30 p-4 md:p-6 overflow-auto">
-          <div className="mx-auto max-w-full lg:max-w-2xl bg-white shadow-xl rounded-2xl overflow-hidden min-h-[1000px] border relative">
+        <TabsContent value="preview" className="flex-1 m-0 bg-slate-100/30 p-4 md:p-8 overflow-auto scroll-smooth" ref={scrollContainerRef}>
+          <div 
+            className={cn(
+              "mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden border relative transition-all duration-300",
+              viewMode === 'desktop' ? "max-w-full lg:max-w-3xl" : "max-w-[375px]"
+            )}
+            style={{ minHeight: viewMode === 'desktop' ? '1200px' : '800px' }}
+          >
             <iframe
               srcDoc={html}
               title="Presell Preview"
-              className="w-full h-full min-h-[1200px] border-none"
+              className="w-full h-full border-none min-h-[1200px]"
               sandbox="allow-scripts"
             />
           </div>
         </TabsContent>
         
         <TabsContent value="code" className="flex-1 m-0 overflow-auto">
-          <div className="p-6 bg-slate-900 text-slate-300 font-mono text-[10px] h-full">
+          <div className="p-6 bg-slate-900 text-slate-300 font-mono text-[11px] h-full">
             <pre className="whitespace-pre-wrap leading-relaxed">
               {html}
             </pre>
