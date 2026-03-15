@@ -80,6 +80,7 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
     .pg-btn { display: block; width: 100%; background: var(--primary); color: #fff; text-align: center; padding: 22px; border-radius: 12px; font-weight: 800; font-size: 1.3rem; text-decoration: none; text-transform: uppercase; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-sizing: border-box; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
     .pg-btn:hover { transform: translateY(-3px); filter: brightness(1.1); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); }
     .pg-img { max-width: 100%; border-radius: 15px; display: block; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .pg-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 40px; }
     .pg-footer { text-align: center; padding: 60px 40px; color: #64748b; font-size: 0.85rem; line-height: 1.8; }
     .pg-badge { background: #f1f5f9; padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 700; color: var(--primary); margin-bottom: 20px; display: inline-block; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid #e2e8f0; }
     h1, h2, h3 { color: #0f172a; font-weight: 800; }
@@ -123,7 +124,15 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
         <div class="pg-card">
           <h1 style="font-size: 2.8rem; line-height: 1.1; margin-bottom: 30px;">${headline}</h1>
           <p style="font-size: 1.2rem; color: #64748b; margin-bottom: 30px;">${subheadline || ''}</p>
-          <img src="${primaryImg}" class="pg-img" style="margin-bottom: 40px;">
+          
+          ${productImageUrls.length > 1 ? `
+            <div class="pg-gallery">
+              ${productImageUrls.map(url => `<img src="${url}" class="pg-img">`).join('')}
+            </div>
+          ` : `
+            <img src="${primaryImg}" class="pg-img" style="margin-bottom: 40px;">
+          `}
+          
           <div style="font-size: 1.15rem; color: #334155; margin-bottom: 40px;">${bodyCopy}</div>
           
           <h2 style="margin: 60px 0 30px; font-size: 1.8rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">Diferenciais do ${productName}</h2>

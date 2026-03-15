@@ -1,17 +1,18 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, ArrowRight, Palette, Link as LinkIcon, ListChecks, RotateCcw, Globe, Activity, Code2, LayoutTemplate, ShoppingBag } from 'lucide-react';
+import { Sparkles, ArrowRight, Palette, Link as LinkIcon, ListChecks, RotateCcw, Globe, Activity, Code2, LayoutTemplate, ShoppingBag, Upload, Trash2, ImageIcon } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   productName: z.string().min(2, 'Informe o nome do produto.'),
@@ -31,6 +32,8 @@ interface PresellFormProps {
   onSubmit: (values: PresellFormValues) => void;
   onClear: () => void;
   isGenerating: boolean;
+  productImageUrls: string[];
+  onUpdateImages: (images: string[]) => void;
 }
 
 const COUNTRIES = [
@@ -43,7 +46,10 @@ const COUNTRIES = [
   "Suécia", "Suíça", "Tailândia", "Taiwan", "Turquia", "Uruguai", "Venezuela", "Vietnã"
 ];
 
-export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProps) {
+export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls, onUpdateImages }: PresellFormProps) {
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const form = useForm<PresellFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -62,6 +68,32 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
   const handleReset = () => {
     form.reset();
     onClear();
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const newImages: string[] = [];
+    Array.from(files).forEach(file => {
+      const url = URL.createObjectURL(file);
+      newImages.push(url);
+    });
+
+    onUpdateImages([...productImageUrls, ...newImages]);
+    
+    toast({
+      title: "Imagens Adicionadas",
+      description: `${newImages.length} imagem(ns) carregada(s).`,
+    });
+    
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeImage = (index: number) => {
+    const updatedImages = [...productImageUrls];
+    updatedImages.splice(index, 1);
+    onUpdateImages(updatedImages);
   };
 
   return (
@@ -148,7 +180,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
                         <LayoutTemplate className="h-3 w-3" />
                         Modelo da Página
                       </FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="h-9 text-sm">
                             <SelectValue placeholder="Escolha o modelo" />
@@ -203,6 +235,55 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
                   </FormItem>
                 )}
               />
+
+              {/* Área de Mídia */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <ImageIcon className="h-3 w-3" />
+                    Mídia do Produto
+                  </FormLabel>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="h-7 text-[10px] gap-1 px-2 border-primary/20 text-primary hover:bg-primary/5"
+                  >
+                    <Upload className="h-3 w-3" />
+                    Fazer Upload (WebP)
+                  </Button>
+                  <input 
+                    type="file" 
+                    multiple 
+                    accept="image/webp,image/png,image/jpeg" 
+                    className="hidden" 
+                    ref={fileInputRef} 
+                    onChange={handleFileUpload}
+                  />
+                </div>
+                
+                {productImageUrls.length > 0 ? (
+                  <div className="grid grid-cols-4 gap-2 bg-slate-50 p-2 rounded-lg border border-dashed">
+                    {productImageUrls.map((url, idx) => (
+                      <div key={idx} className="group relative aspect-square bg-white rounded border overflow-hidden">
+                        <img src={url} alt="Prod" className="w-full h-full object-cover" />
+                        <button 
+                          type="button"
+                          onClick={() => removeImage(idx)}
+                          className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="h-16 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center text-slate-400">
+                    <p className="text-[10px]">Nenhuma imagem enviada.</p>
+                  </div>
+                )}
+              </div>
 
               <FormField
                 control={form.control}

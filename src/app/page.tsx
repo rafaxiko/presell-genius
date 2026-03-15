@@ -12,6 +12,7 @@ import { Toaster } from '@/components/ui/toaster';
 export default function PresellGeniusApp() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedData, setGeneratedData] = useState<PresellData | null>(null);
+  const [productImageUrls, setProductImageUrls] = useState<string[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
 
@@ -28,9 +29,6 @@ export default function PresellGeniusApp() {
         templateType: values.templateType as any,
       });
 
-      // Preserve existing images if any, otherwise start with placeholders or scraped data
-      const currentImages = generatedData?.productImageUrls || [];
-
       setGeneratedData({
         productName: values.productName,
         headline: result.headline,
@@ -46,7 +44,7 @@ export default function PresellGeniusApp() {
         callToAction: result.callToAction,
         buttonColor: values.buttonColor,
         targetUrl: values.targetUrl,
-        productImageUrls: currentImages,
+        productImageUrls: productImageUrls,
         trackingLink: values.trackingLink,
         clarityScript: values.clarityScript,
         templateType: values.templateType as any,
@@ -69,28 +67,18 @@ export default function PresellGeniusApp() {
   };
 
   const handleUpdateImages = (images: string[]) => {
+    setProductImageUrls(images);
     if (generatedData) {
       setGeneratedData({
         ...generatedData,
         productImageUrls: images,
-      });
-    } else {
-      // Allow uploading images even before generating first copy
-      setGeneratedData({
-        productName: 'Novo Produto',
-        headline: 'Seu Headline Aparecerá Aqui',
-        bodyCopy: 'Sua copy será gerada pela IA.',
-        callToAction: 'Comprar Agora',
-        buttonColor: '#2952A3',
-        targetUrl: '#',
-        productImageUrls: images,
-        templateType: 'Robust',
       });
     }
   };
 
   const handleClear = () => {
     setGeneratedData(null);
+    setProductImageUrls([]);
   };
 
   const handleDownload = (wrapForElementor: boolean) => {
@@ -132,13 +120,13 @@ export default function PresellGeniusApp() {
           </span>
           <div className="ml-4 hidden sm:flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 border border-slate-200">
             <Globe className="h-3 w-3 text-primary" />
-            AI GLOBAL ENGINE
+            IA GLOBAL ATIVA
           </div>
         </div>
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
             <Rocket className="h-3.5 w-3.5" />
-            Sistema Ativo v4.0
+            SISTEMA DE ALTA CONVERSÃO
           </div>
           <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded text-[10px] font-bold text-yellow-700 border border-yellow-100">
             <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
@@ -148,16 +136,16 @@ export default function PresellGeniusApp() {
       </header>
 
       <main className="flex-1 flex overflow-hidden">
-        {/* Lado Esquerdo: Configuração */}
         <aside className="w-[440px] shrink-0 h-full border-r bg-slate-50/20 p-6 overflow-hidden flex flex-col">
           <PresellForm 
             onSubmit={handleGenerate} 
             onClear={handleClear}
-            isGenerating={isGenerating} 
+            isGenerating={isGenerating}
+            productImageUrls={productImageUrls}
+            onUpdateImages={handleUpdateImages}
           />
         </aside>
 
-        {/* Lado Direito: Preview */}
         <section className="flex-1 h-full overflow-hidden bg-slate-100/30 flex flex-col">
           <div className="flex-1 p-6 md:p-8 overflow-auto">
             <PresellPreview 
