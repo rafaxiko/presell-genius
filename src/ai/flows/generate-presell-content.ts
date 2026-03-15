@@ -1,7 +1,7 @@
 'use server';
 /**
- * @fileOverview Fluxo Genkit para gerar conteúdo de pré-venda.
- * Focado em consistência linguística absoluta baseada no país de destino.
+ * @fileOverview Genkit flow to generate high-conversion presell content.
+ * Features strict language enforcement based on target country.
  */
 
 import {ai} from '@/ai/genkit';
@@ -10,11 +10,11 @@ import {z} from 'genkit';
 const GeneratePresellContentInputSchema = z.object({
   salesPageDescription: z
     .string()
-    .describe('Descrição detalhada do produto ou serviço.'),
+    .describe('Detailed description of the product or service.'),
   targetLanguage: z
     .string()
-    .describe('O país de destino (ex: Brasil, Estados Unidos, Espanha).'),
-  templateType: z.enum(['Launch', 'Robust', 'Review', 'List']).describe('O tipo de estratégia de conversão.'),
+    .describe('The target country (e.g., Brazil, USA, Spain).'),
+  templateType: z.enum(['Launch', 'Robust', 'Review', 'List']).describe('The conversion strategy style.'),
 });
 export type GeneratePresellContentInput = z.infer<
   typeof GeneratePresellContentInputSchema
@@ -28,21 +28,21 @@ const PricingOptionSchema = z.object({
 });
 
 const GeneratePresellContentOutputSchema = z.object({
-  headline: z.string().describe('Headline magnética.'),
-  subheadline: z.string().describe('Texto de apoio persuasivo.'),
-  bodyCopy: z.string().describe('Corpo do texto focado em aquecimento.'),
-  benefits: z.array(z.string()).describe('Benefícios principais.'),
-  ingredients: z.array(z.string()).optional().describe('Ingredientes ou componentes.'),
+  headline: z.string().describe('Magnetic headline.'),
+  subheadline: z.string().describe('Persuasive supporting text.'),
+  bodyCopy: z.string().describe('Body copy focused on warming up the audience.'),
+  benefits: z.array(z.string()).describe('Key benefits.'),
+  ingredients: z.array(z.string()).optional().describe('Ingredients or components.'),
   faqs: z.array(z.object({ q: z.string(), a: z.string() })).optional().describe('FAQs.'),
-  pros: z.array(z.string()).optional().describe('Pontos positivos (para Review).'),
-  cons: z.array(z.string()).optional().describe('Pontos negativos (para Review).'),
+  pros: z.array(z.string()).optional().describe('Positive points (for Review).'),
+  cons: z.array(z.string()).optional().describe('Points of concern (for Review).'),
   comparisonTable: z.array(z.object({ 
     feature: z.string(), 
     product: z.string(), 
     competitor: z.string() 
-  })).optional().describe('Dados comparativos (para Lista).'),
-  callToAction: z.string().describe('Texto do botão.'),
-  pricing: z.array(PricingOptionSchema).optional().describe('Opções de preço.'),
+  })).optional().describe('Comparative data (for List).'),
+  callToAction: z.string().describe('Button text.'),
+  pricing: z.array(PricingOptionSchema).optional().describe('Pricing packages.'),
 });
 export type GeneratePresellContentOutput = z.infer<
   typeof GeneratePresellContentOutputSchema
@@ -60,17 +60,21 @@ const prompt = ai.definePrompt({
   output: {schema: GeneratePresellContentOutputSchema},
   prompt: `Você é um Copywriter de elite focado em tráfego direto para o país: {{{targetLanguage}}}.
 
-INSTRUÇÃO DE IDIOMA CRÍTICA:
-- Se o país for "Estados Unidos", gere TODO o conteúdo estritamente em INGLÊS.
-- Se o país for "Brasil" ou "Portugal", gere TODO o conteúdo em PORTUGUÊS.
-- Se o país for "Espanha" ou "México", gere TODO o conteúdo em ESPANHOL.
-- NÃO misture idiomas. Use gírias e gatilhos mentais locais do país {{{targetLanguage}}}.
+INSTRUÇÃO DE IDIOMA CRÍTICA (NÃO MISTURE IDIOMAS):
+- Se o país for "Estados Unidos", "Canadá" ou "Reino Unido", gere TODO o conteúdo estritamente em INGLÊS.
+- Se o país for "Brasil" ou "Portugal", gere TODO o conteúdo estritamente em PORTUGUÊS.
+- Se o país for "Espanha" ou "México", gere TODO o conteúdo estritamente em ESPANHOL.
+- Se o país for "França", gere TODO o conteúdo estritamente em FRANCÊS.
+- Se o país for "Alemanha", gere TODO o conteúdo estritamente em ALEMÃO.
+- Se o país for "Itália", gere TODO o conteúdo estritamente em ITALIANO.
+
+NÃO use termos de um idioma em outro. Use gírias e gatilhos mentais locais do país {{{targetLanguage}}}.
 
 ESTRATÉGIA DO TEMPLATE:
-- Launch: Curiosidade, escassez e tom de "oportunidade única".
-- Robust: Foco em autoridade, provas, ingredientes e oferta de pacotes.
-- Review: Tom jornalístico, sincero, analisando se o produto realmente funciona.
-- List: Comparativo onde este produto é o vencedor absoluto.
+- Lançamento (Launch): Curiosidade, escassez e tom de "oportunidade única".
+- Robusta (Robust): Foco em autoridade, provas, ingredientes e oferta de pacotes.
+- Review: Tom editorial, analisando sinceramente os prós e contras.
+- Lista (List): Comparativo oficial onde este produto vence marcas comuns.
 
 Descrição do Produto:
 {{{salesPageDescription}}}`,

@@ -35,7 +35,16 @@ interface PresellFormProps {
 }
 
 const COUNTRIES = [
-  "Alemanha", "Brasil", "Espanha", "Estados Unidos", "França", "Itália", "México", "Portugal", "Reino Unido"
+  "Alemanha", 
+  "Brasil", 
+  "Canadá", 
+  "Espanha", 
+  "Estados Unidos", 
+  "França", 
+  "Itália", 
+  "México", 
+  "Portugal", 
+  "Reino Unido"
 ];
 
 export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProps) {

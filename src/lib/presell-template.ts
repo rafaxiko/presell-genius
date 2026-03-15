@@ -39,8 +39,6 @@ export type PresellData = {
 
 /**
  * Generates the full HTML for the presell page.
- * @param data The data to populate the template.
- * @param wrapForElementor Whether to wrap the output in a clean div for Elementor compatibility.
  */
 export function generatePresellHTML(data: PresellData, wrapForElementor = false): string {
   const { 
@@ -74,26 +72,30 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
       --bg: #f8fafc; 
       --card-bg: #ffffff;
       --radius: 20px;
-      --shadow: 0 10px 40px -10px rgba(0,0,0,0.1);
+      --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
-    .pg-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.6; }
+    .pg-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.6; -webkit-font-smoothing: antialiased; }
     .pg-container { max-width: 800px; margin: 0 auto; padding: 60px 20px; box-sizing: border-box; }
-    .pg-card { background: var(--card-bg); border-radius: var(--radius); padding: 40px; border: 1px solid #f1f5f9; box-shadow: var(--shadow); margin-bottom: 40px; }
-    .pg-btn { display: block; width: 100%; background: var(--primary); color: #fff; text-align: center; padding: 22px; border-radius: 12px; font-weight: 800; font-size: 1.3rem; text-decoration: none; text-transform: uppercase; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-sizing: border-box; }
-    .pg-btn:hover { transform: translateY(-3px); filter: brightness(1.1); box-shadow: 0 20px 30px -10px rgba(0,0,0,0.25); }
-    .pg-img { max-width: 100%; border-radius: 15px; display: block; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-    .pg-footer { text-align: center; padding: 60px 40px; color: #94a3b8; font-size: 0.85rem; line-height: 1.8; }
+    .pg-card { background: var(--card-bg); border-radius: var(--radius); padding: 40px; border: 1px solid #e2e8f0; box-shadow: var(--shadow); margin-bottom: 40px; }
+    .pg-btn { display: block; width: 100%; background: var(--primary); color: #fff; text-align: center; padding: 22px; border-radius: 12px; font-weight: 800; font-size: 1.3rem; text-decoration: none; text-transform: uppercase; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-sizing: border-box; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    .pg-btn:hover { transform: translateY(-3px); filter: brightness(1.1); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); }
+    .pg-img { max-width: 100%; border-radius: 15px; display: block; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .pg-footer { text-align: center; padding: 60px 40px; color: #64748b; font-size: 0.85rem; line-height: 1.8; }
     .pg-badge { background: #f1f5f9; padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 700; color: var(--primary); margin-bottom: 20px; display: inline-block; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid #e2e8f0; }
     h1, h2, h3 { color: #0f172a; font-weight: 800; }
+    @media (max-width: 640px) {
+      .pg-card { padding: 25px; }
+      h1 { font-size: 2rem !important; }
+    }
   `;
 
-  let specificContent = '';
+  let content = '';
 
   switch (templateType) {
     case 'Launch':
-      specificContent = `
+      content = `
         <div class="pg-card" style="text-align: center;">
-          <div class="pg-badge">Acesso Exclusivo Liberado</div>
+          <div class="pg-badge">Acesso Exclusivo</div>
           <h1 style="font-size: 3rem; letter-spacing: -2px; margin: 0 0 20px; line-height: 1.1;">${headline}</h1>
           <p style="font-size: 1.3rem; color: #64748b; margin-bottom: 40px;">${subheadline || ''}</p>
           <div style="background: #0f172a; color: #fff; padding: 30px; border-radius: 15px; margin-bottom: 40px; display: inline-block; min-width: 200px;">
@@ -108,7 +110,8 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
           let pg_time = 594;
           setInterval(() => {
             let m = Math.floor(pg_time/60); let s = pg_time%60;
-            document.getElementById('pg-timer').innerText = (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+            const el = document.getElementById('pg-timer');
+            if(el) el.innerText = (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
             if(pg_time > 0) pg_time--;
           }, 1000);
         </script>
@@ -116,7 +119,7 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
       break;
 
     case 'Robust':
-      specificContent = `
+      content = `
         <div class="pg-card">
           <h1 style="font-size: 2.8rem; line-height: 1.1; margin-bottom: 30px;">${headline}</h1>
           <p style="font-size: 1.2rem; color: #64748b; margin-bottom: 30px;">${subheadline || ''}</p>
@@ -127,7 +130,7 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
           <div style="display: grid; gap: 20px;">
             ${benefits.map(b => `
               <div style="display: flex; gap: 15px; align-items: start; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                <div style="color: var(--primary); font-size: 1.5rem;">✓</div>
+                <div style="color: var(--primary); font-size: 1.5rem; line-height: 1;">✓</div>
                 <div style="font-weight: 600; font-size: 1.1rem;">${b}</div>
               </div>
             `).join('')}
@@ -160,7 +163,7 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
 
         ${faqs.length ? `
           <div class="pg-card">
-            <h2 style="margin-bottom: 30px;">Dúvidas Frequentes</h2>
+            <h2 style="margin-bottom: 30px;">Perguntas Frequentes</h2>
             ${faqs.map(f => `
               <details style="margin-bottom: 10px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px 20px; cursor: pointer;">
                 <summary style="font-weight: 700; font-size: 1rem;">${f.q}</summary>
@@ -173,13 +176,13 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
       break;
 
     case 'Review':
-      specificContent = `
+      content = `
         <div class="pg-card">
           <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 30px;">
             <div style="width: 44px; height: 44px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #64748b;">SH</div>
             <div>
-              <div style="font-weight: 700; font-size: 0.95rem;">Portal Saúde & Bem-Estar</div>
-              <div style="font-size: 0.75rem; color: #94a3b8;">Atualizado há 15 minutos • 7 min de leitura</div>
+              <div style="font-weight: 700; font-size: 0.95rem;">Portal de Saúde</div>
+              <div style="font-size: 0.75rem; color: #94a3b8;">Verificado • 5 min de leitura</div>
             </div>
           </div>
           <h1 style="font-size: 2.6rem; margin-bottom: 20px;">${headline}</h1>
@@ -189,13 +192,13 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
           
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin: 50px 0;">
             <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 30px; border-radius: 15px;">
-              <h4 style="color: #166534; margin: 0 0 20px; font-weight: 800; font-size: 1.1rem;">PONTOS POSITIVOS</h4>
+              <h4 style="color: #166534; margin: 0 0 20px; font-weight: 800; font-size: 1.1rem;">VANTAGENS</h4>
               <ul style="padding-left: 20px; font-size: 0.95rem; color: #166534; list-style-type: '✓ ';">
                 ${pros.map(p => `<li style="margin-bottom: 10px;">${p}</li>`).join('')}
               </ul>
             </div>
             <div style="background: #fff1f2; border: 1px solid #fecdd3; padding: 30px; border-radius: 15px;">
-              <h4 style="color: #991b1b; margin: 0 0 20px; font-weight: 800; font-size: 1.1rem;">PONTOS DE ATENÇÃO</h4>
+              <h4 style="color: #991b1b; margin: 0 0 20px; font-weight: 800; font-size: 1.1rem;">DESVANTAGENS</h4>
               <ul style="padding-left: 20px; font-size: 0.95rem; color: #991b1b; list-style-type: '⚠ ';">
                 ${cons.map(c => `<li style="margin-bottom: 10px;">${c}</li>`).join('')}
               </ul>
@@ -203,54 +206,52 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
           </div>
 
           <div style="background: #0f172a; padding: 40px; border-radius: 15px; color: #fff; text-align: center;">
-            <h3 style="color: #fff; margin-top: 0; font-size: 1.8rem;">Nosso Veredito</h3>
-            <p style="color: #94a3b8; margin-bottom: 30px;">Com base em testes e relatos, o ${productName} é a solução mais eficaz atualmente no mercado.</p>
-            <a href="${ctaLink}" class="pg-btn" style="background: #fff; color: #0f172a;">Verificar Disponibilidade</a>
+            <h3 style="color: #fff; margin-top: 0; font-size: 1.8rem;">Conclusão</h3>
+            <p style="color: #94a3b8; margin-bottom: 30px;">O ${productName} demonstrou ser a melhor escolha técnica após nossa análise rigorosa.</p>
+            <a href="${ctaLink}" class="pg-btn" style="background: #fff; color: #0f172a;">Ver Site Oficial</a>
           </div>
         </div>
       `;
       break;
 
     case 'List':
-      specificContent = `
+      content = `
         <div class="pg-card">
-          <h1 style="font-size: 2.6rem; text-align: center; margin-bottom: 20px;">Top 3: Melhores Produtos de 2026</h1>
-          <p style="text-align: center; color: #64748b; font-size: 1.1rem; margin-bottom: 50px;">Analisamos pureza, preço e resultados de mais de 12 marcas.</p>
+          <h1 style="font-size: 2.6rem; text-align: center; margin-bottom: 20px;">Melhores Produtos de 2026</h1>
+          <p style="text-align: center; color: #64748b; font-size: 1.1rem; margin-bottom: 50px;">Comparativo técnico baseado em eficácia e custo-benefício.</p>
           
           <div style="margin-bottom: 60px;">
             <div style="background: #fffbeb; border: 3px solid #fbbf24; padding: 40px; border-radius: 20px; position: relative;">
-              <div style="position: absolute; top: -18px; left: 30px; background: #fbbf24; color: #fff; padding: 8px 25px; border-radius: 30px; font-weight: 900; font-size: 0.8rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">🏆 #1 RECOMENDADO</div>
+              <div style="position: absolute; top: -18px; left: 30px; background: #fbbf24; color: #fff; padding: 8px 25px; border-radius: 30px; font-weight: 900; font-size: 0.8rem;">RECOMENDADO</div>
               <div style="display: flex; gap: 40px; align-items: center; flex-wrap: wrap;">
-                <img src="${primaryImg}" style="width: 180px; height: 180px; object-fit: cover; border-radius: 15px; background: #fff;">
+                <img src="${primaryImg}" style="width: 180px; height: 180px; object-fit: cover; border-radius: 15px;">
                 <div style="flex: 1; min-width: 250px;">
                   <h2 style="margin: 0 0 10px; font-size: 2rem;">${productName}</h2>
-                  <p style="font-size: 1rem; color: #78350f; margin-bottom: 25px; line-height: 1.5;">Vencedor absoluto em eficácia e satisfação do cliente.</p>
+                  <p style="font-size: 1rem; color: #78350f; margin-bottom: 25px;">Considerado o mais completo por especialistas internacionais.</p>
                   <a href="${ctaLink}" class="pg-btn" style="background: #0f172a; font-size: 1rem; padding: 18px;">Visitar Site Oficial</a>
                 </div>
               </div>
             </div>
           </div>
 
-          <h3 style="margin-bottom: 25px; font-size: 1.5rem;">Tabela Comparativa Oficial</h3>
+          <h3 style="margin-bottom: 25px; font-size: 1.5rem;">Comparativo</h3>
           <div style="overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 12px;">
             <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem;">
               <thead>
                 <tr style="background: #f8fafc;">
-                  <th style="padding: 20px; border-bottom: 1px solid #e2e8f0;">Critério de Análise</th>
+                  <th style="padding: 20px; border-bottom: 1px solid #e2e8f0;">Fator</th>
                   <th style="padding: 20px; border-bottom: 1px solid #e2e8f0; background: #fffbeb;">${productName}</th>
-                  <th style="padding: 20px; border-bottom: 1px solid #e2e8f0;">Marcas Comuns</th>
+                  <th style="padding: 20px; border-bottom: 1px solid #e2e8f0;">Outros</th>
                 </tr>
               </thead>
               <tbody>
-                ${comparisonTable.length ? comparisonTable.map(row => `
+                ${comparisonTable.map(row => `
                   <tr>
                     <td style="padding: 18px 20px; border-bottom: 1px solid #f1f5f9; font-weight: 700;">${row.feature}</td>
-                    <td style="padding: 18px 20px; border-bottom: 1px solid #f1f5f9; background: #fffbeb; color: #166534; font-weight: 700;">✓ ${row.product}</td>
-                    <td style="padding: 18px 20px; border-bottom: 1px solid #f1f5f9; color: #991b1b; font-weight: 500;">✕ ${row.competitor}</td>
+                    <td style="padding: 18px 20px; border-bottom: 1px solid #f1f5f9; background: #fffbeb; color: #166534; font-weight: 700;">${row.product}</td>
+                    <td style="padding: 18px 20px; border-bottom: 1px solid #f1f5f9; color: #991b1b;">${row.competitor}</td>
                   </tr>
-                `).join('') : `
-                  <tr><td colspan="3" style="padding: 20px; text-align: center;">Processando comparativo...</td></tr>
-                `}
+                `).join('')}
               </tbody>
             </table>
           </div>
@@ -261,17 +262,17 @@ export function generatePresellHTML(data: PresellData, wrapForElementor = false)
 
   const finalHTML = `
     <div class="pg-container">
-        ${specificContent}
+        ${content}
     </div>
     <footer class="pg-footer">
-        AVISO LEGAL: Este site não é afiliado ao Google, Facebook ou qualquer plataforma de anúncios mencionada. Os resultados citados podem variar de pessoa para pessoa.<br><br>
+        AVISO: Este site não é afiliado a plataformas de anúncios. Os resultados podem variar.<br>
         Copyright 2026 ${productName}. Todos os direitos reservados.
     </footer>
   `;
 
   if (wrapForElementor) {
     return `
-<div id="pg-elementor-wrapper" class="pg-body">
+<div id="pg-wrapper" class="pg-body">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
   <style>${commonStyles}</style>
   ${finalHTML}
