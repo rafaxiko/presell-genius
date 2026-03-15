@@ -9,18 +9,21 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, ArrowRight, Palette, Link as LinkIcon, ListChecks, RotateCcw, Image as ImageIcon, Globe } from 'lucide-react';
+import { Sparkles, ArrowRight, Palette, Link as LinkIcon, ListChecks, RotateCcw, ImageIcon, Globe, Activity, Code2, LayoutTemplate, ShoppingBag } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formSchema = z.object({
-  salesPageDescription: z.string().min(10, 'Por favor, forneça mais detalhes sobre o produto.'),
-  keySellingPoints: z.string().min(5, 'Pelo menos um ponto forte de venda é necessário.'),
-  targetLanguage: z.string().min(1, 'Selecione um idioma de destino.'),
-  buttonColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Deve ser uma cor hexadecimal válida.'),
-  targetUrl: z.string().url('Por favor, insira uma URL válida.'),
-  officialProductUrl: z.string().url('Por favor, insira uma URL válida.').optional().or(z.literal('')),
-  productImageUrl: z.string().url('Por favor, insira uma URL de imagem válida.').optional().or(z.literal('')),
+  productName: z.string().min(2, 'Informe o nome do produto.'),
+  salesPageDescription: z.string().min(20, 'Forneça uma descrição detalhada para a IA extrair os benefícios.'),
+  officialProductUrl: z.string().url('A URL da página oficial é obrigatória.'),
+  targetLanguage: z.string().min(1, 'Selecione um idioma.'),
+  templateType: z.enum(['Launch', 'Robust', 'Review', 'List']),
+  buttonColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Cor hexadecimal inválida.'),
+  targetUrl: z.string().url('Seu link de afiliado é obrigatório.'),
+  productImageUrl: z.string().optional().or(z.literal('')),
+  trackingLink: z.string().optional().or(z.literal('')),
+  clarityScript: z.string().optional().or(z.literal('')),
 });
 
 export type PresellFormValues = z.infer<typeof formSchema>;
@@ -35,13 +38,16 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
   const form = useForm<PresellFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      productName: '',
       salesPageDescription: '',
-      keySellingPoints: '',
+      officialProductUrl: '',
       targetLanguage: 'Português (Brasil)',
+      templateType: 'Robust',
       buttonColor: '#2952A3',
       targetUrl: 'https://seulink.com/checkout',
-      officialProductUrl: '',
       productImageUrl: '',
+      trackingLink: '',
+      clarityScript: '',
     },
   });
 
@@ -70,7 +76,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
           </Button>
         </div>
         <CardDescription className="text-xs">
-          Defina os detalhes da sua oferta para que a IA crie sua página de alta conversão.
+          Preencha os dados obrigatórios para gerar sua página de alta conversão.
         </CardDescription>
       </CardHeader>
       
@@ -82,25 +88,70 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
+                  name="productName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <ShoppingBag className="h-3 w-3" />
+                        Nome do Produto
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ex: SlimCaps" className="h-9 text-sm" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="targetLanguage"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                         <Globe className="h-3 w-3" />
-                        Idioma / Mercado
+                        Idioma Alvo
                       </FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger className="h-9 text-sm">
-                            <SelectValue placeholder="Selecione o idioma" />
+                            <SelectValue placeholder="Idioma" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="Português (Brasil)">Brasil 🇧🇷</SelectItem>
-                          <SelectItem value="English (USA)">Estados Unidos 🇺🇸</SelectItem>
+                          <SelectItem value="English (USA)">USA 🇺🇸</SelectItem>
                           <SelectItem value="Spanish (Spain)">Espanha 🇪🇸</SelectItem>
                           <SelectItem value="English (Global)">Global 🌍</SelectItem>
-                          <SelectItem value="French (France)">França 🇫🇷</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="templateType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <LayoutTemplate className="h-3 w-3" />
+                        Tipo de Template
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-9 text-sm">
+                            <SelectValue placeholder="Template" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Launch">Lançamento (Launch)</SelectItem>
+                          <SelectItem value="Robust">Robusto (Conversão)</SelectItem>
+                          <SelectItem value="Review">Análise (Review)</SelectItem>
+                          <SelectItem value="List">Lista (Listicle)</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -119,16 +170,8 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
                       </FormLabel>
                       <FormControl>
                         <div className="flex gap-2">
-                          <Input 
-                            type="color" 
-                            className="w-9 h-9 p-1 cursor-pointer rounded-md shrink-0 border-none bg-transparent"
-                            {...field} 
-                          />
-                          <Input 
-                            className="h-9 font-mono text-xs"
-                            placeholder="#2952A3"
-                            {...field} 
-                          />
+                          <Input type="color" className="w-9 h-9 p-1 rounded shrink-0" {...field} />
+                          <Input className="h-9 font-mono text-xs" placeholder="#2952A3" {...field} />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -139,19 +182,15 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
 
               <FormField
                 control={form.control}
-                name="salesPageDescription"
+                name="officialProductUrl"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      <ListChecks className="h-3 w-3" />
-                      O que você está vendendo?
+                      <LinkIcon className="h-3 w-3 text-primary" />
+                      URL da Página Oficial *
                     </FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Descreva o produto, para quem ele serve e qual problema ele resolve..." 
-                        className="min-h-[100px] resize-none text-sm"
-                        {...field} 
-                      />
+                      <Input placeholder="https://produto.com" className="h-9 text-sm" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -160,16 +199,20 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
 
               <FormField
                 control={form.control}
-                name="keySellingPoints"
+                name="salesPageDescription"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Benefícios & Gatilhos</FormLabel>
+                    <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <ListChecks className="h-3 w-3" />
+                      Descrição Completa do Produto
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: Garantia de 30 dias, Desconto exclusivo hoje..." className="h-9 text-sm" {...field} />
+                      <Textarea 
+                        placeholder="Cole aqui o texto da página de vendas ou detalhes do produto. A IA usará isso para criar os benefícios e gatilhos." 
+                        className="min-h-[120px] resize-none text-sm"
+                        {...field} 
+                      />
                     </FormControl>
-                    <FormDescription className="text-[10px]">
-                      Destaque os principais diferenciais. Separe por vírgulas.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -194,43 +237,61 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
 
               <FormField
                 control={form.control}
-                name="officialProductUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      <LinkIcon className="h-3 w-3" />
-                      URL da Página Oficial (Opcional)
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://produtooficial.com" className="h-9 text-sm" {...field} />
-                    </FormControl>
-                    <FormDescription className="text-[10px]">
-                      Para a IA tentar alinhar com a identidade visual da marca.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name="productImageUrl"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       <ImageIcon className="h-3 w-3" />
-                      URL da Imagem do Produto
+                      URLs das Imagens (Separe por vírgula)
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="https://linkdaimagem.jpg" className="h-9 text-sm" {...field} />
+                      <Input placeholder="https://img1.jpg, https://img2.png" className="h-9 text-sm" {...field} />
                     </FormControl>
-                    <FormDescription className="text-[10px]">
-                      URL direta da imagem (JPG, PNG, WEBP).
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              <div className="pt-4 space-y-4 border-t">
+                <h4 className="text-[10px] font-bold uppercase tracking-widest text-primary/70">Scripts & Rastreamento</h4>
+                <FormField
+                  control={form.control}
+                  name="trackingLink"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <Activity className="h-3 w-3" />
+                        Link de Rastreamento (Opcional)
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://track.com/..." className="h-9 text-sm" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="clarityScript"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <Code2 className="h-3 w-3" />
+                        Microsoft Clarity Script
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Cole aqui o código de rastreio do Clarity..." 
+                          className="min-h-[80px] font-mono text-[10px] resize-none"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
           </ScrollArea>
 

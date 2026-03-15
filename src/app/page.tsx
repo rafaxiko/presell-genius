@@ -5,7 +5,7 @@ import { PresellForm, PresellFormValues } from '@/components/PresellForm';
 import { PresellPreview } from '@/components/PresellPreview';
 import { generatePresellContent } from '@/ai/flows/generate-presell-content';
 import { PresellData } from '@/lib/presell-template';
-import { Zap, Rocket, LayoutDashboard, Star } from 'lucide-react';
+import { Zap, Rocket, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generatePresellHTML } from '@/lib/presell-template';
 import { Toaster } from '@/components/ui/toaster';
@@ -23,33 +23,39 @@ export default function PresellGeniusApp() {
   const handleGenerate = async (values: PresellFormValues) => {
     setIsGenerating(true);
     try {
-      const keyPoints = values.keySellingPoints.split(',').map(s => s.trim()).filter(Boolean);
-      
       const result = await generatePresellContent({
         salesPageDescription: values.salesPageDescription,
-        keySellingPoints: keyPoints,
         targetLanguage: values.targetLanguage,
+        templateType: values.templateType,
       });
 
+      const imageUrls = values.productImageUrl 
+        ? values.productImageUrl.split(',').map(u => u.trim()).filter(Boolean)
+        : [];
+
       setGeneratedData({
+        productName: values.productName,
         headline: result.headline,
         bodyCopy: result.bodyCopy,
         callToAction: result.callToAction,
         buttonColor: values.buttonColor,
         targetUrl: values.targetUrl,
-        productImageUrl: values.productImageUrl || undefined,
+        productImageUrls: imageUrls,
+        trackingLink: values.trackingLink,
+        clarityScript: values.clarityScript,
+        templateType: values.templateType,
       });
 
       toast({
         title: "Sucesso!",
-        description: "Sua página de pré-venda foi gerada com sucesso.",
+        description: "Página gerada com alta conversão.",
       });
     } catch (error) {
       console.error(error);
       toast({
         variant: "destructive",
-        title: "Falha na Geração",
-        description: "Não foi possível gerar a copy. Tente novamente.",
+        title: "Erro na Geração",
+        description: "Falha ao processar os dados com a IA.",
       });
     } finally {
       setIsGenerating(false);
@@ -68,7 +74,7 @@ export default function PresellGeniusApp() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'presell-genius.html';
+    a.download = `${generatedData.productName.toLowerCase().replace(/\s+/g, '-')}-presell.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -76,7 +82,7 @@ export default function PresellGeniusApp() {
 
     toast({
       title: "Download Concluído",
-      description: "Arquivo pronto para uso em sua estrutura.",
+      description: "Página salva com sucesso.",
     });
   };
 
@@ -102,13 +108,13 @@ export default function PresellGeniusApp() {
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
             <Rocket className="h-3 w-3" />
-            IA Engine V2.5 Ativa
+            IA Engine v3.0 Ativa
           </div>
         </div>
       </header>
 
       <main className="flex-1 flex overflow-hidden">
-        {/* Coluna de Configuração - LADO ESQUERDO */}
+        {/* Coluna de Configuração */}
         <aside className="w-[450px] shrink-0 h-full border-r bg-slate-50/50 p-6 overflow-hidden flex flex-col">
           <PresellForm 
             onSubmit={handleGenerate} 
@@ -117,7 +123,7 @@ export default function PresellGeniusApp() {
           />
         </aside>
 
-        {/* Painel de Preview - LADO DIREITO */}
+        {/* Painel de Preview */}
         <section className="flex-1 h-full overflow-hidden bg-slate-100 flex flex-col">
           <div className="flex-1 p-8 overflow-auto">
             <PresellPreview data={generatedData} onDownload={handleDownload} />
