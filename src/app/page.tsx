@@ -28,9 +28,8 @@ export default function PresellGeniusApp() {
         templateType: values.templateType as any,
       });
 
-      const imageUrls = values.productImageUrl 
-        ? values.productImageUrl.split(',').map(u => u.trim()).filter(Boolean)
-        : [];
+      // Preserve existing images if any, otherwise start with placeholders or scraped data
+      const currentImages = generatedData?.productImageUrls || [];
 
       setGeneratedData({
         productName: values.productName,
@@ -47,7 +46,7 @@ export default function PresellGeniusApp() {
         callToAction: result.callToAction,
         buttonColor: values.buttonColor,
         targetUrl: values.targetUrl,
-        productImageUrls: imageUrls,
+        productImageUrls: currentImages,
         trackingLink: values.trackingLink,
         clarityScript: values.clarityScript,
         templateType: values.templateType as any,
@@ -66,6 +65,27 @@ export default function PresellGeniusApp() {
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleUpdateImages = (images: string[]) => {
+    if (generatedData) {
+      setGeneratedData({
+        ...generatedData,
+        productImageUrls: images,
+      });
+    } else {
+      // Allow uploading images even before generating first copy
+      setGeneratedData({
+        productName: 'Novo Produto',
+        headline: 'Seu Headline Aparecerá Aqui',
+        bodyCopy: 'Sua copy será gerada pela IA.',
+        callToAction: 'Comprar Agora',
+        buttonColor: '#2952A3',
+        targetUrl: '#',
+        productImageUrls: images,
+        templateType: 'Robust',
+      });
     }
   };
 
@@ -110,7 +130,7 @@ export default function PresellGeniusApp() {
           <span className="text-lg font-bold tracking-tight">
             Presell <span className="text-primary">Genius</span>
           </span>
-          <div className="ml-4 flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 border border-slate-200">
+          <div className="ml-4 hidden sm:flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 border border-slate-200">
             <Globe className="h-3 w-3 text-primary" />
             AI GLOBAL ENGINE
           </div>
@@ -118,7 +138,7 @@ export default function PresellGeniusApp() {
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
             <Rocket className="h-3.5 w-3.5" />
-            Sistema Ativo v3.5
+            Sistema Ativo v4.0
           </div>
           <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded text-[10px] font-bold text-yellow-700 border border-yellow-100">
             <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
@@ -140,7 +160,11 @@ export default function PresellGeniusApp() {
         {/* Lado Direito: Preview */}
         <section className="flex-1 h-full overflow-hidden bg-slate-100/30 flex flex-col">
           <div className="flex-1 p-6 md:p-8 overflow-auto">
-            <PresellPreview data={generatedData} onDownload={handleDownload} />
+            <PresellPreview 
+              data={generatedData} 
+              onDownload={handleDownload} 
+              onUpdateImages={handleUpdateImages}
+            />
           </div>
         </section>
       </main>

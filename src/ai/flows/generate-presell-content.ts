@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview Genkit flow to generate high-conversion presell content.
- * Features strict language enforcement based on target country.
+ * Strict language enforcement based on target country.
  */
 
 import {ai} from '@/ai/genkit';
@@ -58,17 +58,20 @@ const prompt = ai.definePrompt({
   name: 'generatePresellContentPrompt',
   input: {schema: GeneratePresellContentInputSchema},
   output: {schema: GeneratePresellContentOutputSchema},
-  prompt: `Você é um Copywriter de elite focado em tráfego direto para o país: {{{targetLanguage}}}.
+  prompt: `Você é um Copywriter de elite focado em tráfego direto para o país selecionado.
 
-INSTRUÇÃO DE IDIOMA CRÍTICA (NÃO MISTURE IDIOMAS):
-- Se o país for "Estados Unidos", "Canadá" ou "Reino Unido", gere TODO o conteúdo estritamente em INGLÊS.
-- Se o país for "Brasil" ou "Portugal", gere TODO o conteúdo estritamente em PORTUGUÊS.
-- Se o país for "Espanha" ou "México", gere TODO o conteúdo estritamente em ESPANHOL.
-- Se o país for "França", gere TODO o conteúdo estritamente em FRANCÊS.
-- Se o país for "Alemanha", gere TODO o conteúdo estritamente em ALEMÃO.
-- Se o país for "Itália", gere TODO o conteúdo estritamente em ITALIANO.
+INSTRUÇÃO DE IDIOMA CRÍTICA:
+- Se o país for "Alemanha", gere em ALEMÃO.
+- Se o país for "Argentina", "Espanha", "México", "Chile" ou "Colômbia", gere em ESPANHOL.
+- Se o país for "Austrália", "Canadá", "Estados Unidos" ou "Reino Unido", gere em INGLÊS.
+- Se o país for "Brasil" ou "Portugal", gere em PORTUGUÊS.
+- Se o país for "França", gere em FRANCÊS.
+- Se o país for "Itália", gere em ITALIANO.
 
-NÃO use termos de um idioma em outro. Use gírias e gatilhos mentais locais do país {{{targetLanguage}}}.
+REGRAS DE OURO:
+1. NUNCA misture idiomas.
+2. Use gírias e gatilhos mentais locais do país {{{targetLanguage}}}.
+3. O tom deve ser de "aquecimento" para a página oficial.
 
 ESTRATÉGIA DO TEMPLATE:
 - Lançamento (Launch): Curiosidade, escassez e tom de "oportunidade única".

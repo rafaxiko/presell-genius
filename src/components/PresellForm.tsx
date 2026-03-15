@@ -9,7 +9,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, ArrowRight, Palette, Link as LinkIcon, ListChecks, RotateCcw, ImageIcon, Globe, Activity, Code2, LayoutTemplate, ShoppingBag } from 'lucide-react';
+import { Sparkles, ArrowRight, Palette, Link as LinkIcon, ListChecks, RotateCcw, Globe, Activity, Code2, LayoutTemplate, ShoppingBag } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -21,7 +21,6 @@ const formSchema = z.object({
   templateType: z.enum(['Launch', 'Robust', 'Review', 'List']),
   buttonColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Cor hexadecimal inválida.'),
   targetUrl: z.string().url('Seu link de afiliado é obrigatório.'),
-  productImageUrl: z.string().optional().or(z.literal('')),
   trackingLink: z.string().optional().or(z.literal('')),
   clarityScript: z.string().optional().or(z.literal('')),
 });
@@ -35,15 +34,19 @@ interface PresellFormProps {
 }
 
 const COUNTRIES = [
-  "Alemanha", 
-  "Brasil", 
-  "Canadá", 
-  "Espanha", 
-  "Estados Unidos", 
-  "França", 
-  "Itália", 
-  "México", 
-  "Portugal", 
+  "Alemanha",
+  "Argentina",
+  "Austrália",
+  "Brasil",
+  "Canadá",
+  "Chile",
+  "Colômbia",
+  "Espanha",
+  "Estados Unidos",
+  "França",
+  "Itália",
+  "México",
+  "Portugal",
   "Reino Unido"
 ];
 
@@ -58,7 +61,6 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
       templateType: 'Robust',
       buttonColor: '#2952A3',
       targetUrl: 'https://seulink.com',
-      productImageUrl: '',
       trackingLink: '',
       clarityScript: '',
     },
@@ -242,26 +244,6 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
                     <FormControl>
                       <Input placeholder="https://checkout.suaplataforma.com/..." className="h-9 text-sm" {...field} />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="productImageUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      <ImageIcon className="h-3 w-3" />
-                      URL da Imagem (Opcional)
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://exemplo.com/imagem-produto.jpg" className="h-9 text-sm" {...field} />
-                    </FormControl>
-                    <FormDescription className="text-[9px]">
-                      Para múltiplas imagens, separe por vírgulas.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
