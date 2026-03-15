@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PresellForm, PresellFormValues } from '@/components/PresellForm';
 import { PresellPreview } from '@/components/PresellPreview';
 import { generatePresellContent } from '@/ai/flows/generate-presell-content';
@@ -13,7 +13,13 @@ import { Toaster } from '@/components/ui/toaster';
 export default function PresellGeniusApp() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedData, setGeneratedData] = useState<PresellData | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
+
+  // Previne erros de hidratação garantindo que o componente renderize apenas no cliente
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleGenerate = async (values: PresellFormValues) => {
     setIsGenerating(true);
@@ -35,7 +41,7 @@ export default function PresellGeniusApp() {
 
       toast({
         title: "Conteúdo Gerado!",
-        description: "Sua página de pré-venda de alta conversão está pronta.",
+        description: "Sua página de pré-venda está pronta para visualização.",
       });
     } catch (error) {
       console.error(error);
@@ -69,51 +75,43 @@ export default function PresellGeniusApp() {
     });
   };
 
+  if (!isMounted) return null;
+
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <Toaster />
       
-      {/* Header Compacto */}
-      <header className="shrink-0 w-full border-b bg-background/80 backdrop-blur-md z-50">
-        <div className="container mx-auto px-4 flex h-14 items-center justify-between">
+      <header className="bg-white border-b sticky top-0 z-50">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="bg-primary p-1.5 rounded-lg shadow-inner">
-              <Zap className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-black tracking-tight text-primary">
-              Presell <span className="text-accent">Genius</span>
+            <Zap className="h-6 w-6 text-primary fill-primary" />
+            <span className="text-xl font-bold tracking-tight">
+              Presell <span className="text-primary">Genius</span>
             </span>
           </div>
-          <div className="hidden md:flex items-center gap-3">
-            <div className="flex items-center gap-1.5 bg-accent/10 border border-accent/20 px-3 py-1 rounded-full text-accent font-bold text-[10px] uppercase tracking-wider">
-              <Rocket className="h-3 w-3" />
-              IA Gemini 1.5 Flash Ativa
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="text-xs font-semibold text-muted-foreground hover:text-primary transition-colors">Ajuda</button>
-            <button className="bg-primary text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-md hover:shadow-lg transition-all">
-              Pro
-            </button>
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground bg-slate-100 px-3 py-1 rounded-full">
+            <Rocket className="h-3 w-3" />
+            Gemini AI Ativa
           </div>
         </div>
       </header>
 
-      {/* Workspace Principal - Side by Side */}
-      <main className="flex-1 overflow-hidden p-4 md:p-6">
-        <div className="h-full max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
-          {/* Coluna de Configuração */}
-          <div className="lg:col-span-4 xl:col-span-3 h-full overflow-hidden">
-            <PresellForm onSubmit={handleGenerate} isGenerating={isGenerating} />
+      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl space-y-8">
+        <section>
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-slate-900">Configurar Gerador</h1>
+            <p className="text-slate-500 text-sm">Insira os detalhes do produto para criar sua copy de alta conversão.</p>
           </div>
+          <PresellForm onSubmit={handleGenerate} isGenerating={isGenerating} />
+        </section>
 
-          {/* Coluna de Preview */}
-          <div className="lg:col-span-8 xl:col-span-9 h-full overflow-hidden">
-            <PresellPreview data={generatedData} onDownload={handleDownload} />
+        <section id="preview-section" className="pb-12">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-slate-900">Preview da Pré-venda</h2>
+            <p className="text-slate-500 text-sm">Visualize e exporte sua página de aquecimento.</p>
           </div>
-
-        </div>
+          <PresellPreview data={generatedData} onDownload={handleDownload} />
+        </section>
       </main>
     </div>
   );
