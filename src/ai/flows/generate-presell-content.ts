@@ -1,7 +1,7 @@
 'use server';
 /**
- * @fileOverview Fluxo Genkit que gera conteúdo estruturado para 4 tipos de templates.
- * Focado em 100% de consistência linguística no idioma alvo.
+ * @fileOverview Fluxo Genkit para gerar conteúdo de pré-venda.
+ * Focado em consistência linguística absoluta baseada no país de destino.
  */
 
 import {ai} from '@/ai/genkit';
@@ -13,8 +13,8 @@ const GeneratePresellContentInputSchema = z.object({
     .describe('Descrição detalhada do produto ou serviço.'),
   targetLanguage: z
     .string()
-    .describe('O país ou idioma de destino (ex: Brasil, Estados Unidos, Espanha).'),
-  templateType: z.enum(['Launch', 'Robust', 'Review', 'List']).describe('O tipo de estratégia de conversão selecionado.'),
+    .describe('O país de destino (ex: Brasil, Estados Unidos, Espanha).'),
+  templateType: z.enum(['Launch', 'Robust', 'Review', 'List']).describe('O tipo de estratégia de conversão.'),
 });
 export type GeneratePresellContentInput = z.infer<
   typeof GeneratePresellContentInputSchema
@@ -28,21 +28,21 @@ const PricingOptionSchema = z.object({
 });
 
 const GeneratePresellContentOutputSchema = z.object({
-  headline: z.string().describe('Headline magnética e impactante.'),
+  headline: z.string().describe('Headline magnética.'),
   subheadline: z.string().describe('Texto de apoio persuasivo.'),
-  bodyCopy: z.string().describe('Corpo do texto focado em convencimento e aquecimento.'),
-  benefits: z.array(z.string()).describe('Lista de benefícios principais do produto.'),
-  ingredients: z.array(z.string()).optional().describe('Lista de componentes ou ingredientes se for suplemento/físico.'),
-  faqs: z.array(z.object({ q: z.string(), a: z.string() })).optional().describe('Dúvidas frequentes.'),
-  pros: z.array(z.string()).optional().describe('Pontos positivos para o template de Review.'),
-  cons: z.array(z.string()).optional().describe('Pontos negativos (não críticos) para dar autoridade ao Review.'),
+  bodyCopy: z.string().describe('Corpo do texto focado em aquecimento.'),
+  benefits: z.array(z.string()).describe('Benefícios principais.'),
+  ingredients: z.array(z.string()).optional().describe('Ingredientes ou componentes.'),
+  faqs: z.array(z.object({ q: z.string(), a: z.string() })).optional().describe('FAQs.'),
+  pros: z.array(z.string()).optional().describe('Pontos positivos (para Review).'),
+  cons: z.array(z.string()).optional().describe('Pontos negativos (para Review).'),
   comparisonTable: z.array(z.object({ 
     feature: z.string(), 
     product: z.string(), 
     competitor: z.string() 
-  })).optional().describe('Dados para tabela comparativa no template de Lista.'),
-  callToAction: z.string().describe('Texto curto e urgente para o botão principal.'),
-  pricing: z.array(PricingOptionSchema).optional().describe('Opções de pacotes (1, 3, 6 unidades).'),
+  })).optional().describe('Dados comparativos (para Lista).'),
+  callToAction: z.string().describe('Texto do botão.'),
+  pricing: z.array(PricingOptionSchema).optional().describe('Opções de preço.'),
 });
 export type GeneratePresellContentOutput = z.infer<
   typeof GeneratePresellContentOutputSchema
@@ -58,24 +58,22 @@ const prompt = ai.definePrompt({
   name: 'generatePresellContentPrompt',
   input: {schema: GeneratePresellContentInputSchema},
   output: {schema: GeneratePresellContentOutputSchema},
-  prompt: `Você é um copywriter especialista em tráfego pago e afiliados, com foco em conversão imediata.
+  prompt: `Você é um Copywriter de elite focado em tráfego direto para o país: {{{targetLanguage}}}.
 
-SUA TAREFA:
-Gere os textos para uma página de pré-venda (presell) baseando-se na descrição do produto abaixo.
+INSTRUÇÃO DE IDIOMA CRÍTICA:
+- Se o país for "Estados Unidos", gere TODO o conteúdo estritamente em INGLÊS.
+- Se o país for "Brasil" ou "Portugal", gere TODO o conteúdo em PORTUGUÊS.
+- Se o país for "Espanha" ou "México", gere TODO o conteúdo em ESPANHOL.
+- NÃO misture idiomas. Use gírias e gatilhos mentais locais do país {{{targetLanguage}}}.
 
-REGRAS CRÍTICAS:
-1. IDIOMA: Todo o conteúdo gerado DEVE estar 100% no idioma falado em: {{{targetLanguage}}}. Não misture inglês se o alvo for Brasil, Espanha, etc.
-2. ESTRATÉGIA: Use o modelo {{{templateType}}}.
-   - Launch: Foco em curiosidade, antecipação e escassez.
-   - Robust: Modelo completo, focado em prova social, ingredientes, benefícios e oferta múltipla.
-   - Review: Tom jornalístico/editorial. "Será que funciona?". Liste prós e contras reais.
-   - List: Ranking comparativo. O produto atual DEVE ser o #1 campeão recomendado.
-3. CONTEÚDO: Extraia benefícios e detalhes técnicos da descrição fornecida. Seja persuasivo e use gatilhos mentais adequados ao mercado de {{{targetLanguage}}}.
+ESTRATÉGIA DO TEMPLATE:
+- Launch: Curiosidade, escassez e tom de "oportunidade única".
+- Robust: Foco em autoridade, provas, ingredientes e oferta de pacotes.
+- Review: Tom jornalístico, sincero, analisando se o produto realmente funciona.
+- List: Comparativo onde este produto é o vencedor absoluto.
 
 Descrição do Produto:
-{{{salesPageDescription}}}
-
-Gere o JSON estruturado para alimentar o template selecionado.`,
+{{{salesPageDescription}}}`,
 });
 
 const generatePresellContentFlow = ai.defineFlow(

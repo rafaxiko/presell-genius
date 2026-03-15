@@ -4,10 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { PresellForm, PresellFormValues } from '@/components/PresellForm';
 import { PresellPreview } from '@/components/PresellPreview';
 import { generatePresellContent } from '@/ai/flows/generate-presell-content';
-import { PresellData } from '@/lib/presell-template';
+import { PresellData, generatePresellHTML } from '@/lib/presell-template';
 import { Zap, Rocket, Star, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { generatePresellHTML } from '@/lib/presell-template';
 import { Toaster } from '@/components/ui/toaster';
 
 export default function PresellGeniusApp() {
@@ -55,15 +54,15 @@ export default function PresellGeniusApp() {
       });
 
       toast({
-        title: "Página Gerada!",
-        description: "Sua copy de alta conversão está pronta para uso.",
+        title: "Sucesso!",
+        description: "Página de pré-venda gerada com sucesso.",
       });
     } catch (error) {
       console.error(error);
       toast({
         variant: "destructive",
         title: "Erro na IA",
-        description: "Não foi possível gerar a copy. Tente novamente em instantes.",
+        description: "Não foi possível gerar o conteúdo. Tente novamente.",
       });
     } finally {
       setIsGenerating(false);
@@ -92,8 +91,8 @@ export default function PresellGeniusApp() {
     toast({
       title: "Download Concluído",
       description: wrapForElementor 
-        ? "HTML formatado para Elementor pronto para uso." 
-        : "Página HTML salva com sucesso.",
+        ? "Código pronto para o Elementor." 
+        : "Arquivo HTML salvo com sucesso.",
     });
   };
 
@@ -113,24 +112,24 @@ export default function PresellGeniusApp() {
           </span>
           <div className="ml-4 flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 border border-slate-200">
             <Globe className="h-3 w-3 text-primary" />
-            MULTI-LANGUAGE SUITE
+            AI GLOBAL ENGINE
           </div>
         </div>
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
             <Rocket className="h-3.5 w-3.5" />
-            Engine v3.2 Ativa
+            Sistema Ativo v3.5
           </div>
           <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded text-[10px] font-bold text-yellow-700 border border-yellow-100">
             <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-            SaaS PREMIUM
+            ACESSO PREMIUM
           </div>
         </div>
       </header>
 
       <main className="flex-1 flex overflow-hidden">
-        {/* Workspace lateral de configuração */}
-        <aside className="w-[480px] shrink-0 h-full border-r bg-slate-50/30 p-6 overflow-hidden flex flex-col">
+        {/* Lado Esquerdo: Configuração */}
+        <aside className="w-[440px] shrink-0 h-full border-r bg-slate-50/20 p-6 overflow-hidden flex flex-col">
           <PresellForm 
             onSubmit={handleGenerate} 
             onClear={handleClear}
@@ -138,9 +137,9 @@ export default function PresellGeniusApp() {
           />
         </aside>
 
-        {/* Workspace central de Preview */}
-        <section className="flex-1 h-full overflow-hidden bg-slate-100/50 flex flex-col">
-          <div className="flex-1 p-6 md:p-10 overflow-auto">
+        {/* Lado Direito: Preview */}
+        <section className="flex-1 h-full overflow-hidden bg-slate-100/30 flex flex-col">
+          <div className="flex-1 p-6 md:p-8 overflow-auto">
             <PresellPreview data={generatedData} onDownload={handleDownload} />
           </div>
         </section>

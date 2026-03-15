@@ -15,9 +15,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formSchema = z.object({
   productName: z.string().min(2, 'Informe o nome do produto.'),
-  salesPageDescription: z.string().min(20, 'Forneça uma descrição detalhada para a IA extrair os benefícios.'),
+  salesPageDescription: z.string().min(20, 'Forneça uma descrição detalhada para a IA.'),
   officialProductUrl: z.string().url('A URL da página oficial é obrigatória.'),
-  targetLanguage: z.string().min(1, 'Selecione um idioma.'),
+  targetLanguage: z.string().min(1, 'Selecione um país.'),
   templateType: z.enum(['Launch', 'Robust', 'Review', 'List']),
   buttonColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Cor hexadecimal inválida.'),
   targetUrl: z.string().url('Seu link de afiliado é obrigatório.'),
@@ -35,8 +35,7 @@ interface PresellFormProps {
 }
 
 const COUNTRIES = [
-  "Alemanha", "Argentina", "Brasil", "Canadá", "Chile", "Colômbia", "Espanha", 
-  "Estados Unidos", "França", "Global (Inglês)", "Itália", "México", "Portugal", "Reino Unido"
+  "Alemanha", "Brasil", "Espanha", "Estados Unidos", "França", "Itália", "México", "Portugal", "Reino Unido"
 ];
 
 export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProps) {
@@ -49,7 +48,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
       targetLanguage: 'Brasil',
       templateType: 'Robust',
       buttonColor: '#2952A3',
-      targetUrl: 'https://seulink.com/checkout',
+      targetUrl: 'https://seulink.com',
       productImageUrl: '',
       trackingLink: '',
       clarityScript: '',
@@ -81,7 +80,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
           </Button>
         </div>
         <CardDescription className="text-xs">
-          Preencha os dados abaixo para que a IA crie sua página de alta conversão.
+          Personalize sua estratégia e deixe a IA cuidar da copy de alta conversão.
         </CardDescription>
       </CardHeader>
       
@@ -115,7 +114,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
                     <FormItem>
                       <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                         <Globe className="h-3 w-3" />
-                        País/Idioma Alvo
+                        País de Destino
                       </FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
@@ -170,11 +169,11 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
                     <FormItem>
                       <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                         <Palette className="h-3 w-3" />
-                        Cor Principal (Botão)
+                        Cor do Botão
                       </FormLabel>
                       <FormControl>
                         <div className="flex gap-2">
-                          <Input type="color" className="w-9 h-9 p-1 rounded shrink-0" {...field} />
+                          <Input type="color" className="w-9 h-9 p-1 rounded shrink-0 border-none bg-transparent cursor-pointer" {...field} />
                           <Input className="h-9 font-mono text-xs uppercase" placeholder="#2952A3" {...field} />
                         </div>
                       </FormControl>
@@ -208,12 +207,12 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
                   <FormItem>
                     <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       <ListChecks className="h-3 w-3" />
-                      Descrição Completa do Produto
+                      Descrição do Produto
                     </FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="Cole aqui o texto da página de vendas original. A IA extrairá benefícios, ingredientes e gatilhos deste texto." 
-                        className="min-h-[140px] resize-none text-sm"
+                        placeholder="Cole aqui o texto da página de vendas para que a IA extraia os benefícios automaticamente." 
+                        className="min-h-[120px] resize-none text-sm"
                         {...field} 
                       />
                     </FormControl>
@@ -229,10 +228,10 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
                   <FormItem>
                     <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       <LinkIcon className="h-3 w-3" />
-                      Link de Afiliado (Checkout)
+                      Link de Checkout / Afiliado
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="https://pay.hotmart.com/..." className="h-9 text-sm" {...field} />
+                      <Input placeholder="https://checkout.suaplataforma.com/..." className="h-9 text-sm" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -246,18 +245,21 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
                   <FormItem>
                     <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       <ImageIcon className="h-3 w-3" />
-                      URLs das Imagens (Separadas por vírgula)
+                      URL da Imagem (Opcional)
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="https://img1.jpg, https://img2.png" className="h-9 text-sm" {...field} />
+                      <Input placeholder="https://exemplo.com/imagem-produto.jpg" className="h-9 text-sm" {...field} />
                     </FormControl>
+                    <FormDescription className="text-[9px]">
+                      Para múltiplas imagens, separe por vírgulas.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
               <div className="pt-4 space-y-4 border-t">
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-primary/70">Rastreamento Avançado</h4>
+                <h4 className="text-[10px] font-bold uppercase tracking-widest text-primary/70">Scripts & Rastreio</h4>
                 <FormField
                   control={form.control}
                   name="trackingLink"
@@ -268,7 +270,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
                         Link de Rastreamento (Opcional)
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder="https://track.sua-estrutura.com/..." className="h-9 text-sm" {...field} />
+                        <Input placeholder="https://track.com/..." className="h-9 text-sm" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -282,12 +284,12 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
                     <FormItem>
                       <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                         <Code2 className="h-3 w-3" />
-                        Script Microsoft Clarity / Hotjar
+                        Script de Análise (Clarity/Hotjar)
                       </FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Cole o código <script> completo aqui..." 
-                          className="min-h-[80px] font-mono text-[10px] resize-none bg-slate-50"
+                          placeholder="<script>...</script>" 
+                          className="min-h-[60px] font-mono text-[10px] resize-none bg-slate-50"
                           {...field} 
                         />
                       </FormControl>
@@ -313,7 +315,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
               ) : (
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />
-                  GERAR PÁGINA DE ALTA CONVERSÃO
+                  CRIAR PÁGINA AGORA
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </div>
               )}
