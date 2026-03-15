@@ -5,7 +5,7 @@ import { PresellForm, PresellFormValues } from '@/components/PresellForm';
 import { PresellPreview } from '@/components/PresellPreview';
 import { generatePresellContent } from '@/ai/flows/generate-presell-content';
 import { PresellData } from '@/lib/presell-template';
-import { Zap, Rocket, LayoutDashboard } from 'lucide-react';
+import { Zap, Rocket, LayoutDashboard, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generatePresellHTML } from '@/lib/presell-template';
 import { Toaster } from '@/components/ui/toaster';
@@ -28,6 +28,7 @@ export default function PresellGeniusApp() {
       const result = await generatePresellContent({
         salesPageDescription: values.salesPageDescription,
         keySellingPoints: keyPoints,
+        targetLanguage: values.targetLanguage,
       });
 
       setGeneratedData({
@@ -40,15 +41,15 @@ export default function PresellGeniusApp() {
       });
 
       toast({
-        title: "Copy Gerada!",
-        description: "Seu material de pré-venda já está visível no painel lateral.",
+        title: "Sucesso!",
+        description: "Sua página de pré-venda foi gerada com sucesso.",
       });
     } catch (error) {
       console.error(error);
       toast({
         variant: "destructive",
-        title: "Erro na Geração",
-        description: "Verifique sua conexão ou tente novamente mais tarde.",
+        title: "Falha na Geração",
+        description: "Não foi possível gerar a copy. Tente novamente.",
       });
     } finally {
       setIsGenerating(false);
@@ -67,7 +68,7 @@ export default function PresellGeniusApp() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'minha-pre-venda.html';
+    a.download = 'presell-genius.html';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -75,34 +76,40 @@ export default function PresellGeniusApp() {
 
     toast({
       title: "Download Concluído",
-      description: "Salve o arquivo e use em sua estrutura de vendas.",
+      description: "Arquivo pronto para uso em sua estrutura.",
     });
   };
 
   if (!isMounted) return null;
 
   return (
-    <div className="h-screen bg-slate-100 flex flex-col overflow-hidden">
+    <div className="h-screen bg-white flex flex-col overflow-hidden">
       <Toaster />
       
       <header className="bg-white border-b h-14 shrink-0 px-6 flex items-center justify-between z-50">
         <div className="flex items-center gap-2">
-          <Zap className="h-5 w-5 text-primary fill-primary" />
+          <div className="bg-primary rounded-lg p-1">
+            <Zap className="h-4 w-4 text-white fill-white" />
+          </div>
           <span className="text-lg font-bold tracking-tight">
             Presell <span className="text-primary">Genius</span>
           </span>
+          <div className="ml-4 flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded text-[10px] font-medium text-slate-500 border">
+            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+            SaaS Affiliate Suite
+          </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 bg-slate-50 px-3 py-1 rounded-md border">
+          <div className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
             <Rocket className="h-3 w-3" />
-            Workspace IA Ativo
+            IA Engine V2.5 Ativa
           </div>
         </div>
       </header>
 
       <main className="flex-1 flex overflow-hidden">
-        {/* Coluna de Configuração */}
-        <aside className="w-full lg:w-[450px] shrink-0 h-full border-r bg-slate-50 p-4 overflow-hidden flex flex-col">
+        {/* Coluna de Configuração - LADO ESQUERDO */}
+        <aside className="w-[450px] shrink-0 h-full border-r bg-slate-50/50 p-6 overflow-hidden flex flex-col">
           <PresellForm 
             onSubmit={handleGenerate} 
             onClear={handleClear}
@@ -110,9 +117,9 @@ export default function PresellGeniusApp() {
           />
         </aside>
 
-        {/* Coluna de Preview */}
-        <section className="flex-1 h-full overflow-hidden bg-slate-200">
-          <div className="h-full w-full p-4 md:p-8">
+        {/* Painel de Preview - LADO DIREITO */}
+        <section className="flex-1 h-full overflow-hidden bg-slate-100 flex flex-col">
+          <div className="flex-1 p-8 overflow-auto">
             <PresellPreview data={generatedData} onDownload={handleDownload} />
           </div>
         </section>

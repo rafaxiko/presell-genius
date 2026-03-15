@@ -1,10 +1,10 @@
 'use server';
 /**
- * @fileOverview Um fluxo Genkit que gera conteúdo de página de pré-venda de alta conversão em Português do Brasil.
+ * @fileOverview A Genkit flow that generates high-converting presell page content in multiple languages.
  *
- * - generatePresellContent - Uma função que lida com o processo de geração de conteúdo.
- * - GeneratePresellContentInput - O tipo de entrada para a função generatePresellContent.
- * - GeneratePresellContentOutput - O tipo de retorno para a função generatePresellContent.
+ * - generatePresellContent - Function to handle the generation process.
+ * - GeneratePresellContentInput - Input type for the function.
+ * - GeneratePresellContentOutput - Return type for the function.
  */
 
 import {ai} from '@/ai/genkit';
@@ -13,21 +13,22 @@ import {z} from 'genkit';
 const GeneratePresellContentInputSchema = z.object({
   salesPageDescription: z
     .string()
-    .describe(
-      'Uma descrição detalhada do produto ou serviço para a página de vendas.'
-    ),
+    .describe('Detailed description of the product or service.'),
   keySellingPoints: z
     .array(z.string())
-    .describe('Uma lista de pontos-chave de venda para destacar no conteúdo.'),
+    .describe('List of key selling points to highlight.'),
+  targetLanguage: z
+    .string()
+    .describe('The language in which the content should be generated (e.g., Portuguese, English, Spanish).'),
 });
 export type GeneratePresellContentInput = z.infer<
   typeof GeneratePresellContentInputSchema
 >;
 
 const GeneratePresellContentOutputSchema = z.object({
-  headline: z.string().describe('Uma headline de alta conversão em Português.'),
-  bodyCopy: z.string().describe('Um texto de apoio (copy) envolvente em Português.'),
-  callToAction: z.string().describe('Uma chamada para ação (CTA) poderosa em Português.'),
+  headline: z.string().describe('A high-converting headline in the target language.'),
+  bodyCopy: z.string().describe('Engaging support copy in the target language.'),
+  callToAction: z.string().describe('Powerful call to action in the target language.'),
 });
 export type GeneratePresellContentOutput = z.infer<
   typeof GeneratePresellContentOutputSchema
@@ -43,23 +44,27 @@ const prompt = ai.definePrompt({
   name: 'generatePresellContentPrompt',
   input: {schema: GeneratePresellContentInputSchema},
   output: {schema: GeneratePresellContentOutputSchema},
-  prompt: `Você é um copywriter especialista em marketing de afiliados no Brasil, focado em alta conversão.
+  prompt: `You are an expert copywriter specializing in affiliate marketing, focused on high conversion.
 
-Sua tarefa é gerar uma headline matadora, um corpo de texto persuasivo (copy de pré-venda) e uma chamada para ação (CTA) forte com base na descrição do produto e nos pontos de venda fornecidos.
+Your task is to generate a killer headline, persuasive body copy (presell copy), and a strong call to action (CTA) based on the product description and selling points provided.
 
-O conteúdo deve ser escrito INTEIRAMENTE EM PORTUGUÊS DO BRASIL, usando um tom amigável, mas extremamente persuasivo. O objetivo da página de pré-venda é "aquecer" o tráfego frio, quebrando as principais objeções e gerando curiosidade antes do clique para a página de vendas oficial.
+CONTENT MUST BE WRITTEN ENTIRELY IN: {{{targetLanguage}}}.
 
-Use gatilhos mentais como autoridade, escassez ou prova social se fizer sentido com o contexto.
+Use a friendly but extremely persuasive tone. The goal of the presell page is to "warm up" cold traffic, breaking major objections and generating curiosity before the click to the official sales page.
 
-Descrição da Página de Vendas/Produto:
+Use mental triggers like authority, scarcity, or social proof if it fits the context.
+
+Sales Page/Product Description:
 {{{salesPageDescription}}}
 
-Pontos Fortes de Venda:
+Key Selling Points:
 {{#each keySellingPoints}}
 - {{{this}}}
 {{/each}}
 
-Gere o conteúdo em formato JSON de acordo com o esquema de saída.`,
+Target Language: {{{targetLanguage}}}
+
+Generate the content in JSON format according to the output schema.`,
 });
 
 const generatePresellContentFlow = ai.defineFlow(

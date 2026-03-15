@@ -8,15 +8,18 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Sparkles, ArrowRight, Palette, Link as LinkIcon, ListChecks, RotateCcw, Image as ImageIcon } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sparkles, ArrowRight, Palette, Link as LinkIcon, ListChecks, RotateCcw, Image as ImageIcon, Globe } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formSchema = z.object({
   salesPageDescription: z.string().min(10, 'Por favor, forneça mais detalhes sobre o produto.'),
   keySellingPoints: z.string().min(5, 'Pelo menos um ponto forte de venda é necessário.'),
+  targetLanguage: z.string().min(1, 'Selecione um idioma de destino.'),
   buttonColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Deve ser uma cor hexadecimal válida.'),
   targetUrl: z.string().url('Por favor, insira uma URL válida.'),
+  officialProductUrl: z.string().url('Por favor, insira uma URL válida.').optional().or(z.literal('')),
   productImageUrl: z.string().url('Por favor, insira uma URL de imagem válida.').optional().or(z.literal('')),
 });
 
@@ -34,8 +37,10 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
     defaultValues: {
       salesPageDescription: '',
       keySellingPoints: '',
+      targetLanguage: 'Português (Brasil)',
       buttonColor: '#2952A3',
       targetUrl: 'https://seulink.com/checkout',
+      officialProductUrl: '',
       productImageUrl: '',
     },
   });
@@ -46,45 +51,104 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
   };
 
   return (
-    <Card className="h-full flex flex-col shadow-lg border-none overflow-hidden bg-white">
-      <CardHeader className="space-y-1 shrink-0 pb-4 border-b">
+    <Card className="h-full flex flex-col shadow-none border-none bg-transparent">
+      <CardHeader className="space-y-1 shrink-0 px-0 pb-6">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl font-bold flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            Configuração
+            Configuração do Workspace
           </CardTitle>
           <Button 
             variant="ghost" 
             size="sm" 
             type="button" 
             onClick={handleReset}
-            className="text-xs text-slate-400 hover:text-slate-600 gap-1"
+            className="text-xs text-slate-400 hover:text-slate-600 gap-1 h-8"
           >
             <RotateCcw className="h-3 w-3" />
             Limpar
           </Button>
         </div>
         <CardDescription className="text-xs">
-          Defina os detalhes da sua oferta para a IA.
+          Defina os detalhes da sua oferta para que a IA crie sua página de alta conversão.
         </CardDescription>
       </CardHeader>
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col overflow-hidden">
-          <ScrollArea className="flex-1 px-6">
-            <div className="space-y-6 py-6">
+          <ScrollArea className="flex-1 pr-4">
+            <div className="space-y-6 pb-6">
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="targetLanguage"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <Globe className="h-3 w-3" />
+                        Idioma / Mercado
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-9 text-sm">
+                            <SelectValue placeholder="Selecione o idioma" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Português (Brasil)">Brasil 🇧🇷</SelectItem>
+                          <SelectItem value="English (USA)">Estados Unidos 🇺🇸</SelectItem>
+                          <SelectItem value="Spanish (Spain)">Espanha 🇪🇸</SelectItem>
+                          <SelectItem value="English (Global)">Global 🌍</SelectItem>
+                          <SelectItem value="French (France)">França 🇫🇷</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="buttonColor"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <Palette className="h-3 w-3" />
+                        Cor do Botão
+                      </FormLabel>
+                      <FormControl>
+                        <div className="flex gap-2">
+                          <Input 
+                            type="color" 
+                            className="w-9 h-9 p-1 cursor-pointer rounded-md shrink-0 border-none bg-transparent"
+                            {...field} 
+                          />
+                          <Input 
+                            className="h-9 font-mono text-xs"
+                            placeholder="#2952A3"
+                            {...field} 
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <FormField
                 control={form.control}
                 name="salesPageDescription"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      <ListChecks className="h-3.5 w-3.5" />
+                    <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <ListChecks className="h-3 w-3" />
                       O que você está vendendo?
                     </FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="Ex: Curso de Emagrecimento para mães ocupadas..." 
+                        placeholder="Descreva o produto, para quem ele serve e qual problema ele resolve..." 
                         className="min-h-[100px] resize-none text-sm"
                         {...field} 
                       />
@@ -99,77 +163,70 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
                 name="keySellingPoints"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Benefícios / Gatilhos</FormLabel>
+                    <FormLabel className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Benefícios & Gatilhos</FormLabel>
                     <FormControl>
-                      <Input placeholder="Garantia 30 dias, Desconto de 50%, Bônus VIP..." className="text-sm" {...field} />
+                      <Input placeholder="Ex: Garantia de 30 dias, Desconto exclusivo hoje..." className="h-9 text-sm" {...field} />
                     </FormControl>
                     <FormDescription className="text-[10px]">
-                      Destaque o que faz o lead querer clicar. Separe por vírgulas.
+                      Destaque os principais diferenciais. Separe por vírgulas.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="targetUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        <LinkIcon className="h-3.5 w-3.5" />
-                        Link de Destino
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://pay.hotmart.com/..." className="text-sm" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="productImageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        <ImageIcon className="h-3.5 w-3.5" />
-                        URL da Imagem
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://linkdaimagem.jpg" className="text-sm" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="targetUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <LinkIcon className="h-3 w-3" />
+                      Seu Link de Afiliado (Checkout)
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://pay.hotmart.com/..." className="h-9 text-sm" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
-                name="buttonColor"
+                name="officialProductUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      <Palette className="h-3.5 w-3.5" />
-                      Cor do Botão de Chamada
+                    <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <LinkIcon className="h-3 w-3" />
+                      URL da Página Oficial (Opcional)
                     </FormLabel>
                     <FormControl>
-                      <div className="flex gap-2">
-                        <Input 
-                          type="color" 
-                          className="w-10 h-10 p-1 cursor-pointer rounded-lg shrink-0"
-                          {...field} 
-                        />
-                        <Input 
-                          className="font-mono text-sm"
-                          placeholder="#2952A3"
-                          {...field} 
-                        />
-                      </div>
+                      <Input placeholder="https://produtooficial.com" className="h-9 text-sm" {...field} />
                     </FormControl>
+                    <FormDescription className="text-[10px]">
+                      Para a IA tentar alinhar com a identidade visual da marca.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="productImageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <ImageIcon className="h-3 w-3" />
+                      URL da Imagem do Produto
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://linkdaimagem.jpg" className="h-9 text-sm" {...field} />
+                    </FormControl>
+                    <FormDescription className="text-[10px]">
+                      URL direta da imagem (JPG, PNG, WEBP).
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -177,10 +234,10 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
             </div>
           </ScrollArea>
 
-          <div className="p-6 border-t bg-slate-50 shrink-0">
+          <div className="pt-6 border-t shrink-0">
             <Button 
               type="submit" 
-              className={`w-full h-12 text-base font-bold group bg-primary hover:bg-primary/90 transition-all shadow-lg ${!isGenerating ? 'animate-pulse-button' : ''}`}
+              className={`w-full h-11 text-sm font-bold group bg-primary hover:bg-primary/90 transition-all shadow-md ${!isGenerating ? 'animate-pulse-button' : ''}`}
               disabled={isGenerating}
             >
               {isGenerating ? (
@@ -190,8 +247,8 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  Gerar Página Agora
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  Gerar Copy de Alta Conversão
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </div>
               )}
             </Button>

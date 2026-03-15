@@ -11,11 +11,12 @@ export function generatePresellHTML(data: PresellData): string {
   const { headline, bodyCopy, callToAction, buttonColor, targetUrl, productImageUrl } = data;
   const currentYear = new Date().getFullYear();
 
+  // Robust image rendering logic
   const imageTag = productImageUrl 
-    ? `<div class="product-image"><img src="${productImageUrl}" alt="Produto"></div>`
+    ? `<div class="product-image"><img src="${productImageUrl}" alt="Produto Principal"></div>`
     : `<div class="product-image placeholder">
-         <img src="https://picsum.photos/seed/product/600/350" alt="Exemplo de Produto">
-         <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">(Imagem de Exemplo)</p>
+         <img src="https://picsum.photos/seed/product/800/450" alt="Placeholder">
+         <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 10px;">(Adicione uma URL de imagem no painel para ver seu produto aqui)</p>
        </div>`;
 
   return `<!DOCTYPE html>
@@ -36,40 +37,43 @@ export function generatePresellHTML(data: PresellData): string {
         }
         .wrapper {
             max-width: 650px;
-            margin: 40px auto;
-            padding: 40px;
+            margin: 60px auto;
+            padding: 50px;
             background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
             text-align: center;
         }
         h1 {
             color: #0f172a;
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 25px;
+            line-height: 1.1;
+            margin-bottom: 30px;
             letter-spacing: -0.025em;
         }
         .product-image {
-            margin: 0 auto 30px;
-            max-width: 100%;
-            border-radius: 12px;
+            margin: 0 auto 35px;
+            width: 100%;
+            border-radius: 16px;
             overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
         }
         .product-image img {
             width: 100%;
             height: auto;
             display: block;
+            object-fit: cover;
         }
         .product-image.placeholder {
-            border: 2px dashed #e2e8f0;
-            padding: 10px;
+            border: 2px dashed #cbd5e1;
+            padding: 20px;
+            background-color: #f1f5f9;
         }
         .content {
-            font-size: 1.15rem;
-            margin-bottom: 35px;
-            color: #475569;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            color: #334155;
             text-align: left;
             white-space: pre-wrap;
         }
@@ -77,36 +81,42 @@ export function generatePresellHTML(data: PresellData): string {
             margin-top: 20px;
         }
         .cta-button {
-            display: block;
+            display: inline-block;
+            width: 100%;
             background-color: ${buttonColor || '#2952A3'};
             color: #ffffff;
-            padding: 18px 30px;
-            font-size: 1.4rem;
-            font-weight: 700;
+            padding: 20px 35px;
+            font-size: 1.5rem;
+            font-weight: 800;
             text-decoration: none;
             border-radius: 12px;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
         }
         .cta-button:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px) scale(1.02);
             filter: brightness(1.1);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.3);
         }
         footer {
-            padding: 40px 0;
+            padding: 60px 20px;
             text-align: center;
             font-size: 0.8rem;
             color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto;
         }
         @media (max-width: 640px) {
             .wrapper {
-                margin: 15px;
-                padding: 20px;
+                margin: 20px;
+                padding: 30px 20px;
+                border-radius: 16px;
             }
-            h1 { font-size: 1.7rem; }
+            h1 { font-size: 1.8rem; }
             .content { font-size: 1rem; }
-            .cta-button { font-size: 1.1rem; }
+            .cta-button { font-size: 1.2rem; padding: 16px 25px; }
         }
     </style>
 </head>
@@ -120,8 +130,9 @@ export function generatePresellHTML(data: PresellData): string {
         </div>
     </div>
     <footer>
-        Este site não faz parte do Google ou do Facebook. Além disso, este site NÃO é endossado pelo Google ou Facebook de nenhuma maneira.<br>
-        &copy; ${currentYear} Presell Genius. Todos os direitos reservados.
+        AVISO LEGAL: Este site não é afiliado ao Google, Meta ou qualquer rede de publicidade. Os resultados podem variar de pessoa para pessoa.
+        <br><br>
+        &copy; ${currentYear} Presell Genius - Workspace de Afiliados.
     </footer>
 </body>
 </html>`;
