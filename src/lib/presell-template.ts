@@ -87,7 +87,6 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
     .pg-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.6; -webkit-font-smoothing: antialiased; }
     .pg-container { max-width: 800px; margin: 0 auto; padding: 60px 16px; }
     .pg-card { background: var(--card-bg); border-radius: var(--radius); padding: 40px; border: 1px solid rgba(0,0,0,0.04); box-shadow: var(--shadow-sm); margin-bottom: 32px; transition: all 0.3s ease; }
-    .pg-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
     
     .pg-btn { 
       display: inline-block; width: 100%; background: var(--primary); color: #fff; text-align: center; 
@@ -97,7 +96,7 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
     }
     .pg-btn:hover { transform: scale(1.02); filter: brightness(1.1); box-shadow: 0 0 20px ${buttonColor}4D; }
     
-    .pg-img-hero { width: 100%; max-height: 500px; border-radius: var(--radius); display: block; margin: 0 auto 32px; object-fit: contain; }
+    .pg-img-hero { width: 100%; max-height: 450px; border-radius: var(--radius); display: block; margin: 0 auto 32px; object-fit: contain; }
     
     .pg-badge-best { 
       background: var(--primary); color: #fff; padding: 8px 16px; border-radius: 30px; 
@@ -109,7 +108,18 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
     h2 { font-size: 2rem; font-weight: 800; text-align: center; margin: 48px 0 24px; color: #111827; }
     p { margin-bottom: 24px; color: #374151; font-size: 1.1rem; }
 
-    .pg-price-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-top: 40px; align-items: stretch; }
+    /* Dynamic Pricing Grid */
+    .pg-price-grid { 
+      display: grid; 
+      gap: 24px; 
+      margin-top: 40px; 
+      align-items: stretch;
+      justify-content: center;
+    }
+    .grid-cols-1 { grid-template-columns: minmax(280px, 450px); }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(240px, 1fr)); }
+    .grid-cols-3 { grid-template-columns: repeat(3, minmax(240px, 1fr)); }
+
     .pg-price-card { 
       position: relative; border-radius: var(--radius); background: #fff; padding: 40px 24px; text-align: center;
       border: 1px solid #E5E7EB; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
@@ -121,8 +131,8 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
     @keyframes pulse { 0% { box-shadow: 0 0 0 0 ${buttonColor}66; } 70% { box-shadow: 0 0 0 15px ${buttonColor}00; } 100% { box-shadow: 0 0 0 0 ${buttonColor}00; } }
     .pg-btn-pulse { animation: pulse 2s infinite; }
 
-    @media (max-width: 640px) {
-      h1 { font-size: 2rem !important; }
+    @media (max-width: 768px) {
+      .pg-price-grid { grid-template-columns: 1fr !important; }
       .pg-price-card.featured { transform: scale(1); }
       .pg-price-card.featured:hover { transform: translateY(-8px) scale(1.02); }
     }
@@ -131,8 +141,9 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
   const renderHeroImage = () => {
     if (primaryImg) return `<img src="${primaryImg}" class="pg-img-hero" alt="${productName}">`;
     return `
-      <div style="width: 100%; height: 300px; background: #F3F4F6; border: 2px dashed #E5E7EB; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: #9CA3AF; margin-bottom: 32px;">
+      <div style="width: 100%; height: 300px; background: #F3F4F6; border: 2px dashed #E5E7EB; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #9CA3AF; margin-bottom: 32px;">
         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+        <p style="margin-top: 12px; font-size: 0.9rem; font-weight: 600;">Sua Foto do Produto Aqui</p>
       </div>
     `;
   };
@@ -165,6 +176,7 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
       break;
 
     case 'Robust':
+      const priceGridClass = pricing.length === 1 ? 'grid-cols-1' : pricing.length === 2 ? 'grid-cols-2' : 'grid-cols-3';
       content = `
         <div class="pg-card">
           <h1>${headline}</h1>
@@ -190,13 +202,13 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
           ` : ''}
         </div>
 
-        <h2 id="oferta">Escolha o seu Kit</h2>
-        <div class="pg-price-grid">
+        <h2 id="oferta">Escolha o seu Pacote</h2>
+        <div class="pg-price-grid ${priceGridClass}">
           ${pricing.length > 0 ? pricing.map((p, idx) => {
             const kitImg = productImageUrls[idx] || primaryImg;
             return `
               <div class="pg-price-card ${p.isBestValue ? 'featured' : ''}">
-                ${p.isBestValue ? '<div class="pg-badge-best">MAIS VENDIDO</div>' : ''}
+                ${p.isBestValue ? '<div class="pg-badge-best">RECOMENDADO</div>' : ''}
                 <div style="font-size: 1.5rem; font-weight: 800; margin-bottom: 16px;">${p.quantity}</div>
                 ${kitImg ? `<img src="${kitImg}" style="width: 100%; max-height: 150px; object-fit: contain; margin-bottom: 20px;" alt="${p.quantity}">` : ''}
                 <div style="color: #059669; font-weight: 800; font-size: 0.9rem; margin-bottom: 12px;">${p.discount}</div>
@@ -206,7 +218,7 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
             `;
           }).join('') : `
             <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: #FEF2F2; border-radius: 20px; color: #EF4444; font-weight: 600;">
-              Nenhum pacote de preço detectado. Verifique a descrição do produto.
+              Nenhum pacote de preço detectado na descrição.
             </div>
           `}
         </div>
@@ -229,9 +241,9 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
       content = `
         <div class="pg-card">
           <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
-            <div style="width: 50px; height: 50px; background: #CBD5E1; border-radius: 50%; display: flex; items-center; justify-center; font-weight: 800; color: #fff;">S</div>
+            <div style="width: 50px; height: 50px; background: #CBD5E1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff;">P</div>
             <div>
-              <div style="font-weight: 800; font-size: 1rem;">Portal Saúde & Bem-Estar</div>
+              <div style="font-weight: 800; font-size: 1rem;">Portal Saúde & Tech</div>
               <div style="font-size: 0.8rem; color: #64748B;">Atualizado em 2026</div>
             </div>
           </div>
@@ -253,7 +265,7 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
 
           <div style="background: #111827; color: #fff; padding: 48px; border-radius: 24px; text-align: center; margin-top: 40px;">
             <div style="font-size: 1.75rem; font-weight: 900; margin-bottom: 16px;">Veredito Final</div>
-            <p style="color: #94A3B8; margin-bottom: 32px;">Nossos testes mostram que o ${productName} supera as expectativas de qualidade e resultados.</p>
+            <p style="color: #94A3B8; margin-bottom: 32px;">Nossos testes mostram que o ${productName} supera as expectativas.</p>
             <a href="${ctaLink}" class="pg-btn" style="background: #fff; color: #111827; max-width: 400px;">IR PARA O SITE OFICIAL</a>
           </div>
         </div>
@@ -264,7 +276,7 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
       content = `
         <div class="pg-card">
           <h1>Ranking Oficial de 2026</h1>
-          <p style="text-align: center; color: #64748B; margin-bottom: 48px;">Analisamos os produtos mais populares do nicho com base em pureza e satisfação.</p>
+          <p style="text-align: center; color: #64748B; margin-bottom: 48px;">Analisamos os melhores produtos do nicho.</p>
           
           <div style="background: #FFFBEB; border: 3px solid #F59E0B; padding: 40px; border-radius: 24px; position: relative; margin-bottom: 48px; box-shadow: 0 10px 30px rgba(245, 158, 11, 0.1);">
             <div style="position: absolute; top: -16px; left: 32px; background: #F59E0B; color: #fff; padding: 6px 20px; border-radius: 50px; font-weight: 900; font-size: 0.85rem; letter-spacing: 0.05em;">NOSSA ESCOLHA #1</div>
@@ -272,7 +284,7 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
               <div style="width: 140px; flex-shrink: 0;">${renderHeroImage()}</div>
               <div style="flex: 1; min-width: 200px;">
                 <h2 style="text-align: left; margin: 0 0 12px;">${productName}</h2>
-                <p style="font-size: 1.05rem; margin-bottom: 24px;">Melhor desempenho em testes laboratoriais e maior índice de recompra dos clientes.</p>
+                <p style="font-size: 1.05rem; margin-bottom: 24px;">Melhor desempenho em testes laboratoriais.</p>
                 <a href="${ctaLink}" class="pg-btn" style="padding: 16px; font-size: 1rem;">ACESSAR SITE OFICIAL</a>
               </div>
             </div>
