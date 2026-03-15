@@ -1,0 +1,95 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * CORE PHILOSOPHY:
+     * This ruleset enforces a strict user-ownership model designed for a SaaS environment.
+     * All sensitive data is partitioned under individual user paths to ensure maximum
+     * privacy and performance.
+     *
+     * DATA STRUCTURE:
+     * The hierarchy follows a root-user pattern: `/users/{userId}`.
+     * Sub-resources like `subscriptions` and `presellProjects` are nested directly 
+     * under the user's document.
+     *
+     * KEY SECURITY DECISIONS:
+     * 1. Ownership Isolation: Users can only read or write data where the {userId} 
+     *    wildcard matches their authenticated UID.
+     * 2. Denormalization for Authorization: Entities include a `userId` field 
+     *    internally to allow for fast, non-recursive authorization checks.
+     * 3. Prototyping Flexibility: While ownership is strictly enforced, the 
+     *    internal schema (content fields) remains flexible to support rapid iteration.
+     * 4. Relational Integrity: The rules ensure that the internal `userId` or `id` 
+     *    fields in the data remain consistent with the document's path and are immutable.
+     */
+
+    // --- Helper Functions ---
+
+    /**
+     * @description Checks if the request is from an authenticated user.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user's UID matches the provided userId.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Combines ownership check with a requirement that the document must exist.
+     * Used for updates and deletes to prevent operations on non-existent records.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    // --- Collection Rules ---
+
+    /**
+     * @description Rules for the User profile document.
+     * @path /users/{userId}
+     * @allow (create) if auth.uid matches {userId} and data.id matches {userId}.
+     * @deny (read) if auth.uid does not match {userId}.
+     * @principle Restricts access to a user's own profile and validates path consistency.
+     */
+    match /users/{userId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Rules for user-specific subscriptions.
+       * @path /users/{userId}/subscriptions/{subscriptionId}
+       * @allow (list) if auth.uid matches {userId}.
+       * @deny (update) if the internal userId is being changed.
+       * @principle Ownership-based access with relational integrity enforcement.
+       */
+      match /subscriptions/{subscriptionId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Rules for Presell Projects (landing pages).
+       * @path /users/{userId}/presellProjects/{presellProjectId}
+       * @allow (create) if auth.uid matches {userId} and internal userId field matches.
+       * @deny (delete) if the user is not the owner of the parent path.
+       * @principle Enforces document ownership for writes and keeps project data private.
+       */
+      match /presellProjects/{presellProjectId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+  }
+}

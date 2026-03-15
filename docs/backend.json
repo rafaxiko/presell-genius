@@ -1,0 +1,251 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the Presell Genius application, managing their profile and associated projects.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's unique email address.",
+          "format": "email"
+        },
+        "name": {
+          "type": "string",
+          "description": "The user's full name, used for personalization."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the user account was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the user account was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Subscription": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Subscription",
+      "type": "object",
+      "description": "Manages a user's subscription plan within the Presell Genius SaaS.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Subscription entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who owns this subscription. (Relationship: User 1:N Subscription)"
+        },
+        "planType": {
+          "type": "string",
+          "description": "The type of subscription plan (e.g., Monthly, Semi-annual, Annual).",
+          "items": {
+            "type": "string"
+          }
+        },
+        "startDate": {
+          "type": "string",
+          "description": "The date and time when the subscription became active.",
+          "format": "date-time"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "The date and time when the subscription is set to expire.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the subscription (e.g., Active, Cancelled, Expired, Trial).",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the subscription record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the subscription record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "planType",
+        "startDate",
+        "endDate",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "PresellProject": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PresellProject",
+      "type": "object",
+      "description": "Represents a user's presell page generation project, storing inputs, configuration, and the generated HTML output.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the PresellProject entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who created this presell project. (Relationship: User 1:N PresellProject)"
+        },
+        "name": {
+          "type": "string",
+          "description": "A user-defined name for the presell project, aiding in organization."
+        },
+        "description": {
+          "type": "string",
+          "description": "The comprehensive sales page text or product description provided by the user, serving as primary input for AI content generation."
+        },
+        "productPageUrl": {
+          "type": "string",
+          "description": "The mandatory URL of the official product page, used by AI to scrape relevant colors and images.",
+          "format": "uri"
+        },
+        "imageUrls": {
+          "type": "array",
+          "description": "An array of image URLs associated with the product, either directly provided by the user (comma-separated) or extracted by the AI from the product page URL.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "buttonColor": {
+          "type": "string",
+          "description": "The hexadecimal color code selected by the user for primary action buttons on the presell page (e.g., #2952A3)."
+        },
+        "callToActionText": {
+          "type": "string",
+          "description": "The compelling text displayed on the primary Call-to-Action button."
+        },
+        "callToActionUrl": {
+          "type": "string",
+          "description": "The target URL where the Call-to-Action button will direct users.",
+          "format": "uri"
+        },
+        "templateType": {
+          "type": "string",
+          "description": "The selected template type that dictates the layout structure of the generated presell page (e.g., Launch, Robust, Review, List).",
+          "items": {
+            "type": "string"
+          }
+        },
+        "productName": {
+          "type": "string",
+          "description": "The name of the product or brand, used in copyright notices and other template areas."
+        },
+        "generatedHtml": {
+          "type": "string",
+          "description": "The complete, optimized, and semantically structured HTML code generated for the presell page."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the presell project was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the presell project was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "description",
+        "productPageUrl",
+        "buttonColor",
+        "callToActionText",
+        "callToActionUrl",
+        "templateType",
+        "productName",
+        "generatedHtml",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores individual user profiles. Access is restricted to the owning user (`userId` matches `request.auth.uid`). This is the root for all user-specific, private data."
+        }
+      },
+      {
+        "path": "/users/{userId}/subscriptions/{subscriptionId}",
+        "definition": {
+          "entityName": "Subscription",
+          "schema": {
+            "$ref": "#/backend/entities/Subscription"
+          },
+          "description": "Manages user-specific subscription plans. This data is privately owned by the user. Includes denormalized 'userId' for authorization independence, allowing direct `resource.data.userId == request.auth.uid` checks. All documents in this subcollection share the same security posture: owner-only access. Supports QAP by allowing secure listing for the authenticated user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns the subscription."
+            },
+            {
+              "name": "subscriptionId",
+              "description": "The unique identifier for a specific subscription record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/presellProjects/{presellProjectId}",
+        "definition": {
+          "entityName": "PresellProject",
+          "schema": {
+            "$ref": "#/backend/entities/PresellProject"
+          },
+          "description": "Contains all presell generation projects created by a user. This data is privately owned by the user. Includes denormalized 'userId' for authorization independence, allowing direct `resource.data.userId == request.auth.uid` checks. All documents in this subcollection share the same security posture: owner-only access. Supports QAP by allowing secure listing for the authenticated user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns the presell project."
+            },
+            {
+              "name": "presellProjectId",
+              "description": "The unique identifier for a specific presell project."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure for 'Presell Genius' is designed to prioritize authorization independence, clarity, and scalability, adhering strictly to the core design principles and strategy mandates. All user-specific data is organized under a hierarchical path structure, explicitly linking records to their owners.\n\n**Authorization Independence:** This is achieved by nesting all user-owned collections (`subscriptions` and `presellProjects`) directly under the `/users/{userId}` path. Crucially, the `Subscription` and `PresellProject` entities both contain a denormalized `userId` field. This allows Firestore security rules to perform direct authorization checks like `request.auth.uid == resource.data.userId` without relying on slow, non-atomic `get()` operations on parent documents. This fulfills the mandate for denormalization, ensuring that authorization logic is robust, efficient, and easily debuggable, even for batch writes or transactions.\n\n**QAPs (Query as a Principal):** The structure inherently supports secure `list` operations. By segregating data into user-specific subcollections (e.g., `/users/{userId}/presellProjects`), any `list` request within these subcollections can be secured with a simple rule that verifies `request.auth.uid` matches the `{userId}` wildcard in the path. This means that users can only query and list their own data, and the security rules do not act as filters on potentially larger datasets. This structural segregation simplifies rules significantly, moving complexity from runtime logic to the data's organization. Each collection maintains a homogeneous security posture (owner-only access), which is critical for debuggability and preventing data leakage.\n\n**Overall Design:** The structure employs path-based ownership for private user data, consistently uses descriptive wildcards (e.g., `{userId}`, `{presellProjectId}`), and relies on DBAC (Database Access Control) with `request.auth.uid` for all authorization. This ensures that the application's backend is secure, maintainable, and predictable."
+  }
+}
