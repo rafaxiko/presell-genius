@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview Genkit flow to generate high-conversion presell content.
- * Strict language enforcement based on target country.
+ * Advanced language detection and multi-country support.
  */
 
 import {ai} from '@/ai/genkit';
@@ -13,7 +13,7 @@ const GeneratePresellContentInputSchema = z.object({
     .describe('Detailed description of the product or service.'),
   targetLanguage: z
     .string()
-    .describe('The target country (e.g., Brazil, USA, Spain).'),
+    .describe('The target country from the exhaustive list.'),
   templateType: z.enum(['Launch', 'Robust', 'Review', 'List']).describe('The conversion strategy style.'),
 });
 export type GeneratePresellContentInput = z.infer<
@@ -58,18 +58,22 @@ const prompt = ai.definePrompt({
   name: 'generatePresellContentPrompt',
   input: {schema: GeneratePresellContentInputSchema},
   output: {schema: GeneratePresellContentOutputSchema},
-  prompt: `Você é um Copywriter de elite focado em tráfego direto para o país selecionado.
+  prompt: `Você é um Copywriter de elite focado em tráfego direto para mercados globais.
 
-INSTRUÇÃO DE IDIOMA CRÍTICA:
-- Se o país for "Alemanha", gere em ALEMÃO.
-- Se o país for "Argentina", "Espanha", "México", "Chile" ou "Colômbia", gere em ESPANHOL.
-- Se o país for "Austrália", "Canadá", "Estados Unidos" ou "Reino Unido", gere em INGLÊS.
-- Se o país for "Brasil" ou "Portugal", gere em PORTUGUÊS.
-- Se o país for "França", gere em FRANCÊS.
-- Se o país for "Itália", gere em ITALIANO.
+INSTRUÇÃO DE IDIOMA E LOCALIZAÇÃO:
+Analise o país selecionado: "{{{targetLanguage}}}" e gere a saída no idioma predominante desse local.
+
+GRUPOS DE IDIOMAS:
+- PORTUGUÊS: Brasil, Portugal, Angola.
+- INGLÊS: EUA, Reino Unido, Canadá, Austrália, Irlanda, Nova Zelândia, África do Sul, Singapura, Hong Kong, Índia, Filipinas.
+- ESPANHOL: Argentina, Bolívia, Chile, Colômbia, Costa Rica, Equador, Espanha, Guatemala, Honduras, México, Nicarágua, Panamá, Paraguai, Peru, Porto Rico, Uruguai, Venezuela.
+- FRANCÊS: França, Bélgica, Suíça, Luxemburgo.
+- ALEMÃO: Alemanha, Áustria.
+- ITALIANO: Itália.
+- OUTROS: Siga o idioma oficial do país (ex: Japão -> Japonês).
 
 REGRAS DE OURO:
-1. NUNCA misture idiomas.
+1. NUNCA misture idiomas. O texto deve ser 100% no idioma de destino.
 2. Use gírias e gatilhos mentais locais do país {{{targetLanguage}}}.
 3. O tom deve ser de "aquecimento" para a página oficial.
 

@@ -34,20 +34,13 @@ interface PresellFormProps {
 }
 
 const COUNTRIES = [
-  "Alemanha",
-  "Argentina",
-  "Austrália",
-  "Brasil",
-  "Canadá",
-  "Chile",
-  "Colômbia",
-  "Espanha",
-  "Estados Unidos",
-  "França",
-  "Itália",
-  "México",
-  "Portugal",
-  "Reino Unido"
+  "África do Sul", "Albânia", "Alemanha", "Angola", "Argentina", "Austrália", "Áustria", "Bélgica", "Bolívia", "Brasil", 
+  "Canadá", "Chile", "China", "Colômbia", "Coreia do Sul", "Costa Rica", "Croácia", "Dinamarca", "Egito", "Equador", 
+  "Eslováquia", "Eslovênia", "Espanha", "Estados Unidos", "Estônia", "Filipinas", "Finlândia", "França", "Grécia", 
+  "Guatemala", "Holanda", "Honduras", "Hong Kong", "Hungria", "Índia", "Indonésia", "Irlanda", "Israel", "Itália", 
+  "Japão", "Luxemburgo", "Malásia", "Marrocos", "México", "Nicarágua", "Noruega", "Nova Zelândia", "Panamá", 
+  "Paraguai", "Peru", "Polônia", "Portugal", "Porto Rico", "Reino Unido", "República Tcheca", "Romênia", "Singapura", 
+  "Suécia", "Suíça", "Tailândia", "Taiwan", "Turquia", "Uruguai", "Venezuela", "Vietnã"
 ];
 
 export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProps) {
@@ -127,7 +120,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
                         <Globe className="h-3 w-3" />
                         País de Destino
                       </FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="h-9 text-sm">
                             <SelectValue placeholder="Selecione o país" />
@@ -223,7 +216,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating }: PresellFormProp
                     <FormControl>
                       <Textarea 
                         placeholder="Cole aqui o texto da página de vendas para que a IA extraia os benefícios automaticamente." 
-                        className="min-h-[120px] resize-none text-sm"
+                        className="min-h-[140px] resize-none text-sm"
                         {...field} 
                       />
                     </FormControl>

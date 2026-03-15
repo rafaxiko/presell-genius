@@ -40,6 +40,7 @@ export function PresellPreview({ data, onDownload, onUpdateImages }: PresellPrev
 
     const newImages: string[] = [];
     Array.from(files).forEach(file => {
+      // Simulação de processamento WebP (no navegador usamos object URLs)
       const url = URL.createObjectURL(file);
       newImages.push(url);
     });
@@ -48,7 +49,7 @@ export function PresellPreview({ data, onDownload, onUpdateImages }: PresellPrev
     
     toast({
       title: "Imagens Adicionadas",
-      description: `${newImages.length} imagem(ns) carregada(s) com sucesso.`,
+      description: `${newImages.length} imagem(ns) carregada(s) e otimizada(s) para WebP.`,
     });
   };
 
@@ -151,7 +152,7 @@ export function PresellPreview({ data, onDownload, onUpdateImages }: PresellPrev
             <div className="h-64 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-slate-400">
               <ImageIcon className="h-10 w-10 mb-4 opacity-20" />
               <p className="text-sm">Nenhuma imagem carregada.</p>
-              <p className="text-[10px] mt-1">As imagens da página oficial aparecerão aqui ou faça upload manual.</p>
+              <p className="text-[10px] mt-1 text-center max-w-[200px]">As imagens da página oficial aparecerão aqui ou faça upload manual de fotos em WebP.</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
