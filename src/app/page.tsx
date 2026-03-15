@@ -26,7 +26,7 @@ export default function PresellGeniusApp() {
       const result = await generatePresellContent({
         salesPageDescription: values.salesPageDescription,
         targetLanguage: values.targetLanguage,
-        templateType: values.templateType,
+        templateType: values.templateType as any,
       });
 
       const imageUrls = values.productImageUrl 
@@ -36,14 +36,22 @@ export default function PresellGeniusApp() {
       setGeneratedData({
         productName: values.productName,
         headline: result.headline,
+        subheadline: result.subheadline,
         bodyCopy: result.bodyCopy,
+        benefits: result.benefits,
+        ingredients: result.ingredients,
+        faqs: result.faqs,
+        pros: result.pros,
+        cons: result.cons,
+        comparisonTable: result.comparisonTable,
+        pricing: result.pricing,
         callToAction: result.callToAction,
         buttonColor: values.buttonColor,
         targetUrl: values.targetUrl,
         productImageUrls: imageUrls,
         trackingLink: values.trackingLink,
         clarityScript: values.clarityScript,
-        templateType: values.templateType,
+        templateType: values.templateType as any,
       });
 
       toast({

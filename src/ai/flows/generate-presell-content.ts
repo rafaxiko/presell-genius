@@ -1,7 +1,7 @@
 'use server';
 /**
- * @fileOverview A Genkit flow that generates high-converting presell page content.
- * Extracted benefits and selling points directly from the product description.
+ * @fileOverview Fluxo Genkit que gera conteúdo estruturado para 4 tipos de templates.
+ * Extrai benefícios, ingredientes, FAQs e comparativos da descrição do produto.
  */
 
 import {ai} from '@/ai/genkit';
@@ -10,20 +10,39 @@ import {z} from 'genkit';
 const GeneratePresellContentInputSchema = z.object({
   salesPageDescription: z
     .string()
-    .describe('Detailed description of the product or service.'),
+    .describe('Descrição detalhada do produto ou serviço.'),
   targetLanguage: z
     .string()
-    .describe('The language in which the content should be generated.'),
-  templateType: z.string().describe('The type of template selected (Launch, Robust, Review, List).'),
+    .describe('O idioma em que o conteúdo deve ser gerado.'),
+  templateType: z.enum(['Launch', 'Robust', 'Review', 'List']).describe('O tipo de estratégia de conversão selecionado.'),
 });
 export type GeneratePresellContentInput = z.infer<
   typeof GeneratePresellContentInputSchema
 >;
 
+const PricingOptionSchema = z.object({
+  quantity: z.string(),
+  discount: z.string(),
+  price: z.string(),
+  isBestValue: z.boolean(),
+});
+
 const GeneratePresellContentOutputSchema = z.object({
-  headline: z.string().describe('A high-converting headline.'),
-  bodyCopy: z.string().describe('Engaging support copy with extracted benefits and social proof.'),
-  callToAction: z.string().describe('Powerful call to action.'),
+  headline: z.string().describe('Headline magnética de alta conversão.'),
+  subheadline: z.string().describe('Texto de apoio persuasivo.'),
+  bodyCopy: z.string().describe('Corpo do texto focado em "esquentar" o lead.'),
+  benefits: z.array(z.string()).describe('Lista de 3-5 benefícios principais.'),
+  ingredients: z.array(z.string()).optional().describe('Lista de ingredientes ou componentes (se aplicável).'),
+  faqs: z.array(z.object({ q: z.string(), a: z.string() })).optional().describe('Perguntas e respostas frequentes.'),
+  pros: z.array(z.string()).optional().describe('Pontos positivos para o template de Review.'),
+  cons: z.array(z.string()).optional().describe('Pontos negativos "leves" para dar autoridade ao Review.'),
+  comparisonTable: z.array(z.object({ 
+    feature: z.string(), 
+    product: z.string(), 
+    competitor: z.string() 
+  })).optional().describe('Dados para tabela comparativa no template de Lista.'),
+  callToAction: z.string().describe('Chamada para ação urgente.'),
+  pricing: z.array(PricingOptionSchema).optional().describe('Sugestões de pacotes de preço (1, 3, 6 unidades).'),
 });
 export type GeneratePresellContentOutput = z.infer<
   typeof GeneratePresellContentOutputSchema
@@ -39,26 +58,24 @@ const prompt = ai.definePrompt({
   name: 'generatePresellContentPrompt',
   input: {schema: GeneratePresellContentInputSchema},
   output: {schema: GeneratePresellContentOutputSchema},
-  prompt: `You are an expert copywriter specializing in direct response and affiliate marketing.
+  prompt: `Você é um copywriter de elite especializado em marketing direto e afiliados.
+Sua missão é criar uma página de pré-venda (presell) baseada no produto fornecido.
 
-Your goal is to create a high-converting presell page based on the product description provided. 
-Extract the key benefits, major objections, and emotional triggers automatically from the description.
+ESTRATÉGIA DE CONVERSÃO: {{{templateType}}}
+IDIOMA: {{{targetLanguage}}}
 
-Template Style: {{{templateType}}}
-Target Language: {{{targetLanguage}}}
+Diretrizes por Template:
+- Launch: Foco em curiosidade extrema, antecipação e escassez. 
+- Robust: O pacote completo. Prove valor, mostre ingredientes/componentes, prova social e ofertas múltiplas.
+- Review: Estilo editorial/notícia. Tonalidade pessoal: "Será que o {{{productName}}} funciona mesmo?". Inclua prós e contras honestos.
+- List: Estilo comparativo "Top 3". O produto atual DEVE ser o #1 da lista.
 
-Tone: Highly persuasive, friendly, and authoritative.
-Structure:
-1. Headline: Catchy and results-oriented.
-2. Body Copy: Must "warm up" the reader. Address the pain points, present the solution, and highlight 3-5 key benefits extracted from the description.
-3. Call to Action: Urgent and clear.
+CONTEÚDO DEVE SER TOTALMENTE EM: {{{targetLanguage}}}.
 
-CONTENT MUST BE WRITTEN ENTIRELY IN: {{{targetLanguage}}}.
-
-Product Description:
+Descrição do Produto:
 {{{salesPageDescription}}}
 
-Generate the content in JSON format.`,
+Gere o JSON estruturado contendo todos os campos necessários para o template selecionado.`,
 });
 
 const generatePresellContentFlow = ai.defineFlow(
