@@ -192,7 +192,7 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
 
         <h2 id="oferta">Escolha o seu Kit</h2>
         <div class="pg-price-grid">
-          ${pricing.map((p, idx) => {
+          ${pricing.length > 0 ? pricing.map((p, idx) => {
             const kitImg = productImageUrls[idx] || primaryImg;
             return `
               <div class="pg-price-card ${p.isBestValue ? 'featured' : ''}">
@@ -200,11 +200,15 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
                 <div style="font-size: 1.5rem; font-weight: 800; margin-bottom: 16px;">${p.quantity}</div>
                 ${kitImg ? `<img src="${kitImg}" style="width: 100%; max-height: 150px; object-fit: contain; margin-bottom: 20px;" alt="${p.quantity}">` : ''}
                 <div style="color: #059669; font-weight: 800; font-size: 0.9rem; margin-bottom: 12px;">${p.discount}</div>
-                <div style="font-size: 2.5rem; font-weight: 900; color: var(--primary); margin-bottom: 24px;">${p.price}</div>
+                <div style="font-size: 2.5rem; font-weight: 900; color: var(--primary); margin-bottom: 24px;">${p.price || '<span style="font-size: 1rem; color: #EF4444;">Preencher valor</span>'}</div>
                 <a href="${ctaLink}" class="pg-btn" style="padding: 16px; font-size: 1rem;">COMPRAR AGORA</a>
               </div>
             `;
-          }).join('')}
+          }).join('') : `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: #FEF2F2; border-radius: 20px; color: #EF4444; font-weight: 600;">
+              Nenhum pacote de preço detectado. Verifique a descrição do produto.
+            </div>
+          `}
         </div>
 
         ${faqs.length ? `

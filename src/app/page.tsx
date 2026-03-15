@@ -40,7 +40,7 @@ export default function PresellGeniusApp() {
         pros: result.pros,
         cons: result.cons,
         comparisonTable: result.comparisonTable,
-        pricing: result.pricing, // Now dynamic from AI
+        pricing: result.pricing,
         callToAction: result.callToAction,
         buttonColor: values.buttonColor,
         targetUrl: values.targetUrl,
