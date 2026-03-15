@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview Genkit flow to generate high-conversion presell content.
- * Advanced language detection and multi-country support.
+ * Extracted pricing data and multi-language support.
  */
 
 import {ai} from '@/ai/genkit';
@@ -21,10 +21,10 @@ export type GeneratePresellContentInput = z.infer<
 >;
 
 const PricingOptionSchema = z.object({
-  quantity: z.string(),
-  discount: z.string(),
-  price: z.string(),
-  isBestValue: z.boolean(),
+  quantity: z.string().describe('Quantity of items (e.g., 1 Bottle, 3 Bottles, 6 Bottles).'),
+  discount: z.string().describe('Discount text or savings (e.g., 50% OFF, SAVE $200).'),
+  price: z.string().describe('The formatted price (e.g., $197, R$ 447).'),
+  isBestValue: z.boolean().describe('Whether this is the recommended high-conversion package.'),
 });
 
 const GeneratePresellContentOutputSchema = z.object({
@@ -42,7 +42,7 @@ const GeneratePresellContentOutputSchema = z.object({
     competitor: z.string() 
   })).optional().describe('Comparative data (for List).'),
   callToAction: z.string().describe('Button text.'),
-  pricing: z.array(PricingOptionSchema).optional().describe('Pricing packages.'),
+  pricing: z.array(PricingOptionSchema).optional().describe('Pricing packages extracted from the description.'),
 });
 export type GeneratePresellContentOutput = z.infer<
   typeof GeneratePresellContentOutputSchema
@@ -70,18 +70,17 @@ GRUPOS DE IDIOMAS:
 - FRANCÊS: França, Bélgica, Suíça, Luxemburgo.
 - ALEMÃO: Alemanha, Áustria.
 - ITALIANO: Itália.
-- OUTROS: Siga o idioma oficial do país (ex: Japão -> Japonês).
+- OUTROS: Siga o idioma oficial do país.
 
 REGRAS DE OURO:
 1. NUNCA misture idiomas. O texto deve ser 100% no idioma de destino.
 2. Use gírias e gatilhos mentais locais do país {{{targetLanguage}}}.
-3. O tom deve ser de "aquecimento" para a página oficial.
-
-ESTRATÉGIA DO TEMPLATE:
-- Lançamento (Launch): Curiosidade, escassez e tom de "oportunidade única".
-- Robusta (Robust): Foco em autoridade, provas, ingredientes e oferta de pacotes.
-- Review: Tom editorial, analisando sinceramente os prós e contras.
-- Lista (List): Comparativo oficial onde este produto vence marcas comuns.
+3. EXTRAIA OS PREÇOS: Procure por kits de 1, 3 e 6 unidades na descrição. Se não encontrar, crie valores plausíveis baseados no nicho para o país selecionado.
+4. ESTRATÉGIA DO TEMPLATE:
+   - Lançamento (Launch): Curiosidade, escassez e tom de "oportunidade única".
+   - Robusta (Robust): Foco em autoridade, provas, ingredientes e oferta de pacotes. O kit de 6 unidades (ou o maior disponível) DEVE ser marcado como 'isBestValue'.
+   - Review: Tom editorial, analisando sinceramente os prós e contras.
+   - Lista (List): Comparativo oficial onde este produto vence marcas comuns.
 
 Descrição do Produto:
 {{{salesPageDescription}}}`,

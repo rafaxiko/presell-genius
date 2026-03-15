@@ -40,11 +40,11 @@ export default function PresellGeniusApp() {
         pros: result.pros,
         cons: result.cons,
         comparisonTable: result.comparisonTable,
-        pricing: result.pricing,
+        pricing: result.pricing, // Now dynamic from AI
         callToAction: result.callToAction,
         buttonColor: values.buttonColor,
         targetUrl: values.targetUrl,
-        productImageUrls: productImageUrls, // Use manually uploaded images
+        productImageUrls: productImageUrls,
         trackingLink: values.trackingLink,
         clarityScript: values.clarityScript,
         templateType: values.templateType as any,
@@ -54,14 +54,14 @@ export default function PresellGeniusApp() {
 
       toast({
         title: "Página Gerada!",
-        description: "Confira o preview ao lado.",
+        description: "Os preços e kits foram extraídos automaticamente.",
       });
     } catch (error) {
       console.error(error);
       toast({
         variant: "destructive",
         title: "Erro na Geração",
-        description: "A IA encontrou um problema. Verifique sua descrição.",
+        description: "A IA encontrou um problema. Tente novamente.",
       });
     } finally {
       setIsGenerating(false);
@@ -84,7 +84,7 @@ export default function PresellGeniusApp() {
   };
 
   const handleDownload = (wrapForElementor: boolean) => {
-    const dataToUse = generatedData || null; // generatePresellHTML handles null
+    const dataToUse = generatedData || null;
     const html = generatePresellHTML(dataToUse, wrapForElementor);
     
     if (typeof window !== 'undefined') {
@@ -102,7 +102,7 @@ export default function PresellGeniusApp() {
 
       toast({
         title: "Download Concluído",
-        description: "Arquivo salvo com sucesso.",
+        description: "Arquivo pronto para uso.",
       });
     }
   };
@@ -139,7 +139,6 @@ export default function PresellGeniusApp() {
       </header>
 
       <main className="flex-1 flex overflow-hidden">
-        {/* Sidebar Configuration */}
         <aside className="w-[440px] shrink-0 h-full border-r bg-slate-50/20 p-6 flex flex-col overflow-hidden">
           <PresellForm 
             onSubmit={handleGenerate} 
@@ -150,7 +149,6 @@ export default function PresellGeniusApp() {
           />
         </aside>
 
-        {/* Live Preview Panel */}
         <section className="flex-1 h-full bg-slate-100/50 flex flex-col overflow-hidden">
           <div className="flex-1 p-6 md:p-8 overflow-auto">
             <PresellPreview 
