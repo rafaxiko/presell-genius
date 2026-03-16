@@ -27,6 +27,7 @@ export default function PresellGeniusApp() {
         salesPageDescription: values.salesPageDescription,
         targetLanguage: values.targetLanguage,
         templateType: values.templateType as any,
+        copyStyle: values.copyStyle,
       });
 
       const newData: PresellData = {
@@ -54,6 +55,7 @@ export default function PresellGeniusApp() {
         trackingLink: values.trackingLink,
         clarityScript: values.clarityScript,
         templateType: values.templateType as any,
+        copyStyle: values.copyStyle,
         targetLanguage: values.targetLanguage,
       };
 
@@ -88,11 +90,6 @@ export default function PresellGeniusApp() {
   const handleClear = () => {
     setGeneratedData(null);
     setProductImageUrls([]);
-  };
-
-  const handleDownload = (wrapForElementor: boolean) => {
-    // Note: The generatePresellHTML call is handled within PresellPreview components for the live view,
-    // but PresellPreview also has the onDownload handler.
   };
 
   if (!isMounted) return null;
@@ -141,7 +138,7 @@ export default function PresellGeniusApp() {
           <div className="flex-1 p-6 md:p-8 overflow-auto">
             <PresellPreview 
               data={generatedData} 
-              onDownload={() => {}} // Download handled internally by PresellPreview
+              onDownload={() => {}} // Handled inside PresellPreview
               onUpdateImages={handleUpdateImages}
             />
           </div>

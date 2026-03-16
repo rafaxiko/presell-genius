@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview Genkit flow to generate Nutra Presell System v6 content.
- * Investigative editorial tone, multi-language support, and structured sections.
+ * Investigative editorial tone, multi-language support, and copy style control.
  */
 
 import {ai} from '@/ai/genkit';
@@ -15,6 +15,7 @@ const GeneratePresellContentInputSchema = z.object({
     .string()
     .describe('The target country from the exhaustive list.'),
   templateType: z.enum(['Launch', 'Robust', 'Review', 'List']).describe('The conversion strategy style.'),
+  copyStyle: z.enum(['Conservador', 'Agressivo']).describe('The intensity of the sales copy.'),
 });
 export type GeneratePresellContentInput = z.infer<
   typeof GeneratePresellContentInputSchema
@@ -77,9 +78,18 @@ Gere TODO o conteúdo no idioma oficial de: "{{{targetLanguage}}}".
 - Se for México/Espanha/Argentina: 100% Espanhol.
 
 TONALIDADE (Invisible Copy):
+Estilo selecionado: {{{copyStyle}}}
+
+Se "Conservador":
 - Seja neutro, empático e informativo.
 - NÃO use linguagem de vendas agressiva nas seções editoriais.
 - Escreva como se fosse um portal de notícias independente analisando se o produto funciona.
+
+Se "Agressivo":
+- Use Headlines de alto impacto com Power Words.
+- Foque mais em resultados imediatos e na dor latente.
+- Aumente o uso de palavras de urgência no final ("Apenas Hoje", "Estoque Limitado").
+- Use uma linguagem mais direta e persuasiva, mas mantenha a moldura de review.
 
 ESTRUTURA DE 27 SEÇÕES (Resumo):
 1. Headline Editorial (Magnética e curiosa).

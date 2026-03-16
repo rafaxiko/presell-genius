@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, ArrowRight, Palette, Link as LinkIcon, ListChecks, RotateCcw, Globe, Activity, Code2, LayoutTemplate, ShoppingBag, Upload, Trash2, ImageIcon } from 'lucide-react';
+import { Sparkles, ArrowRight, Palette, Link as LinkIcon, ListChecks, RotateCcw, Globe, Activity, Code2, LayoutTemplate, ShoppingBag, Upload, Trash2, ImageIcon, Zap } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +20,7 @@ const formSchema = z.object({
   officialProductUrl: z.string().url('A URL da página oficial é obrigatória.'),
   targetLanguage: z.string().min(1, 'Selecione um país.'),
   templateType: z.enum(['Launch', 'Robust', 'Review', 'List']),
+  copyStyle: z.enum(['Conservador', 'Agressivo']),
   buttonColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Cor hexadecimal inválida.'),
   targetUrl: z.string().url('Seu link de afiliado é obrigatório.'),
   trackingLink: z.string().optional().or(z.literal('')),
@@ -58,6 +59,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
       officialProductUrl: '',
       targetLanguage: 'Brasil',
       templateType: 'Robust',
+      copyStyle: 'Conservador',
       buttonColor: '#2952A3',
       targetUrl: 'https://seulink.com',
       trackingLink: '',
@@ -200,6 +202,33 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
 
                 <FormField
                   control={form.control}
+                  name="copyStyle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <Zap className="h-3 w-3" />
+                        Estilo do Copy
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-9 text-sm">
+                            <SelectValue placeholder="Escolha o estilo" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Conservador">Conservador (v6)</SelectItem>
+                          <SelectItem value="Agressivo">Agressivo (Urgência)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
                   name="buttonColor"
                   render={({ field }) => (
                     <FormItem>
@@ -217,24 +246,24 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <FormField
-                control={form.control}
-                name="officialProductUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      <LinkIcon className="h-3 w-3 text-primary" />
-                      URL da Página Oficial *
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://site-oficial.com" className="h-9 text-sm" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="officialProductUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <LinkIcon className="h-3 w-3 text-primary" />
+                        URL Oficial *
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://site-oficial.com" className="h-9 text-sm" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               {/* Área de Mídia */}
               <div className="space-y-3">
