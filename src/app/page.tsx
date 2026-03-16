@@ -31,7 +31,7 @@ export default function PresellGeniusApp() {
       });
 
       const newData: PresellData = {
-        productName: values.productName,
+        productName: result.productName || values.productName,
         headline: result.headline,
         subheadline: result.subheadline,
         editorialIntro: result.editorialIntro,
@@ -42,12 +42,8 @@ export default function PresellGeniusApp() {
         curiosityBridge: result.curiosityBridge,
         features: result.features,
         benefits: result.benefits,
-        comparisonTable: result.comparisonTable,
-        pros: result.pros,
-        cons: result.cons,
-        testimonials: result.testimonials,
         pricing: result.pricing,
-        faqs: result.faqs,
+        testimonials: result.testimonials,
         callToAction: result.callToAction,
         buttonColor: values.buttonColor,
         targetUrl: values.targetUrl,
@@ -63,7 +59,7 @@ export default function PresellGeniusApp() {
 
       toast({
         title: "Análise Gerada!",
-        description: "Estrutura Nutra System v6 aplicada com sucesso.",
+        description: "Estrutura Nutra Elite v6 aplicada com sucesso.",
       });
     } catch (error) {
       console.error(error);
@@ -108,13 +104,13 @@ export default function PresellGeniusApp() {
           </span>
           <div className="ml-4 hidden sm:flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 border border-slate-200">
             <Globe className="h-3 w-3 text-primary" />
-            SISTEMA NUTRA v6
+            ELITE ENGINE v6
           </div>
         </div>
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
             <Rocket className="h-3.5 w-3.5" />
-            ESTRATÉGIA VSL 2026
+            COMPLIANCE WHITE HAT
           </div>
           <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded text-[10px] font-bold text-yellow-700 border border-yellow-100">
             <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
@@ -138,7 +134,7 @@ export default function PresellGeniusApp() {
           <div className="flex-1 p-6 md:p-8 overflow-auto">
             <PresellPreview 
               data={generatedData} 
-              onDownload={() => {}} // Handled inside PresellPreview
+              onDownload={() => {}} 
               onUpdateImages={handleUpdateImages}
             />
           </div>
