@@ -46,6 +46,7 @@ export default function PresellGeniusApp() {
         testimonials: result.testimonials,
         callToAction: result.callToAction,
         buttonColor: values.buttonColor,
+        primaryColor: result.primaryColor,
         targetUrl: values.targetUrl,
         productImageUrls: productImageUrls,
         trackingLink: values.trackingLink,
@@ -58,8 +59,8 @@ export default function PresellGeniusApp() {
       setGeneratedData(newData);
 
       toast({
-        title: "Análise Gerada!",
-        description: "Estrutura Nutra Elite v6 aplicada com sucesso.",
+        title: "Página Gerada!",
+        description: "Estrutura Robusta White aplicada com sucesso.",
       });
     } catch (error) {
       console.error(error);
@@ -104,13 +105,13 @@ export default function PresellGeniusApp() {
           </span>
           <div className="ml-4 hidden sm:flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 border border-slate-200">
             <Globe className="h-3 w-3 text-primary" />
-            ELITE ENGINE v6
+            ELITE ENGINE
           </div>
         </div>
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
             <Rocket className="h-3.5 w-3.5" />
-            COMPLIANCE WHITE HAT
+            COMPLIANCE ENGINE
           </div>
           <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded text-[10px] font-bold text-yellow-700 border border-yellow-100">
             <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />

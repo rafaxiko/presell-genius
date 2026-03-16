@@ -5,6 +5,7 @@ export type PricingOption = {
   totalPrice?: string;
   savings?: string;
   isBestValue: boolean;
+  isMostPopular?: boolean;
   unitName?: string;
 };
 
@@ -12,11 +13,6 @@ export type Testimonial = {
   name: string;
   text: string;
   location: string;
-};
-
-export type FAQItem = {
-  q: string;
-  a: string;
 };
 
 export type PresellData = {
@@ -35,6 +31,7 @@ export type PresellData = {
   testimonials?: Testimonial[];
   callToAction: string;
   buttonColor: string;
+  primaryColor?: string;
   targetUrl: string;
   productImageUrls?: string[];
   trackingLink?: string;
@@ -68,11 +65,13 @@ export function generatePresellHTML(data: PresellData | null): string {
   const { 
     productName, headline, subheadline, editorialIntro, quickSummary, patternInterrupt,
     problemsSection, whatIsSection, curiosityBridge, features = [], benefits = [], 
-    callToAction, buttonColor, targetUrl, productImageUrls = [], pricing = [], testimonials = []
+    callToAction, buttonColor, targetUrl, productImageUrls = [], pricing = [], testimonials = [],
+    copyStyle, primaryColor: extractedColor
   } = finalData;
   
   const ctaColor = '#FF8C00'; // Vibrant Orange for CTAs
-  const primaryColor = buttonColor || '#2952A3';
+  const primaryBrandColor = extractedColor || buttonColor || '#2952A3';
+  const isBlackHat = copyStyle === 'Black Hat (Agressivo)';
 
   const renderImage = (index: number, alt: string) => {
     if (productImageUrls && productImageUrls[index]) {
@@ -92,59 +91,72 @@ export function generatePresellHTML(data: PresellData | null): string {
 
   const css = `
     :root { 
-      --primary: ${primaryColor}; 
+      --primary: ${primaryBrandColor}; 
       --cta: ${ctaColor};
       --navy: #111827;
       --gray: #4B5563;
       --light-gray: #F9FAFB;
+      --white: #ffffff;
     }
     body { font-family: 'Inter', sans-serif; margin: 0; color: var(--gray); background: #fff; line-height: 1.6; }
     .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
-    section { padding: 80px 0; }
+    section { padding: 80px 0; border-bottom: 1px solid #f1f1f1; }
+    .section-white { background: var(--white); }
     .section-gray { background: var(--light-gray); }
     h1, h2, h3 { color: var(--navy); font-weight: 800; }
-    h1 { font-size: 48px; line-height: 1.1; margin-bottom: 24px; }
+    h1 { font-size: 42px; line-height: 1.1; margin-bottom: 24px; text-transform: uppercase; }
     h2 { font-size: 32px; text-align: center; margin-bottom: 40px; }
     .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; padding: 60px 0; }
-    @media (max-width: 768px) { .hero { grid-template-columns: 1fr; text-align: center; } }
+    @media (max-width: 768px) { .hero { grid-template-columns: 1fr; text-align: center; } h1 { font-size: 32px; } }
     .btn { 
-      display: inline-block; width: 100%; padding: 20px; background: var(--cta); color: #fff; 
-      text-align: center; text-decoration: none; font-weight: 900; font-size: 18px; 
-      border-radius: 12px; box-shadow: 0 10px 20px rgba(255, 140, 0, 0.2); 
-      transition: transform 0.2s; animation: pulse 2s infinite;
+      display: inline-block; width: 100%; padding: 22px; background: var(--cta); color: #fff; 
+      text-align: center; text-decoration: none; font-weight: 900; font-size: 20px; 
+      border-radius: 12px; box-shadow: 0 10px 25px rgba(255, 140, 0, 0.3); 
+      transition: all 0.2s; animation: pulse 2s infinite; cursor: pointer; border: none;
     }
-    .btn:hover { transform: scale(1.05); }
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(255, 140, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0); } }
-    .pricing-grid { display: grid; gap: 24px; margin-top: 40px; }
+    .btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.5); } 70% { box-shadow: 0 0 0 15px rgba(255, 140, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0); } }
+    .pricing-grid { display: grid; gap: 24px; margin-top: 40px; align-items: center; }
     @media (min-width: 768px) { .pricing-grid { grid-template-columns: repeat(3, 1fr); } }
     .price-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 20px; padding: 40px 24px; text-align: center; position: relative; transition: all 0.3s; }
-    .price-card.featured { border: 2px solid var(--primary); transform: scale(1.05); box-shadow: 0 20px 40px rgba(0,0,0,0.05); z-index: 10; }
-    @media (max-width: 768px) { .price-card.featured { transform: scale(1); } }
-    .price-card .qty { font-size: 14px; font-weight: 800; color: var(--gray); text-transform: uppercase; }
-    .price-card .price { font-size: 36px; font-weight: 900; color: var(--navy); margin: 16px 0; }
-    .price-card .savings { color: #10B981; font-weight: 800; font-size: 14px; }
-    .price-card .badge { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; font-size: 11px; font-weight: 900; padding: 6px 16px; border-radius: 50px; }
-    .testimonial-card { background: #fff; padding: 30px; border-radius: 20px; border: 1px solid #E5E7EB; margin-bottom: 24px; }
+    .price-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+    .price-card.featured { border: 3px solid var(--primary); transform: scale(1.1); z-index: 10; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+    @media (max-width: 768px) { .price-card.featured { transform: scale(1); margin-bottom: 40px; } }
+    .price-card .qty { font-size: 15px; font-weight: 800; color: var(--navy); text-transform: uppercase; margin-bottom: 10px; }
+    .price-card .price { font-size: 38px; font-weight: 900; color: var(--navy); margin: 16px 0; }
+    .price-card .savings { background: #DCFCE7; color: #166534; font-weight: 800; font-size: 12px; padding: 4px 12px; border-radius: 50px; display: inline-block; margin-bottom: 15px; }
+    .price-card .badge { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; font-size: 11px; font-weight: 900; padding: 8px 18px; border-radius: 50px; white-space: nowrap; }
+    .testimonial-card { background: #fff; padding: 35px; border-radius: 20px; border: 1px solid #E5E7EB; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+    .scarcity-bar { background: #111827; color: #fff; text-align: center; padding: 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+    .scarcity-bar span { color: #F87171; }
+    .stars { color: #FFB400; font-size: 20px; margin-bottom: 10px; }
+    .badge-verified { background: #F3F4F6; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 800; color: #6B7280; vertical-align: middle; }
   `;
+
+  const sortedPricing = [...pricing].sort((a, b) => {
+    const qA = parseInt(a.quantity) || 0;
+    const qB = parseInt(b.quantity) || 0;
+    // Desktop: 1, 6, 3 logic
+    if (a.isBestValue) return -1;
+    if (b.isBestValue) return 1;
+    if (a.isMostPopular) return 0;
+    return qA - qB;
+  });
 
   const pricingSection = pricing.length > 0 ? `
     <section id="pricing" class="section-gray">
       <div class="container">
-        <h2>Escolha seu Pacote Promocional</h2>
+        <h2>Pacotes Promocionais Exclusivos</h2>
         <div class="pricing-grid">
-          ${pricing.sort((a, b) => {
-            const qA = parseInt(a.quantity);
-            const qB = parseInt(b.quantity);
-            // Desktop: 1, 6 (featured), 3. Simple hack: featured is center.
-            return a.isBestValue ? 0 : (qA === 1 ? -1 : 1);
-          }).map(p => `
-            <div class="price-card ${p.isBestValue ? 'featured' : ''}">
-              ${p.isBestValue ? '<div class="badge">MAIS POPULAR</div>' : ''}
-              <div class="qty">${p.quantity} ${p.unitName}</div>
-              <div style="margin: 20px 0;">${renderImage(0, productName)}</div>
-              <div class="price">${p.price}</div>
+          ${sortedPricing.map((p, idx) => `
+            <div class="price-card ${p.isBestValue ? 'featured' : ''}" style="order: ${p.isBestValue ? 2 : (p.isMostPopular ? 3 : 1)};">
+              ${p.isBestValue ? '<div class="badge">O MELHOR VALOR</div>' : (p.isMostPopular ? '<div class="badge">O MAIS POPULAR</div>' : '')}
+              <div class="qty">${p.quantity} ${p.unitName || 'Unidades'}</div>
+              <div style="margin: 25px 0;">${renderImage(0, productName)}</div>
               ${p.savings ? `<div class="savings">ECONOMIZE ${p.savings}</div>` : ''}
-              <a href="${targetUrl}" class="btn" style="padding: 12px; font-size: 14px; margin-top: 20px;">PEDIR AGORA</a>
+              <div class="price">${p.price}</div>
+              <a href="${targetUrl}" class="btn" style="padding: 15px; font-size: 15px; margin-top: 15px;">PEDIR AGORA</a>
+              <div style="margin-top: 15px; font-size: 11px; font-weight: 700; color: #9CA3AF;">Garantia de 60 Dias</div>
             </div>
           `).join('')}
         </div>
@@ -155,13 +167,18 @@ export function generatePresellHTML(data: PresellData | null): string {
   const testimonialSection = testimonials.length > 0 ? `
     <section class="section-white">
       <div class="container" style="max-width: 800px;">
-        <h2>Depoimentos de Clientes</h2>
+        <h2>Depoimentos de Clientes Verificados</h2>
         ${testimonials.map(t => `
           <div class="testimonial-card">
-            <div style="color: #FFB400; margin-bottom: 12px;">★★★★★</div>
-            <p style="font-style: italic; font-size: 17px; margin-bottom: 16px;">"${t.text}"</p>
-            <div style="font-weight: 800; font-size: 14px; color: var(--navy);">${t.name}</div>
-            <div style="font-size: 12px;">${t.location}</div>
+            <div class="stars">★★★★★ <span class="badge-verified">VERIFICADO</span></div>
+            <p style="font-style: italic; font-size: 18px; margin-bottom: 20px; color: var(--navy);">"${t.text}"</p>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 40px; height: 40px; background: #E5E7EB; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #9CA3AF; font-size: 14px;">${t.name.charAt(0)}</div>
+              <div>
+                <div style="font-weight: 800; font-size: 15px; color: var(--navy);">${t.name}</div>
+                <div style="font-size: 12px; color: #9CA3AF;">${t.location}</div>
+              </div>
+            </div>
           </div>
         `).join('')}
       </div>
@@ -178,41 +195,54 @@ export function generatePresellHTML(data: PresellData | null): string {
     <style>${css}</style>
 </head>
 <body>
-    <header style="border-bottom: 1px solid #E5E7EB; padding: 20px 0; background: #fff;">
+    <div class="scarcity-bar">ALERTA: Estoque limitado disponível para <span>${finalData.targetLanguage || 'Brasil'}</span></div>
+    
+    <header style="padding: 15px 0; background: #fff; border-bottom: 1px solid #E5E7EB; position: sticky; top: 0; z-index: 100;">
       <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
-        <div style="font-weight: 900; font-size: 20px; color: var(--navy);">${productName}</div>
-        <div style="font-size: 13px; font-weight: 700; color: var(--gray);">Portal Oficial</div>
+        <div style="font-weight: 900; font-size: 22px; color: var(--navy); letter-spacing: -1px;">${productName}</div>
+        <nav style="display: flex; gap: 20px; font-size: 12px; font-weight: 800; color: var(--gray);">
+          <span style="cursor: pointer;">SOBRE</span>
+          <span style="cursor: pointer;">INGREDIENTES</span>
+          <span style="cursor: pointer; color: var(--primary);">PREÇOS</span>
+        </nav>
       </div>
     </header>
 
-    <section class="section-white">
+    <section class="section-white" style="padding-top: 40px;">
       <div class="container hero">
         <div>
-          <div style="color: #FFB400; margin-bottom: 16px;">★★★★★ <span style="color: var(--gray); font-size: 13px; font-weight: 700; margin-left: 8px;">(REVIEWS VERIFICADOS)</span></div>
+          <div class="stars">★★★★★ <span style="color: var(--gray); font-size: 12px; font-weight: 800; margin-left: 10px;">MAIS DE 16.892 AVALIAÇÕES</span></div>
           <h1>${headline}</h1>
-          <p style="font-size: 20px; font-weight: 500;">${subheadline || ''}</p>
-          <a href="#pricing" class="btn" style="max-width: 400px;">VERIFICAR DISPONIBILIDADE</a>
+          <p style="font-size: 22px; font-weight: 500; margin-bottom: 30px; color: var(--gray);">${subheadline || ''}</p>
+          <a href="#pricing" class="btn" style="max-width: 420px;">VERIFICAR DISPONIBILIDADE</a>
         </div>
         <div>${renderImage(0, productName)}</div>
       </div>
     </section>
 
     <section class="section-gray">
-      <div class="container" style="max-width: 800px; text-align: center;">
-        <h2>A Ciência do Bem-Estar</h2>
-        <p>${whatIsSection}</p>
-        <p>${problemsSection}</p>
+      <div class="container" style="max-width: 850px; text-align: center;">
+        <h2>A Ciência por trás do Bem-estar</h2>
+        <div style="font-size: 18px; color: var(--gray); line-height: 1.8;">
+          <p style="margin-bottom: 25px;">${whatIsSection}</p>
+          <p style="margin-bottom: 25px;">${problemsSection}</p>
+        </div>
       </div>
     </section>
 
     ${pricingSection}
     ${testimonialSection}
 
-    <footer style="background: var(--navy); color: #fff; padding: 60px 0; text-align: center; font-size: 12px;">
+    <footer style="background: #111827; color: #fff; padding: 80px 0; text-align: center; font-size: 13px;">
       <div class="container">
-        <div style="font-weight: 900; font-size: 24px; margin-bottom: 20px;">${productName}</div>
-        <p>© 2026 ${productName}. Todos os direitos reservados.</p>
-        <p style="opacity: 0.5; margin-top: 20px;">ESTE SITE NÃO É AFILIADO AO GOOGLE OU FACEBOOK INC.</p>
+        <div style="font-weight: 900; font-size: 30px; margin-bottom: 25px;">${productName}</div>
+        <p style="opacity: 0.7;">© 2026 ${productName}. Todos os direitos reservados.</p>
+        <div style="margin-top: 30px; display: flex; justify-content: center; gap: 20px; opacity: 0.5; font-weight: 700;">
+          <span>TERMOS</span>
+          <span>PRIVACIDADE</span>
+          <span>CONTATO</span>
+        </div>
+        <p style="opacity: 0.3; margin-top: 40px; font-size: 11px;">ESTE SITE NÃO É AFILIADO AO GOOGLE OU FACEBOOK INC.</p>
       </div>
     </footer>
 </body>
