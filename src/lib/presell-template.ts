@@ -85,89 +85,152 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
   
   const ctaLink = trackingLink || targetUrl;
 
-  // Media Slot Mapping - Injection of real images or SVG placeholders
-  const getMedia = (index: number, slotCode: string) => {
+  // Real Image Rendering logic
+  const getMedia = (index: number, slotLabel: string) => {
     if (productImageUrls && productImageUrls[index]) {
-      return `<img src="${productImageUrls[index]}" class="n-slot-img" alt="${slotCode}">`;
+      return `<img src="${productImageUrls[index]}" class="n-slot-img" alt="${slotLabel}" style="width: 100%; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05);">`;
     }
+    // Professional gray placeholder with icon
     return `
-      <div class="n-slot-placeholder">
-        <svg viewBox="0 0 24 24" width="48" height="48" stroke="${buttonColor}" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5;">
+      <div class="n-slot-placeholder" style="width: 100%; aspect-ratio: 1/1; max-width: 300px; margin: 0 auto 30px; background: #f3f4f6; border: 2px dashed #e5e7eb; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #9ca3af;">
+        <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.5; margin-bottom: 12px;">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
           <circle cx="8.5" cy="8.5" r="1.5"></circle>
           <polyline points="21 15 16 10 5 21"></polyline>
         </svg>
-        <span style="margin-top: 10px; font-size: 0.7rem; opacity: 0.6;">${slotCode} - IMAGEM DO PRODUTO</span>
+        <span style="font-size: 0.75rem; font-weight: 700; opacity: 0.8;">FOTO DO PRODUTO</span>
+        <span style="font-size: 0.6rem; opacity: 0.5; margin-top: 4px;">${slotLabel}</span>
       </div>
     `;
   };
 
+  const isAgressive = copyStyle === 'Agressivo';
+
   const commonStyles = `
     :root { 
       --primary: ${buttonColor || '#2952A3'}; 
-      --text: #1F2937; 
+      --text: #111827; 
       --text-muted: #6B7280;
-      --bg: #F3F4F6; 
+      --bg: #F9FAFB; 
       --card-bg: #FFFFFF;
       --radius: 20px;
-      --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-      --shadow-agressive: 0 0 30px ${buttonColor}33;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      --shadow-agressive: 0 0 40px ${buttonColor}44;
     }
     * { box-sizing: border-box; }
     body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.6; }
     .n-container { max-width: 720px; margin: 0 auto; padding: 0 20px; }
     
-    .n-header-bar { background: #111827; color: #fff; text-align: center; padding: 12px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-    .n-navbar { background: #fff; border-bottom: 1px solid #E5E7EB; padding: 15px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+    .n-header-bar { 
+      background: ${isAgressive ? '#EF4444' : '#111827'}; 
+      color: #fff; 
+      text-align: center; 
+      padding: 10px; 
+      font-size: 0.75rem; 
+      font-weight: 800; 
+      text-transform: uppercase; 
+      letter-spacing: 1px;
+    }
+    .n-navbar { 
+      background: #fff; 
+      border-bottom: 1px solid #E5E7EB; 
+      padding: 12px 0; 
+      position: sticky; 
+      top: 0; 
+      z-index: 1000; 
+      box-shadow: 0 2px 10px rgba(0,0,0,0.02); 
+    }
     .n-navbar-inner { display: flex; justify-content: space-between; align-items: center; }
-    .n-logo { font-weight: 900; font-size: 1.2rem; color: #111827; text-decoration: none; }
+    .n-logo { font-weight: 900; font-size: 1.1rem; color: #111827; text-decoration: none; display: flex; align-items: center; gap: 8px; }
     
-    .n-editorial-card { background: #fff; padding: 40px; border-radius: var(--radius); box-shadow: var(--shadow); margin-top: 20px; border: 1px solid rgba(0,0,0,0.03); }
-    .n-meta { color: #6B7280; font-size: 0.85rem; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #F3F4F6; }
+    .n-editorial-card { background: #fff; padding: 40px; border-radius: var(--radius); box-shadow: var(--shadow); margin-top: 20px; border: 1px solid rgba(0,0,0,0.02); }
+    .n-meta { color: #6B7280; font-size: 0.85rem; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #F3F4F6; display: flex; align-items: center; gap: 10px; }
     
-    h1 { font-size: 2.2rem; font-weight: 800; line-height: 1.2; color: #111827; margin: 0 0 20px; letter-spacing: -0.02em; }
-    h2 { font-size: 1.75rem; font-weight: 800; color: #111827; margin: 40px 0 20px; letter-spacing: -0.01em; }
-    p { margin-bottom: 24px; font-size: 1.125rem; color: #374151; }
+    h1 { font-size: 2.25rem; font-weight: 900; line-height: 1.15; color: #111827; margin: 0 0 24px; letter-spacing: -0.03em; }
+    h2 { font-size: 1.75rem; font-weight: 800; color: #111827; margin: 48px 0 24px; letter-spacing: -0.01em; }
+    p { margin-bottom: 28px; font-size: 1.125rem; color: #374151; }
     
-    .n-slot-img { width: 100%; border-radius: var(--radius); margin-bottom: 30px; display: block; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05); }
-    .n-slot-placeholder { min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #F9FAFB; border: 2px dashed #E5E7EB; margin-bottom: 30px; border-radius: var(--radius); }
+    .n-summary { background: #F3F4F6; border-left: 6px solid var(--primary); padding: 32px; margin-bottom: 48px; font-style: italic; border-radius: 0 16px 16px 0; }
     
-    .n-summary { background: #F9FAFB; border-left: 5px solid var(--primary); padding: 30px; margin-bottom: 40px; font-style: italic; border-radius: 0 12px 12px 0; }
-    .n-btn { display: inline-block; width: 100%; background: var(--primary); color: #fff; text-align: center; padding: 22px; border-radius: 12px; font-weight: 800; font-size: 1.3rem; text-decoration: none; text-transform: uppercase; margin-top: 20px; transition: all 0.2s; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border: none; cursor: pointer; }
-    .n-btn:active { transform: scale(0.98); }
+    .n-btn { 
+      display: inline-block; 
+      width: 100%; 
+      background: var(--primary); 
+      color: #fff; 
+      text-align: center; 
+      padding: 24px; 
+      border-radius: 16px; 
+      font-weight: 900; 
+      font-size: 1.35rem; 
+      text-decoration: none; 
+      text-transform: uppercase; 
+      margin-top: 24px; 
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+      box-shadow: 0 12px 24px -6px ${buttonColor}44; 
+      border: none; 
+      cursor: pointer; 
+    }
+    .n-btn:active { transform: scale(0.97); }
     
-    .n-price-grid { display: grid; gap: 24px; margin: 48px 0; }
-    .n-price-card { background: #fff; border: 1px solid #E5E7EB; border-radius: var(--radius); padding: 32px; text-align: center; position: relative; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    .n-price-card.featured { border: 2px solid var(--primary); transform: scale(1.05); z-index: 5; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1); }
-    ${copyStyle === 'Agressivo' ? '.n-price-card.featured { box-shadow: var(--shadow-agressive); }' : ''}
+    .n-price-grid { display: grid; gap: 24px; margin: 60px 0; }
+    .n-price-card { 
+      background: #fff; 
+      border: 1px solid #E5E7EB; 
+      border-radius: var(--radius); 
+      padding: 40px 32px; 
+      text-align: center; 
+      position: relative; 
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    }
+    .n-price-card.featured { 
+      border: 2px solid var(--primary); 
+      transform: scale(1.04); 
+      z-index: 5; 
+      box-shadow: ${isAgressive ? 'var(--shadow-agressive)' : '0 20px 50px -10px rgba(0,0,0,0.1)'}; 
+    }
     
-    .n-badge { background: var(--primary); color: #fff; font-size: 0.75rem; font-weight: 900; padding: 6px 16px; border-radius: 30px; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+    .n-badge { 
+      background: var(--primary); 
+      color: #fff; 
+      font-size: 0.8rem; 
+      font-weight: 900; 
+      padding: 8px 20px; 
+      border-radius: 50px; 
+      position: absolute; 
+      top: -18px; 
+      left: 50%; 
+      transform: translateX(-50%); 
+      white-space: nowrap; 
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
     
-    .n-table { width: 100%; border-collapse: collapse; margin: 40px 0; font-size: 0.95rem; border-radius: 12px; overflow: hidden; border: 1px solid #E5E7EB; }
-    .n-table th { background: #F9FAFB; padding: 18px; text-align: left; border-bottom: 2px solid #E5E7EB; color: #111827; }
-    .n-table td { padding: 18px; border-bottom: 1px solid #F3F4F6; }
+    .n-table { width: 100%; border-collapse: collapse; margin: 40px 0; font-size: 0.95rem; border-radius: 16px; overflow: hidden; border: 1px solid #E5E7EB; box-shadow: var(--shadow); }
+    .n-table th { background: #F9FAFB; padding: 20px; text-align: left; border-bottom: 2px solid #E5E7EB; color: #111827; }
+    .n-table td { padding: 20px; border-bottom: 1px solid #F3F4F6; }
     
-    .n-footer { text-align: center; padding: 80px 0; color: #9CA3AF; font-size: 0.85rem; border-top: 1px solid #E5E7EB; margin-top: 80px; background: #fff; }
+    .n-footer { text-align: center; padding: 100px 0; color: #9CA3AF; font-size: 0.85rem; border-top: 1px solid #E5E7EB; margin-top: 100px; background: #fff; }
     
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 ${buttonColor}66; transform: scale(1); } 70% { box-shadow: 0 0 0 20px ${buttonColor}00; transform: scale(1.02); } 100% { box-shadow: 0 0 0 0 ${buttonColor}00; transform: scale(1); } }
-    .n-pulse { animation: pulse 2.5s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 ${buttonColor}66; } 70% { transform: scale(1.02); box-shadow: 0 0 0 20px ${buttonColor}00; } 100% { transform: scale(1); box-shadow: 0 0 0 0 ${buttonColor}00; } }
+    .n-pulse { animation: pulse 3s infinite; }
 
     @media (max-width: 640px) {
-      h1 { font-size: 1.85rem; line-height: 1.25; }
+      h1 { font-size: 1.85rem; line-height: 1.2; }
       .n-editorial-card { padding: 24px; border-radius: 16px; }
-      .n-btn { padding: 20px; font-size: 1.15rem; }
-      .n-price-card.featured { transform: scale(1.02); }
-      .n-navbar-inner { padding: 0 10px; }
+      .n-btn { padding: 22px; font-size: 1.2rem; }
+      .n-price-card.featured { transform: scale(1.02); margin-bottom: 20px; }
     }
   `;
 
   const finalHTML = `
-    <div class="n-header-bar">${copyStyle === 'Agressivo' ? 'ÚLTIMAS UNIDADES: Oferta Expira em breve' : 'Atenção: Oferta Especial por Tempo Limitado'}</div>
+    <div class="n-header-bar">${isAgressive ? 'ALERTA: ÚLTIMAS UNIDADES COM DESCONTO DE LANÇAMENTO' : 'Investigação Especial: Atualizado em Janeiro de 2026'}</div>
     <nav class="n-navbar">
       <div class="n-container n-navbar-inner">
-        <a href="#" class="n-logo">PORTAL SAÚDE</a>
-        <div style="font-size: 0.7rem; color: #EF4444; font-weight: 800; display: flex; align-items: center; gap: 4px;">
-          <span style="width: 8px; height: 8px; background: #EF4444; border-radius: 50%; display: inline-block;"></span>
+        <a href="#" class="n-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)" style="border-radius: 6px;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+          PORTAL SAÚDE
+        </a>
+        <div style="font-size: 0.75rem; color: #EF4444; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+          <span style="width: 10px; height: 10px; background: #EF4444; border-radius: 50%; display: inline-block; animation: pulse 1s infinite;"></span>
           INVESTIGAÇÃO AO VIVO
         </div>
       </div>
@@ -175,84 +238,81 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
 
     <div class="n-container">
       <article class="n-editorial-card">
-        <div class="n-meta">${editorialIntro}</div>
+        <div class="n-meta">
+          <div style="width: 32px; height: 32px; background: #E5E7EB; border-radius: 50%; flex-shrink: 0;"></div>
+          ${editorialIntro}
+        </div>
         <h1>${headline}</h1>
-        ${subheadline ? `<p style="font-weight: 500; color: #4B5563; font-size: 1.25rem; margin-bottom: 30px;">${subheadline}</p>` : ''}
+        ${subheadline ? `<p style="font-weight: 500; color: #4B5563; font-size: 1.3rem; margin-bottom: 32px; line-height: 1.4;">${subheadline}</p>` : ''}
         
-        ${getMedia(0, 'SLOT 03-A')}
+        ${getMedia(0, 'HERO BUNDLE')}
 
         <div class="n-summary">${quickSummary}</div>
         
         <p>${patternInterrupt}</p>
         
-        <h2>O Desafio Atual</h2>
+        <h2 style="color: ${isAgressive ? '#EF4444' : '#111827'};">A Raiz do Problema</h2>
         <p>${problemsSection}</p>
-        ${getMedia(1, 'SLOT 05-B')}
+        
+        ${getMedia(1, 'BODY IMAGE A')}
 
-        <h2>A Descoberta: O que é ${productName}?</h2>
+        <h2>O que é ${productName}?</h2>
         <p>${whatIsSection}</p>
         
-        <div style="background: var(--primary); color: #fff; padding: 35px; border-radius: 16px; margin: 40px 0; box-shadow: 0 10px 30px -10px var(--primary);">
-          <h3 style="margin-top: 0; font-size: 1.5rem;">Destaques Principais:</h3>
-          <ul style="padding-left: 20px; font-size: 1.1rem; line-height: 1.8;">
-            ${features.map(f => `<li>${f}</li>`).join('')}
+        <div style="background: var(--primary); color: #fff; padding: 40px; border-radius: 20px; margin: 50px 0; box-shadow: 0 15px 40px -10px ${buttonColor}66;">
+          <h3 style="margin-top: 0; font-size: 1.6rem; font-weight: 900;">Destaques Principais:</h3>
+          <ul style="padding-left: 20px; font-size: 1.15rem; line-height: 2;">
+            ${features.map(f => `<li style="margin-bottom: 8px;">${f}</li>`).join('')}
           </ul>
         </div>
 
         <p>${curiosityBridge}</p>
 
-        <h2>Resultados Comprovados</h2>
-        <div style="display: grid; gap: 20px; margin-bottom: 40px; background: #F9FAFB; padding: 30px; border-radius: 16px;">
-          ${benefits.map(b => `<div style="display:flex; gap:14px; align-items:center;">
-            <div style="background: var(--primary); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <h2>Benefícios e Resultados</h2>
+        <div style="display: grid; gap: 20px; margin-bottom: 48px; background: #F9FAFB; padding: 40px; border-radius: 20px; border: 1px solid #E5E7EB;">
+          ${benefits.map(b => `<div style="display:flex; gap:16px; align-items:center;">
+            <div style="background: var(--primary); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
-            <strong style="font-size: 1.1rem;">${b}</strong>
+            <strong style="font-size: 1.15rem; font-weight: 700;">${b}</strong>
           </div>`).join('')}
         </div>
 
+        ${getMedia(2, 'BODY IMAGE B')}
+
         ${comparisonTable.length ? `
-          <h2>Análise Comparativa</h2>
+          <h2>Análise Técnica</h2>
           <table class="n-table">
             <thead>
-              <tr><th>Recurso</th><th>${productName}</th><th>Concorrência</th></tr>
+              <tr><th>Recurso</th><th>${productName}</th><th>Concorrentes</th></tr>
             </thead>
             <tbody>
-              ${comparisonTable.map(r => `<tr><td>${r.feature}</td><td style="color: #059669; font-weight: 700;">${r.product}</td><td style="color: #EF4444;">${r.competitor}</td></tr>`).join('')}
+              ${comparisonTable.map(r => `<tr><td>${r.feature}</td><td style="color: #059669; font-weight: 800;">${r.product}</td><td style="color: #EF4444;">${r.competitor}</td></tr>`).join('')}
             </tbody>
           </table>
         ` : ''}
 
-        ${testimonials.length ? `
-          <h2>O Que Dizem os Usuários</h2>
-          <div style="display: grid; gap: 20px;">
-            ${testimonials.map(t => `
-              <div style="background: #fff; padding: 30px; border-radius: 16px; border: 1px solid #F3F4F6; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
-                <div style="color: #F59E0B; margin-bottom: 12px; font-size: 1.2rem;">${'★'.repeat(t.rating)}</div>
-                <p style="margin-bottom: 12px; font-size: 1.05rem; font-style: italic;">"${t.text}"</p>
-                <div style="font-weight: 700; font-size: 0.95rem; color: #111827;">- ${t.name}</div>
-              </div>
-            `).join('')}
-          </div>
-        ` : ''}
-
-        <div style="margin: 80px 0; text-align: center;">
-          <h2 style="margin-bottom: 15px;">Veredito Final</h2>
-          <p>Com base em nossa investigação, o ${productName} é a melhor opção de mercado disponível hoje.</p>
+        <div style="margin: 100px 0; text-align: center;">
+          <h2 style="margin-bottom: 20px; font-size: 2.2rem;">Veredito da Redação</h2>
+          <p style="font-size: 1.25rem;">Após 30 dias de análise, o ${productName} demonstrou ser a solução mais consistente do mercado.</p>
           <a href="${ctaLink}" class="n-btn n-pulse">${callToAction}</a>
+          <div style="margin-top: 20px; display: flex; justify-content: center; gap: 15px; opacity: 0.6;">
+            <svg width="60" height="24" viewBox="0 0 38 24"><rect width="38" height="24" rx="4" fill="#1434CB"/><circle cx="7" cy="12" r="4" fill="white"/><circle cx="31" cy="12" r="4" fill="white"/></svg>
+            <svg width="60" height="24" viewBox="0 0 38 24"><rect width="38" height="24" rx="4" fill="#EB001B"/><circle cx="14" cy="12" r="8" fill="#FF5F00" opacity="0.8"/><circle cx="14" cy="12" r="8" fill="#EB001B"/><circle cx="24" cy="12" r="8" fill="#F79E1B"/></svg>
+          </div>
         </div>
 
         ${pricing.length ? `
-          <h2 style="text-align: center;">Ofertas Exclusivas do Portal</h2>
-          <div class="n-price-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+          <h2 style="text-align: center; margin-bottom: 40px;">Kits com Desconto Direto da Fábrica</h2>
+          <div class="n-price-grid">
             ${pricing.map((p, idx) => `
               <div class="n-price-card ${p.isBestValue ? 'featured' : ''}">
                 ${p.isBestValue ? '<div class="n-badge">RECOMENDADO</div>' : ''}
-                <div style="font-weight: 800; font-size: 1.1rem; margin-bottom: 10px;">${p.quantity}</div>
-                <div style="color: #059669; font-size: 0.85rem; font-weight: 700;">${p.discount}</div>
-                <div style="font-size: 2.2rem; font-weight: 900; color: var(--primary); margin: 20px 0;">${p.price}</div>
-                ${getMedia(idx, 'KIT ' + p.quantity)}
-                <a href="${ctaLink}" style="background: var(--primary); color: #fff; padding: 15px; display: block; text-decoration: none; border-radius: 8px; font-weight: 800; font-size: 1rem; margin-top: 15px;">ESCOLHER ESTE</a>
+                <div style="font-weight: 900; font-size: 1.25rem; margin-bottom: 12px; color: #111827;">${p.quantity}</div>
+                <div style="color: #059669; font-size: 0.9rem; font-weight: 800; background: #ECFDF5; display: inline-block; padding: 4px 12px; border-radius: 6px;">${p.discount}</div>
+                <div style="font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 24px 0;">${p.price}</div>
+                ${getMedia(idx + 1, 'KIT IMAGE')}
+                <a href="${ctaLink}" style="background: var(--primary); color: #fff; padding: 20px; display: block; text-decoration: none; border-radius: 12px; font-weight: 900; font-size: 1.1rem; margin-top: 24px; box-shadow: 0 4px 10px ${buttonColor}33;">COMPRAR AGORA</a>
               </div>
             `).join('')}
           </div>
@@ -260,14 +320,14 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
 
         ${faqs.length ? `
           <h2>Dúvidas Frequentes</h2>
-          <div style="display: grid; gap: 15px;">
+          <div style="display: grid; gap: 16px;">
             ${faqs.map(f => `
-              <details style="border: 1px solid #E5E7EB; border-radius: 12px; padding: 20px; cursor: pointer;">
-                <summary style="font-weight: 700; font-size: 1.1rem; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+              <details style="border: 1px solid #E5E7EB; border-radius: 16px; padding: 24px; cursor: pointer; transition: background 0.2s;">
+                <summary style="font-weight: 700; font-size: 1.15rem; list-style: none; display: flex; justify-content: space-between; align-items: center;">
                   ${f.q}
-                  <span style="font-size: 1.5rem; color: var(--primary);">+</span>
+                  <span style="font-size: 1.5rem; color: var(--primary); line-height: 1;">+</span>
                 </summary>
-                <p style="margin: 15px 0 0; font-size: 1.05rem; color: #4B5563;">${f.a}</p>
+                <p style="margin: 20px 0 0; font-size: 1.1rem; color: #4B5563; line-height: 1.6;">${f.a}</p>
               </details>
             `).join('')}
           </div>
@@ -277,8 +337,8 @@ export function generatePresellHTML(data: PresellData | null, wrapForElementor =
 
     <footer class="n-footer">
       <div class="n-container">
-        <p>Copyright 2026 ${productName}. Todos os direitos reservados.</p>
-        <p style="font-size: 0.75rem; opacity: 0.6; margin-top: 15px; max-width: 500px; margin-left: auto; margin-right: auto;">AVISO: Este site é um publieditorial. Os resultados podem variar de pessoa para pessoa. Não substitui consulta médica profissional.</p>
+        <p style="font-weight: 700; color: #111827;">Copyright 2026 ${productName}</p>
+        <p style="font-size: 0.75rem; opacity: 0.6; margin-top: 20px; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.5;">AVISO: Este site é um publieditorial. Os resultados podem variar. As informações não substituem consulta médica.</p>
       </div>
     </footer>
     ${clarityScript || ''}

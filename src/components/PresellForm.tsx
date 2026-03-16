@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, ArrowRight, Palette, Link as LinkIcon, ListChecks, RotateCcw, Globe, Activity, Code2, LayoutTemplate, ShoppingBag, Upload, Trash2, ImageIcon, Zap } from 'lucide-react';
+import { Sparkles, ArrowRight, Palette, Link as LinkIcon, ListChecks, RotateCcw, Globe, Activity, Code2, LayoutTemplate, ShoppingBag, Upload, Trash2, ImageIcon, Zap, ShieldCheck } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -206,8 +206,8 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        <Zap className="h-3 w-3" />
-                        Estilo do Copy
+                        <ShieldCheck className="h-3 w-3" />
+                        Nível de Blindagem
                       </FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                         <FormControl>
@@ -216,8 +216,8 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Conservador">Conservador (v6)</SelectItem>
-                          <SelectItem value="Agressivo">Agressivo (Urgência)</SelectItem>
+                          <SelectItem value="Conservador">White Hat (v6 Editorial)</SelectItem>
+                          <SelectItem value="Agressivo">Black Hat (Agressivo)</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -234,7 +234,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                     <FormItem>
                       <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                         <Palette className="h-3 w-3" />
-                        Cor do Botão
+                        Cor Principal
                       </FormLabel>
                       <FormControl>
                         <div className="flex gap-2">
@@ -280,7 +280,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                     className="h-7 text-[10px] gap-1 px-2 border-primary/20 text-primary hover:bg-primary/5"
                   >
                     <Upload className="h-3 w-3" />
-                    Fazer Upload (WebP)
+                    Upload WebP
                   </Button>
                   <input 
                     type="file" 
@@ -308,7 +308,8 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                     ))}
                   </div>
                 ) : (
-                  <div className="h-16 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center text-slate-400">
+                  <div className="h-20 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center text-slate-400 bg-slate-50">
+                    <ImageIcon className="h-5 w-5 mb-1 opacity-20" />
                     <p className="text-[10px]">Nenhuma imagem enviada.</p>
                   </div>
                 )}
@@ -321,7 +322,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                   <FormItem>
                     <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       <ListChecks className="h-3 w-3" />
-                      Descrição do Produto
+                      Descrição para IA
                     </FormLabel>
                     <FormControl>
                       <Textarea 
@@ -378,7 +379,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                     <FormItem>
                       <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                         <Code2 className="h-3 w-3" />
-                        Script de Análise (Clarity/Hotjar)
+                        Script Analytics / Clarity
                       </FormLabel>
                       <FormControl>
                         <Textarea 
@@ -404,7 +405,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
               {isGenerating ? (
                 <div className="flex items-center gap-2">
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  Gerando Copy...
+                  Gerando Página...
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
