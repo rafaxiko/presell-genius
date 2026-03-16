@@ -68,10 +68,10 @@ export function generatePresellHTML(data: PresellData | null): string {
   const ctaLink = trackingLink || targetUrl;
   const isBlackHat = copyStyle === 'Black Hat (Agressivo)';
   
-  // Color Intelligence
+  // Color Intelligence - CardioGenix Standards
   const primaryColor = buttonColor || '#2952A3';
-  const ctaColor = '#FF8C00'; // Vibrant Orange for high contrast
-  const ctaTextColor = '#FFFFFF';
+  const ctaColor = '#FFD056'; // Vibrant Yellow for Elite Contrast
+  const ctaTextColor = '#111827'; // Dark text on yellow button
 
   const renderImage = (index: number, alt: string, className: string = "") => {
     if (productImageUrls && productImageUrls[index]) {
@@ -93,281 +93,321 @@ export function generatePresellHTML(data: PresellData | null): string {
     :root { 
       --primary: ${primaryColor}; 
       --cta: ${ctaColor};
-      --text: #111827; 
-      --bg: #F9FAFB; 
-      --card: #FFFFFF;
-      --radius: 16px;
+      --navy: #111827;
+      --gray: #4B5563;
+      --light-gray: #F9FAFB;
+      --radius: 12px;
     }
     * { box-sizing: border-box; }
     body { 
-      font-family: 'Inter', -apple-system, sans-serif; 
-      background: var(--bg); 
-      color: var(--text); 
+      font-family: 'Poppins', 'Inter', -apple-system, sans-serif; 
+      background: #FFFFFF; 
+      color: var(--gray); 
       margin: 0; 
       line-height: 1.6; 
-      padding-bottom: 100px;
+      padding-bottom: 80px;
       overflow-x: hidden;
     }
-    .container { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    .section-white { background: #FFFFFF; padding: 80px 0; }
+    .section-gray { background: var(--light-gray); padding: 80px 0; }
     
     .countdown-bar { 
-      background: #111827; 
+      background: var(--navy); 
       color: #fff; 
       text-align: center; 
-      padding: 12px; 
-      font-size: 12px; 
-      font-weight: 800; 
+      padding: 14px; 
+      font-size: 13px; 
+      font-weight: 700; 
       text-transform: uppercase; 
       letter-spacing: 1px;
       position: sticky;
       top: 0;
       z-index: 2000;
-      ${isBlackHat ? 'background: #FF0000; animation: blink 1s infinite;' : ''}
+      ${isBlackHat ? 'background: #D0021B; animation: blink 1.5s infinite;' : ''}
     }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
 
-    .nav { background: #fff; border-bottom: 1px solid #E5E7EB; padding: 15px 0; }
-    .logo { font-weight: 900; font-size: 18px; color: #111827; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: -0.5px; }
+    .nav { background: #fff; border-bottom: 1px solid #E5E7EB; padding: 18px 0; }
+    .nav-inner { display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-weight: 800; font-size: 20px; color: var(--navy); text-transform: uppercase; letter-spacing: -0.5px; }
+    .nav-menu { display: none; gap: 24px; font-size: 14px; font-weight: 600; color: var(--gray); text-transform: uppercase; }
+    @media (min-width: 768px) { .nav-menu { display: flex; } }
     
-    .card { background: var(--card); padding: 35px; border-radius: var(--radius); box-shadow: 0 4px 25px rgba(0,0,0,0.03); margin-top: 25px; border: 1px solid rgba(0,0,0,0.04); }
-    h1 { font-size: 32px; font-weight: 900; line-height: 1.1; color: #111827; margin-bottom: 15px; }
-    h2 { font-size: 26px; font-weight: 800; color: #111827; margin-top: 45px; margin-bottom: 25px; }
-    p { margin-bottom: 18px; font-size: 18px; color: #374151; }
+    h1 { font-size: 42px; font-weight: 900; line-height: 1.15; color: var(--navy); margin-bottom: 20px; }
+    h2 { font-size: 32px; font-weight: 800; color: var(--navy); margin-bottom: 30px; text-align: center; }
+    p { font-size: 18px; color: var(--gray); margin-bottom: 20px; }
+    
+    .hero-split { display: grid; gap: 40px; align-items: center; text-align: left; }
+    @media (min-width: 1024px) { .hero-split { grid-template-columns: 1.2fr 0.8fr; } }
+    @media (max-width: 1023px) { .hero-split { text-align: center; } }
+
+    .stars { color: #FFB400; display: flex; gap: 4px; margin: 12px 0; font-size: 18px; align-items: center; }
+    @media (max-width: 1023px) { .stars { justify-content: center; } }
     
     .btn { 
-      display: block; 
+      display: inline-block; 
       width: 100%; 
       background: var(--cta); 
       color: ${ctaTextColor}; 
       text-align: center; 
-      padding: 24px; 
-      border-radius: 14px; 
-      font-weight: 900; 
-      font-size: 20px; 
+      padding: 22px 40px; 
+      border-radius: var(--radius); 
+      font-weight: 800; 
+      font-size: 18px; 
       text-decoration: none; 
       text-transform: uppercase; 
-      margin: 25px 0; 
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      box-shadow: 0 10px 25px ${ctaColor}44;
+      transition: all 0.3s;
+      box-shadow: 0 12px 30px rgba(255, 208, 86, 0.3);
       border: none;
       cursor: pointer;
+      animation: pulse 2.5s infinite;
     }
-    .btn:hover { transform: scale(1.05); filter: brightness(1.1); }
-    .btn-pulse { animation: pulse 2s infinite; }
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 ${ctaColor}77; } 70% { box-shadow: 0 0 0 15px ${ctaColor}00; } 100% { box-shadow: 0 0 0 0 ${ctaColor}00; } }
+    .btn:hover { transform: scale(1.05); filter: brightness(1.05); }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 208, 86, 0.6); } 70% { box-shadow: 0 0 0 15px rgba(255, 208, 86, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 208, 86, 0); } }
 
-    .stars { color: #FBBF24; display: flex; gap: 4px; margin: 15px 0; font-size: 16px; align-items: center; }
-    .check-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 15px; font-size: 17px; font-weight: 600; color: #374151; }
-    .check-icon { color: var(--primary); flex-shrink: 0; margin-top: 4px; }
+    .check-list { display: grid; gap: 16px; margin: 30px 0; }
+    .check-item { display: flex; align-items: flex-start; gap: 14px; font-size: 17px; font-weight: 600; color: var(--navy); }
+    .check-icon { color: var(--primary); flex-shrink: 0; margin-top: 2px; }
 
-    .pricing-grid { display: grid; gap: 20px; margin: 45px 0; align-items: center; }
-    @media (min-width: 600px) { .pricing-grid { grid-template-columns: repeat(${pricing.length || 1}, 1fr); } }
+    .pricing-grid { 
+      display: grid; 
+      gap: 30px; 
+      margin: 60px 0; 
+      align-items: stretch;
+    }
+    @media (min-width: 900px) { 
+      .pricing-grid { 
+        grid-template-columns: repeat(${pricing.length || 1}, 1fr); 
+      } 
+      .pricing-grid .card-order-6 { order: 2; }
+      .pricing-grid .card-order-1 { order: 1; }
+      .pricing-grid .card-order-3 { order: 3; }
+    }
+    @media (max-width: 899px) {
+      .pricing-grid .card-order-6 { order: 1; }
+      .pricing-grid .card-order-3 { order: 2; }
+      .pricing-grid .card-order-1 { order: 3; }
+    }
     
-    .price-card { border: 2px solid #E5E7EB; border-radius: 20px; padding: 25px; text-align: center; transition: all 0.3s; background: #fff; position: relative; }
-    .price-card.featured { border-color: var(--primary); background: #F0F7FF; transform: scale(1.1); box-shadow: 0 15px 40px rgba(0,0,0,0.1); z-index: 10; border-width: 3px; }
-    .price-card .qty { font-size: 14px; font-weight: 900; text-transform: uppercase; color: #6B7280; letter-spacing: 0.5px; }
-    .price-card .price { font-size: 34px; font-weight: 900; color: var(--text); margin: 15px 0; }
-    .price-card .savings { background: #10B981; color: #fff; font-size: 11px; font-weight: 900; padding: 5px 12px; border-radius: 25px; display: inline-block; margin-bottom: 15px; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
-    .price-card .badge { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; font-size: 10px; font-weight: 900; padding: 6px 15px; border-radius: 4px; letter-spacing: 1px; }
+    .price-card { 
+      background: #fff; 
+      border: 1px solid #E5E7EB; 
+      border-radius: 20px; 
+      padding: 40px 30px; 
+      text-align: center; 
+      transition: all 0.4s; 
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .price-card:hover { transform: translateY(-8px); border-color: var(--primary); box-shadow: 0 20px 40px rgba(0,0,0,0.06); }
+    .price-card.featured { 
+      border-color: var(--primary); 
+      border-width: 2px; 
+      transform: scale(1.08); 
+      box-shadow: 0 25px 50px rgba(0,0,0,0.1); 
+      z-index: 10;
+    }
+    @media (max-width: 899px) { .price-card.featured { transform: scale(1); } }
 
-    .trust-seal { font-size: 11px; font-weight: 700; color: #6B7280; display: flex; items-center: center; justify-content: center; gap: 6px; margin-top: 15px; }
+    .price-card .qty { font-size: 14px; font-weight: 800; text-transform: uppercase; color: var(--gray); letter-spacing: 1px; }
+    .price-card .price { font-size: 40px; font-weight: 900; color: var(--navy); margin: 15px 0; }
+    .price-card .old-price { font-size: 16px; text-decoration: line-through; color: #9CA3AF; margin-bottom: 5px; }
+    .price-card .savings-badge { background: #10B981; color: #fff; font-size: 12px; font-weight: 900; padding: 6px 16px; border-radius: 50px; position: absolute; top: -15px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+    .price-card .best-badge { position: absolute; top: -45px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; font-size: 11px; font-weight: 900; padding: 8px 20px; border-radius: 6px; letter-spacing: 1.5px; }
 
-    .sticky-cta { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.97); backdrop-filter: blur(12px); padding: 15px 20px; border-top: 1px solid #E5E7EB; z-index: 2000; display: none; }
+    .sticky-cta { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 12px 20px; border-top: 1px solid #E5E7EB; z-index: 2000; display: none; box-shadow: 0 -10px 30px rgba(0,0,0,0.05); }
     body.scrolled .sticky-cta { display: block; }
-
-    .countdown-timer { font-family: monospace; font-weight: 900; font-size: 18px; color: #FF0000; margin-top: 10px; display: block; }
   `;
+
+  // Reorder pricing logic for CardioGenix standards
+  const sortedPricing = [...pricing].sort((a, b) => {
+    const qA = parseInt(a.quantity) || 0;
+    const qB = parseInt(b.quantity) || 0;
+    return qA - qB; // 1, 3, 6
+  });
 
   const pricingSection = pricing.length > 0 ? `
     <div class="pricing-grid">
-      ${pricing.map((p, idx) => {
-        const isCenter = p.isBestValue || (pricing.length === 3 && idx === 1);
+      ${sortedPricing.map((p, idx) => {
+        const qty = parseInt(p.quantity) || 1;
+        const isFeatured = p.isBestValue || qty >= 6;
+        const orderClass = qty >= 6 ? 'card-order-6' : (qty >= 3 ? 'card-order-3' : 'card-order-1');
         return `
-        <div class="price-card ${isCenter ? 'featured' : ''}">
-          ${isCenter ? `<div class="badge">MELHOR ESCOLHA</div>` : ''}
-          ${p.savings ? `<div class="savings">ECONOMIZE ${p.savings}</div>` : ''}
+        <div class="price-card ${isFeatured ? 'featured' : ''} ${orderClass}">
+          ${isFeatured ? `<div class="best-badge">MAIS POPULAR</div>` : ''}
+          ${p.savings ? `<div class="savings-badge">ECONOMIZE ${p.savings}</div>` : ''}
           <div class="qty">${p.quantity} ${p.unitName || 'Unidades'}</div>
-          <div style="margin: 20px 0; max-width: 150px; margin-left: auto; margin-right: auto;">${renderImage(0, productName)}</div>
+          <div style="margin: 25px 0; min-height: 120px; display: flex; align-items: center; justify-content: center;">
+            ${renderImage(0, productName)}
+          </div>
+          <div class="old-price">De R$ 597,00</div>
           <div class="price">${p.price}</div>
-          ${isBlackHat && isCenter ? `<div class="countdown-timer" id="timer">09:59</div>` : ''}
-          <a href="${ctaLink}" class="btn" style="padding: 15px; font-size: 14px; margin: 10px 0 0; background: ${ctaColor};">COMPRAR AGORA</a>
-          <div class="trust-seal">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-            GARANTIA DE 60 DIAS
+          <a href="${ctaLink}" class="btn" style="padding: 16px; font-size: 15px; margin-top: 10px;">PEDIR AGORA</a>
+          <div style="font-size: 11px; font-weight: 700; margin-top: 15px; color: #9CA3AF; display: flex; align-items: center; justify-content: center; gap: 4px;">
+             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+             60 DIAS DE GARANTIA
           </div>
         </div>
       `}).join('')}
     </div>
   ` : '';
 
-  // TEMPLATE: ROBUSTA
   if (templateType === 'Robusta') {
     return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${productName}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <title>${productName} - Site Oficial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>${css}</style>
 </head>
 <body>
-    <div class="countdown-bar">${isBlackHat ? '⚠️ ATENÇÃO: ÚLTIMAS UNIDADES EM ESTOQUE COM DESCONTO' : 'OFERTA LIMITADA: FRETE GRÁTIS DISPONÍVEL HOJE'}</div>
+    <div class="countdown-bar">${isBlackHat ? '⚠️ ESTOQUE CRÍTICO: SEU DESCONTO EXPIRA EM INSTANTES' : 'OFERTA POR TEMPO LIMITADO: FRETE GRÁTIS PARA TODO O PAÍS'}</div>
     
     <nav class="nav">
-      <div class="container">
-        <div class="logo">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--primary)" style="margin-right: 2px;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
-          Portal <span style="color: var(--primary);">Vital</span>
+      <div class="container nav-inner">
+        <div class="logo">${productName}</div>
+        <div class="nav-menu">
+          <a href="#about" style="text-decoration:none; color:inherit;">Sobre</a>
+          <a href="#ingredients" style="text-decoration:none; color:inherit;">Ingredientes</a>
+          <a href="#pricing" style="text-decoration:none; color:inherit;">Preços</a>
         </div>
       </div>
     </nav>
 
-    <div class="container" style="padding-top: 50px; text-align: center;">
-      <h1 style="font-size: 38px;">${headline}</h1>
-      <div class="stars" style="justify-content: center;">
-        ${Array(5).fill('★').join('')} <span style="font-weight: 800; font-size: 13px; color: #4B5563; margin-left: 5px;">(16.892+ AVALIAÇÕES VERIFICADAS)</span>
-      </div>
-      <p style="font-size: 20px; font-weight: 600; color: #4B5563; margin-top: 15px;">${subheadline || ''}</p>
-      
-      <div style="max-width: 580px; margin: 35px auto;">
-        ${renderImage(0, productName)}
-      </div>
-
-      <div style="text-align: left; margin-top: 45px; max-width: 620px; margin-left: auto; margin-right: auto;">
-        ${benefits.map(b => `
-          <div class="check-item">
-            <svg class="check-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            ${b}
+    <header class="section-white">
+      <div class="container hero-split">
+        <div>
+          <div class="stars">
+            ${Array(5).fill('★').join('')} <span style="font-weight: 700; font-size: 14px; color: var(--gray); margin-left: 8px;">(REVIEWS VERIFICADOS)</span>
           </div>
-        `).join('')}
+          <h1>${headline}</h1>
+          <p style="font-size: 20px; font-weight: 500;">${subheadline || ''}</p>
+          <div class="check-list">
+            ${benefits.map(b => `
+              <div class="check-item">
+                <svg class="check-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                ${b}
+              </div>
+            `).join('')}
+          </div>
+          <a href="#pricing" class="btn" style="max-width: 450px;">GARANTIR MEU DESCONTO</a>
+        </div>
+        <div>
+          ${renderImage(0, productName)}
+        </div>
       </div>
+    </header>
 
-      <div class="card" style="text-align: left; margin-top: 50px;">
-        <h2 style="margin-top: 0;">A Ciência por trás de ${productName}</h2>
+    <section id="about" class="section-gray">
+      <div class="container" style="max-width: 800px; text-align: center;">
+        <h2>A Ciência por trás de ${productName}</h2>
         <p>${whatIsSection}</p>
         <p>${problemsSection}</p>
       </div>
+    </section>
 
-      <h2 style="font-size: 34px; margin-top: 70px;">Selecione seu Pacote Promocional</h2>
-      <p>Estoque limitado. Os preços abaixo são válidos apenas para hoje.</p>
+    <section id="pricing" class="section-white">
+      <div class="container">
+        <h2>Escolha o seu Pacote Promocional</h2>
+        <p style="text-align: center; margin-top: -20px; font-weight: 600;">Selecione uma opção abaixo e receba o site oficial</p>
+        ${pricingSection}
+      </div>
+    </section>
 
-      ${pricingSection}
-
-      <div style="margin-top: 60px; padding: 40px; border: 2px solid #E5E7EB; border-radius: 24px; background: #fff; display: flex; align-items: center; gap: 30px; text-align: left;">
-        <div style="background: #F3F4F6; border-radius: 100%; width: 100px; height: 100px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--primary);">
-           <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: auto;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+    <section id="guarantee" class="section-gray">
+      <div class="container" style="display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: center; background: #fff; padding: 60px; border-radius: 30px; box-shadow: 0 30px 60px rgba(0,0,0,0.05);">
+        <div style="background: var(--light-gray); width: 120px; height: 120px; border-radius: 100%; display: flex; align-items: center; justify-content: center;">
+           <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
         </div>
         <div>
-          <h3 style="font-weight: 900; font-size: 22px; margin-bottom: 8px;">60 Dias de Satisfação Garantida</h3>
-          <p style="font-size: 16px; margin-bottom: 0; color: #4B5563;">Assumimos todo o risco por você. Se você não notar resultados reais em até 60 dias, devolvemos seu dinheiro integralmente sem burocracia.</p>
+          <h3 style="font-weight: 900; font-size: 26px; color: var(--navy); margin-top:0;">Garantia Incondicional de 60 Dias</h3>
+          <p style="margin-bottom:0;">Assumimos todo o risco. Teste ${productName} por 60 dias. Se não estiver 100% satisfeito com os resultados, devolvemos cada centavo do seu investimento.</p>
         </div>
       </div>
-
-      <a href="${ctaLink}" class="btn btn-pulse" style="max-width: 550px; margin: 50px auto;">${callToAction}</a>
-    </div>
+    </section>
 
     <div class="sticky-cta">
       <div class="container">
-        <a href="${ctaLink}" class="btn" style="margin-top: 0; padding: 18px; font-size: 16px;">${callToAction}</a>
+        <a href="#pricing" class="btn" style="padding: 16px; font-size: 16px;">PEDIR COM DESCONTO AGORA</a>
       </div>
     </div>
 
-    <footer style="text-align: center; padding: 80px 0; background: #111827; color: #9CA3AF; margin-top: 100px; font-size: 13px;">
+    <footer style="background: var(--navy); padding: 80px 0; color: #9CA3AF; text-align: center; font-size: 13px;">
       <div class="container">
-        <p>© 2026 ${productName} Oficial. Todos os direitos reservados.</p>
-        <p style="margin-top: 10px; opacity: 0.5;">Este site não é afiliado ao Google ou Facebook Inc.</p>
+        <div style="font-weight: 800; font-size: 24px; color: #fff; margin-bottom: 20px;">${productName}</div>
+        <p style="max-width: 600px; margin: 0 auto 30px;">ESTE SITE NÃO É AFILIADO AO GOOGLE OU FACEBOOK INC. TODAS AS INFORMAÇÕES SÃO PARA FINS EDUCACIONAIS.</p>
+        <p>© 2026 ${productName} - Todos os direitos reservados.</p>
       </div>
     </footer>
+
     <script>
       window.addEventListener('scroll', function() {
         document.body.classList.toggle('scrolled', window.scrollY > 800);
       });
-
-      ${isBlackHat ? `
-        let time = 600;
-        const timerEl = document.getElementById('timer');
-        if (timerEl) {
-          setInterval(() => {
-            if (time <= 0) return;
-            time--;
-            const mins = Math.floor(time / 60);
-            const secs = time % 60;
-            timerEl.textContent = \`\${mins.toString().padStart(2, '0')}:\${secs.toString().padStart(2, '0')}\`;
-          }, 1000);
-        }
-      ` : ''}
     </script>
 </body>
 </html>`;
   }
 
-  // FALLBACK: REVIEW
+  // FALLBACK: REVIEW / EDITORIAL
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${headline}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>${css}</style>
 </head>
-<body>
-    <div class="countdown-bar">${isBlackHat ? '🔥 INVESTIGAÇÃO: O QUE AS GRANDES EMPRESAS ESTÃO ESCONDENDO' : 'PORTAL EDITORIAL: ANÁLISE ESPECIAL ATUALIZADA'}</div>
+<body class="section-gray">
     <nav class="nav">
-      <div class="container">
-        <div class="logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
-          Portal <span style="color: var(--primary);">Saúde</span>
-        </div>
+      <div class="container nav-inner">
+        <div class="logo">Portal Investigação</div>
       </div>
     </nav>
 
-    <div class="container">
-      <article class="card">
-        <div style="color: #6B7280; font-size: 13px; margin-bottom: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">${editorialIntro}</div>
-        <h1>${headline}</h1>
+    <div class="container" style="padding-top: 40px;">
+      <article style="background: #fff; padding: 60px; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.03);">
+        <div style="color: var(--primary); font-weight: 800; font-size: 14px; margin-bottom: 20px; text-transform: uppercase;">${editorialIntro}</div>
+        <h1 style="font-size: 36px;">${headline}</h1>
         
-        <div style="margin: 30px 0;">
+        <div style="margin: 40px 0;">
           ${renderImage(0, productName)}
         </div>
 
-        <div style="background: #F3F4F6; border-left: 6px solid var(--primary); padding: 30px; margin: 35px 0; border-radius: 6px 20px 20px 6px;">
-          <p style="margin: 0; font-style: italic; font-size: 19px; color: #111827; font-weight: 500;">"${quickSummary}"</p>
+        <div style="border-left: 6px solid var(--primary); background: var(--light-gray); padding: 30px; border-radius: 8px 24px 24px 8px; margin: 40px 0;">
+          <p style="margin: 0; font-weight: 600; font-size: 19px; color: var(--navy);">"${quickSummary}"</p>
         </div>
         
         <p>${patternInterrupt}</p>
-        
-        <h2>O Desafio Biológico</h2>
         <p>${problemsSection}</p>
         
-        <h2>O Veredito sobre ${productName}</h2>
+        <h2 style="text-align: left;">O que descobrimos sobre o ${productName}</h2>
         <p>${whatIsSection}</p>
-
         <p>${curiosityBridge}</p>
 
-        <div style="background: var(--primary); color: #fff; padding: 35px; border-radius: 24px; margin: 45px 0; box-shadow: 0 15px 30px var(--primary)33;">
-          <h3 style="margin: 0 0 20px; font-size: 24px; font-weight: 900;">Destaques da Investigação:</h3>
-          <ul style="padding-left: 25px; font-size: 18px; margin: 0; font-weight: 500;">
+        <div style="background: var(--navy); color: #fff; padding: 40px; border-radius: 24px; margin: 50px 0;">
+          <h3 style="color: #fff; margin-top:0;">Destaques Principais:</h3>
+          <ul style="padding-left: 20px; font-weight: 500;">
             ${features.map(f => `<li style="margin-bottom: 12px;">${f}</li>`).join('')}
           </ul>
         </div>
 
-        ${pricingSection}
+        <div id="pricing">
+          <h2 style="margin-top: 60px;">Veredito: Pacotes Disponíveis</h2>
+          ${pricingSection}
+        </div>
 
-        <div style="text-align: center; margin-top: 60px; border-top: 1px solid #E5E7EB; pt-50px">
-          <h2 style="font-size: 30px;">Veredito Editorial</h2>
-          <p>Após 30 dias de testes controlados, nossa equipe concluiu que o <strong>${productName}</strong> é a solução mais eficaz testada este ano.</p>
-          <a href="${ctaLink}" class="btn btn-pulse" style="max-width: 500px; margin: 35px auto; background: ${ctaColor};">${callToAction}</a>
+        <div style="text-align: center; margin-top: 60px; border-top: 1px solid #E5E7EB; padding-top: 40px;">
+           <a href="${ctaLink}" class="btn" style="max-width: 500px;">${callToAction}</a>
         </div>
       </article>
     </div>
-    
-    <script>
-      window.addEventListener('scroll', function() {
-        document.body.classList.toggle('scrolled', window.scrollY > 800);
-      });
-    </script>
 </body>
 </html>`;
 }
