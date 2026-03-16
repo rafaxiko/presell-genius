@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, ArrowRight, Palette, Link as LinkIcon, ListChecks, RotateCcw, Globe, Activity, Code2, LayoutTemplate, ShoppingBag, Upload, Trash2, ImageIcon, Zap, ShieldCheck } from 'lucide-react';
+import { Sparkles, ArrowRight, Palette, Link as LinkIcon, ListChecks, RotateCcw, Globe, Activity, Code2, LayoutTemplate, ShoppingBag, Upload, Trash2, ImageIcon, ShieldCheck } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -19,7 +19,7 @@ const formSchema = z.object({
   salesPageDescription: z.string().min(20, 'Forneça uma descrição detalhada para a IA.'),
   officialProductUrl: z.string().url('A URL da página oficial é obrigatória.'),
   targetLanguage: z.string().min(1, 'Selecione um país.'),
-  templateType: z.enum(['Launch', 'Robust', 'Review', 'List']),
+  templateType: z.enum(['Cookie', 'Robust', 'Review', 'BlackHat']),
   copyStyle: z.enum(['Conservador', 'Agressivo']),
   buttonColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Cor hexadecimal inválida.'),
   targetUrl: z.string().url('Seu link de afiliado é obrigatório.'),
@@ -67,11 +67,6 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
     },
   });
 
-  const handleReset = () => {
-    form.reset();
-    onClear();
-  };
-
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files) return;
@@ -106,20 +101,10 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
             <Sparkles className="h-5 w-5" />
             Configurar Gerador
           </CardTitle>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            type="button" 
-            onClick={handleReset}
-            className="text-xs text-slate-400 hover:text-slate-600 gap-1 h-8"
-          >
-            <RotateCcw className="h-3 w-3" />
-            Limpar
+          <Button variant="ghost" size="sm" type="button" onClick={() => { form.reset(); onClear(); }} className="text-xs text-slate-400 gap-1 h-8">
+            <RotateCcw className="h-3 w-3" /> Limpar
           </Button>
         </div>
-        <CardDescription className="text-xs">
-          Personalize sua estratégia e deixe a IA cuidar da copy de alta conversão.
-        </CardDescription>
       </CardHeader>
       
       <Form {...form}>
@@ -128,168 +113,100 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
             <div className="space-y-6 pb-6">
               
               <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="productName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        <ShoppingBag className="h-3 w-3" />
-                        Nome do Produto
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ex: Detox Premium" className="h-9 text-sm" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={form.control} name="productName" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-2">
+                      <ShoppingBag className="h-3 w-3" /> Nome do Produto
+                    </FormLabel>
+                    <FormControl><Input placeholder="Ex: Detox Premium" className="h-9" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
 
-                <FormField
-                  control={form.control}
-                  name="targetLanguage"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        <Globe className="h-3 w-3" />
-                        País de Destino
-                      </FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="h-9 text-sm">
-                            <SelectValue placeholder="Selecione o país" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {COUNTRIES.map(country => (
-                            <SelectItem key={country} value={country}>{country}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={form.control} name="targetLanguage" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-2">
+                      <Globe className="h-3 w-3" /> País de Destino
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                      <FormControl><SelectTrigger className="h-9"><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        {COUNTRIES.map(country => (<SelectItem key={country} value={country}>{country}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )} />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="templateType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        <LayoutTemplate className="h-3 w-3" />
-                        Modelo da Página
-                      </FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="h-9 text-sm">
-                            <SelectValue placeholder="Escolha o modelo" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Launch">Lançamento</SelectItem>
-                          <SelectItem value="Robust">Robusta</SelectItem>
-                          <SelectItem value="Review">Review (Análise)</SelectItem>
-                          <SelectItem value="List">Lista (Top 3/5)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={form.control} name="templateType" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-2">
+                      <LayoutTemplate className="h-3 w-3" /> Tipo de Template
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                      <FormControl><SelectTrigger className="h-9"><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value="Cookie">Cookie (Lançamento)</SelectItem>
+                        <SelectItem value="Robust">Robusta (v6)</SelectItem>
+                        <SelectItem value="Review">Review (Análise)</SelectItem>
+                        <SelectItem value="BlackHat">Black Hat (Agressivo)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )} />
 
-                <FormField
-                  control={form.control}
-                  name="copyStyle"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        <ShieldCheck className="h-3 w-3" />
-                        Nível de Blindagem
-                      </FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="h-9 text-sm">
-                            <SelectValue placeholder="Escolha o estilo" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Conservador">White Hat (v6 Editorial)</SelectItem>
-                          <SelectItem value="Agressivo">Black Hat (Agressivo)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={form.control} name="copyStyle" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-2">
+                      <ShieldCheck className="h-3 w-3" /> Estilo do Copy
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                      <FormControl><SelectTrigger className="h-9"><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value="Conservador">Conservador (Editorial)</SelectItem>
+                        <SelectItem value="Agressivo">Agressivo (Black Hat)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )} />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="buttonColor"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        <Palette className="h-3 w-3" />
-                        Cor Principal
-                      </FormLabel>
-                      <FormControl>
-                        <div className="flex gap-2">
-                          <Input type="color" className="w-9 h-9 p-1 rounded shrink-0 border-none bg-transparent cursor-pointer" {...field} />
-                          <Input className="h-9 font-mono text-xs uppercase" placeholder="#2952A3" {...field} />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={form.control} name="buttonColor" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-2">
+                      <Palette className="h-3 w-3" /> Cor Principal
+                    </FormLabel>
+                    <FormControl>
+                      <div className="flex gap-2">
+                        <Input type="color" className="w-9 h-9 p-1 bg-transparent cursor-pointer" {...field} />
+                        <Input className="h-9 font-mono text-xs uppercase" {...field} />
+                      </div>
+                    </FormControl>
+                  </FormItem>
+                )} />
 
-                <FormField
-                  control={form.control}
-                  name="officialProductUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        <LinkIcon className="h-3 w-3 text-primary" />
-                        URL Oficial *
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://site-oficial.com" className="h-9 text-sm" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={form.control} name="officialProductUrl" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-2">
+                      <LinkIcon className="h-3 w-3" /> URL Oficial
+                    </FormLabel>
+                    <FormControl><Input placeholder="https://..." className="h-9" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
               </div>
 
-              {/* Área de Mídia */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    <ImageIcon className="h-3 w-3" />
-                    Mídia do Produto
+                  <FormLabel className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-2">
+                    <ImageIcon className="h-3 w-3" /> Mídia do Produto
                   </FormLabel>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="h-7 text-[10px] gap-1 px-2 border-primary/20 text-primary hover:bg-primary/5"
-                  >
-                    <Upload className="h-3 w-3" />
-                    Upload WebP
+                  <Button variant="outline" size="sm" type="button" onClick={() => fileInputRef.current?.click()} className="h-7 text-[10px] px-2">
+                    <Upload className="h-3 w-3 mr-1" /> Upload WebP
                   </Button>
-                  <input 
-                    type="file" 
-                    multiple 
-                    accept="image/webp,image/png,image/jpeg" 
-                    className="hidden" 
-                    ref={fileInputRef} 
-                    onChange={handleFileUpload}
-                  />
+                  <input type="file" multiple accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
                 </div>
                 
                 {productImageUrls.length > 0 ? (
@@ -297,123 +214,67 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                     {productImageUrls.map((url, idx) => (
                       <div key={idx} className="group relative aspect-square bg-white rounded border overflow-hidden">
                         <img src={url} alt="Prod" className="w-full h-full object-cover" />
-                        <button 
-                          type="button"
-                          onClick={() => removeImage(idx)}
-                          className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white"
-                        >
+                        <button type="button" onClick={() => removeImage(idx)} className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                           <Trash2 className="h-3 w-3" />
                         </button>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="h-20 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center text-slate-400 bg-slate-50">
-                    <ImageIcon className="h-5 w-5 mb-1 opacity-20" />
-                    <p className="text-[10px]">Nenhuma imagem enviada.</p>
+                  <div className="h-20 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center text-slate-400 bg-slate-50 text-[10px]">
+                    Nenhuma imagem enviada.
                   </div>
                 )}
               </div>
 
-              <FormField
-                control={form.control}
-                name="salesPageDescription"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      <ListChecks className="h-3 w-3" />
-                      Descrição para IA
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Cole aqui o texto da página de vendas para que a IA extraia os benefícios automaticamente." 
-                        className="min-h-[140px] resize-none text-sm"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormField control={form.control} name="salesPageDescription" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-2">
+                    <ListChecks className="h-3 w-3" /> Descrição para IA
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Cole o texto da página de vendas aqui..." className="min-h-[120px] resize-none text-sm" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
 
-              <FormField
-                control={form.control}
-                name="targetUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      <LinkIcon className="h-3 w-3" />
-                      Link de Checkout / Afiliado
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://checkout.suaplataforma.com/..." className="h-9 text-sm" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormField control={form.control} name="targetUrl" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-2">
+                    <LinkIcon className="h-3 w-3" /> Checkout / Link de Afiliado
+                  </FormLabel>
+                  <FormControl><Input placeholder="https://..." className="h-9" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
 
               <div className="pt-4 space-y-4 border-t">
                 <h4 className="text-[10px] font-bold uppercase tracking-widest text-primary/70">Scripts & Rastreio</h4>
-                <FormField
-                  control={form.control}
-                  name="trackingLink"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        <Activity className="h-3 w-3" />
-                        Link de Rastreamento (Opcional)
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://track.com/..." className="h-9 text-sm" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={form.control} name="trackingLink" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-2">
+                      <Activity className="h-3 w-3" /> Link de Rastreamento (Opcional)
+                    </FormLabel>
+                    <FormControl><Input className="h-9" {...field} /></FormControl>
+                  </FormItem>
+                )} />
 
-                <FormField
-                  control={form.control}
-                  name="clarityScript"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        <Code2 className="h-3 w-3" />
-                        Script Analytics / Clarity
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="<script>...</script>" 
-                          className="min-h-[60px] font-mono text-[10px] resize-none bg-slate-50"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormField control={form.control} name="clarityScript" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-2">
+                      <Code2 className="h-3 w-3" /> Script Analytics / Clarity
+                    </FormLabel>
+                    <FormControl><Textarea className="min-h-[60px] font-mono text-[10px]" {...field} /></FormControl>
+                  </FormItem>
+                )} />
               </div>
             </div>
           </ScrollArea>
 
-          <div className="pt-6 border-t shrink-0">
-            <Button 
-              type="submit" 
-              className={`w-full h-12 text-sm font-bold group bg-primary hover:bg-primary/90 transition-all shadow-lg ${!isGenerating ? 'animate-pulse-button' : ''}`}
-              disabled={isGenerating}
-            >
-              {isGenerating ? (
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  Gerando Página...
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4" />
-                  CRIAR PÁGINA AGORA
-                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </div>
-              )}
+          <div className="pt-6 border-t">
+            <Button type="submit" className="w-full h-12 text-sm font-bold bg-primary hover:bg-primary/90 shadow-lg" disabled={isGenerating}>
+              {isGenerating ? "Gerando Página..." : "CRIAR PÁGINA AGORA"}
             </Button>
           </div>
         </form>
