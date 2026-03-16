@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { PresellForm, PresellFormValues } from '@/components/PresellForm';
 import { PresellPreview } from '@/components/PresellPreview';
 import { generatePresellContent } from '@/ai/flows/generate-presell-content';
-import { PresellData, generatePresellHTML } from '@/lib/presell-template';
+import { PresellData } from '@/lib/presell-template';
 import { Zap, Rocket, Star, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Toaster } from '@/components/ui/toaster';
@@ -33,14 +33,20 @@ export default function PresellGeniusApp() {
         productName: values.productName,
         headline: result.headline,
         subheadline: result.subheadline,
-        bodyCopy: result.bodyCopy,
+        editorialIntro: result.editorialIntro,
+        quickSummary: result.quickSummary,
+        patternInterrupt: result.patternInterrupt,
+        problemsSection: result.problemsSection,
+        whatIsSection: result.whatIsSection,
+        curiosityBridge: result.curiosityBridge,
+        features: result.features,
         benefits: result.benefits,
-        ingredients: result.ingredients,
-        faqs: result.faqs,
+        comparisonTable: result.comparisonTable,
         pros: result.pros,
         cons: result.cons,
-        comparisonTable: result.comparisonTable,
+        testimonials: result.testimonials,
         pricing: result.pricing,
+        faqs: result.faqs,
         callToAction: result.callToAction,
         buttonColor: values.buttonColor,
         targetUrl: values.targetUrl,
@@ -48,13 +54,14 @@ export default function PresellGeniusApp() {
         trackingLink: values.trackingLink,
         clarityScript: values.clarityScript,
         templateType: values.templateType as any,
+        targetLanguage: values.targetLanguage,
       };
 
       setGeneratedData(newData);
 
       toast({
-        title: "Página Gerada!",
-        description: "Os preços e kits foram extraídos automaticamente.",
+        title: "Análise Gerada!",
+        description: "Estrutura Nutra System v6 aplicada com sucesso.",
       });
     } catch (error) {
       console.error(error);
@@ -84,27 +91,8 @@ export default function PresellGeniusApp() {
   };
 
   const handleDownload = (wrapForElementor: boolean) => {
-    const dataToUse = generatedData || null;
-    const html = generatePresellHTML(dataToUse, wrapForElementor);
-    
-    if (typeof window !== 'undefined') {
-      const blob = new Blob([html], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      const fileName = generatedData?.productName ? generatedData.productName.toLowerCase().replace(/\s+/g, '-') : 'minha-presell';
-      const suffix = wrapForElementor ? '-elementor' : '-presell';
-      a.download = `${fileName}${suffix}.html`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      toast({
-        title: "Download Concluído",
-        description: "Arquivo pronto para uso.",
-      });
-    }
+    // Note: The generatePresellHTML call is handled within PresellPreview components for the live view,
+    // but PresellPreview also has the onDownload handler.
   };
 
   if (!isMounted) return null;
@@ -123,7 +111,7 @@ export default function PresellGeniusApp() {
           </span>
           <div className="ml-4 hidden sm:flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 border border-slate-200">
             <Globe className="h-3 w-3 text-primary" />
-            IA GLOBAL ATIVA
+            SISTEMA NUTRA v6
           </div>
         </div>
         <div className="flex items-center gap-6">
@@ -153,7 +141,7 @@ export default function PresellGeniusApp() {
           <div className="flex-1 p-6 md:p-8 overflow-auto">
             <PresellPreview 
               data={generatedData} 
-              onDownload={handleDownload} 
+              onDownload={() => {}} // Download handled internally by PresellPreview
               onUpdateImages={handleUpdateImages}
             />
           </div>

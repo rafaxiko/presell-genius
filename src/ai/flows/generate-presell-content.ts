@@ -1,7 +1,7 @@
 'use server';
 /**
- * @fileOverview Genkit flow to generate high-conversion presell content.
- * Extracted pricing data and multi-language support.
+ * @fileOverview Genkit flow to generate Nutra Presell System v6 content.
+ * Investigative editorial tone, multi-language support, and structured sections.
  */
 
 import {ai} from '@/ai/genkit';
@@ -21,28 +21,38 @@ export type GeneratePresellContentInput = z.infer<
 >;
 
 const PricingOptionSchema = z.object({
-  quantity: z.string().describe('Exact quantity and unit name from text (e.g., 01 Pote, 3 Garrafas, 01 Módulo).'),
-  discount: z.string().describe('Discount text or savings explicitly mentioned (e.g., 50% OFF, ECONOMIZE R$ 200).'),
-  price: z.string().describe('The formatted price exactly as in text (e.g., R$ 197, $47).'),
-  isBestValue: z.boolean().describe('Whether this is the high-conversion package (usually the largest quantity).'),
+  quantity: z.string().describe('Exact quantity and unit name from text.'),
+  discount: z.string().describe('Discount text or savings explicitly mentioned.'),
+  price: z.string().describe('The formatted price exactly as in text.'),
+  isBestValue: z.boolean().describe('Whether this is the recommended package.'),
 });
 
 const GeneratePresellContentOutputSchema = z.object({
-  headline: z.string().describe('Magnetic headline in target language.'),
-  subheadline: z.string().describe('Persuasive supporting text in target language.'),
-  bodyCopy: z.string().describe('Body copy focused on warming up the audience in target language.'),
-  benefits: z.array(z.string()).describe('Key benefits in target language.'),
-  ingredients: z.array(z.string()).optional().describe('Ingredients or components if applicable.'),
-  faqs: z.array(z.object({ q: z.string(), a: z.string() })).optional().describe('FAQs in target language.'),
-  pros: z.array(z.string()).optional().describe('Positive points (for Review).'),
-  cons: z.array(z.string()).optional().describe('Points of concern (for Review).'),
+  headline: z.string().describe('Magnetic editorial headline in target language.'),
+  subheadline: z.string().describe('Supporting summary text.'),
+  editorialIntro: z.string().describe('Author and date meta text in target language.'),
+  quickSummary: z.string().describe('Brief "Why read this" box content.'),
+  patternInterrupt: z.string().describe('Text that challenges user assumptions.'),
+  problemsSection: z.string().describe('Empathetic description of the pain point.'),
+  whatIsSection: z.string().describe('Clear explanation of the product/solution.'),
+  curiosityBridge: z.string().describe('Hook to keep them reading about results.'),
+  features: z.array(z.string()).describe('List of key features.'),
+  benefits: z.array(z.string()).describe('List of emotional benefits.'),
   comparisonTable: z.array(z.object({ 
     feature: z.string(), 
     product: z.string(), 
     competitor: z.string() 
-  })).optional().describe('Comparative data (for List).'),
+  })).optional(),
+  pros: z.array(z.string()).optional(),
+  cons: z.array(z.string()).optional(),
+  testimonials: z.array(z.object({
+    name: z.string(),
+    text: z.string(),
+    rating: z.number().min(1).max(5)
+  })).optional(),
+  pricing: z.array(PricingOptionSchema).optional(),
+  faqs: z.array(z.object({ q: z.string(), a: z.string() })).optional(),
   callToAction: z.string().describe('Button text in target language.'),
-  pricing: z.array(PricingOptionSchema).optional().describe('ONLY extract packages explicitly mentioned in the description. Do NOT invent packages if they are not in the text.'),
 });
 export type GeneratePresellContentOutput = z.infer<
   typeof GeneratePresellContentOutputSchema
@@ -58,22 +68,32 @@ const prompt = ai.definePrompt({
   name: 'generatePresellContentPrompt',
   input: {schema: GeneratePresellContentInputSchema},
   output: {schema: GeneratePresellContentOutputSchema},
-  prompt: `Você é um Copywriter de elite focado em tráfego direto global.
+  prompt: `Você é um Jornalista Investigativo Sênior especializado em saúde e bem-estar (Nutra Presell System v6).
 
 INSTRUÇÃO DE IDIOMA:
-Gere TODO o conteúdo no idioma oficial de: "{{{targetLanguage}}}". Sem misturar idiomas.
+Gere TODO o conteúdo no idioma oficial de: "{{{targetLanguage}}}". 
+- Se for Estados Unidos/Reino Unido/Canadá/Austrália: 100% Inglês.
+- Se for Brasil/Portugal/Angola: 100% Português.
+- Se for México/Espanha/Argentina: 100% Espanhol.
 
-REGRAS CRÍTICAS DE PRECIFICAÇÃO:
-1. EXTRAIA APENAS O QUE EXISTE: Analise a "Descrição do Produto" e identifique os kits de venda.
-2. ZERO ALUCINAÇÃO: Se a descrição mencionar apenas 1 kit, gere apenas 1 card de preço. Se mencionar 2, gere 2. NUNCA invente um terceiro kit (ex: 6 unidades) se ele não estiver no texto.
-3. UNIDADES REAIS: Use a nomenclatura exata do texto (Potes, Garrafas, Unidades, Módulos, Licenças, etc.).
-4. PREÇOS REAIS: Extraia os valores exatos. Se não houver preço nenhum no texto, deixe o campo 'price' vazio ou com "Consultar Valor".
+TONALIDADE (Invisible Copy):
+- Seja neutro, empático e informativo.
+- NÃO use linguagem de vendas agressiva nas seções editoriais.
+- Escreva como se fosse um portal de notícias independente analisando se o produto funciona.
 
-ESTRATÉGIA DO TEMPLATE:
-- Lançamento (Launch): Curiosidade e escassez.
-- Robusta (Robust): Foco em autoridade e oferta clara.
-- Review: Análise editorial sincera.
-- Lista (List): Comparativo onde este produto vence.
+ESTRUTURA DE 27 SEÇÕES (Resumo):
+1. Headline Editorial (Magnética e curiosa).
+2. Intro Editorial (Autor e Data).
+3. Resumo Rápido (Por que ler isso?).
+4. Interrupção de Padrão (Por que métodos comuns falham).
+5. Seção de Problemas (Empatia com a dor do leitor).
+6. O que é o produto (Explicação lógica).
+7. Ponte de Curiosidade (Resultados ocultos).
+8. Benefícios e Funcionalidades.
+9. Tabela Comparativa (Produto vs Outros).
+10. Testemunhos reais.
+11. Ofertas de Preço (Extraídas da descrição).
+12. Veredito Final e FAQ.
 
 Descrição do Produto:
 {{{salesPageDescription}}}`,
