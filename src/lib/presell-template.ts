@@ -62,7 +62,7 @@ export function generatePresellHTML(data: PresellData | null): string {
     productName, headline, subheadline, editorialIntro, quickSummary, patternInterrupt,
     problemsSection, whatIsSection, curiosityBridge, features = [], benefits = [], 
     callToAction, buttonColor, targetUrl, productImageUrls = [], 
-    trackingLink, clarityScript, copyStyle, templateType, pricing = []
+    trackingLink, copyStyle, templateType, pricing = []
   } = finalData;
   
   const ctaLink = trackingLink || targetUrl;
@@ -78,13 +78,13 @@ export function generatePresellHTML(data: PresellData | null): string {
       return `<img src="${productImageUrls[index]}" alt="${alt}" class="${className}" style="max-width: 100%; height: auto; border-radius: 12px; display: block; margin: 0 auto;">`;
     }
     return `
-      <div style="width: 100%; aspect-ratio: 16/9; background: #F3F4F6; border: 2px dashed #D1D5DB; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #9CA3AF;" class="${className}">
+      <div style="width: 100%; aspect-ratio: 1/1; background: #F3F4F6; border: 2px dashed #D1D5DB; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #9CA3AF;" class="${className}">
         <svg viewBox="0 0 24 24" width="40" height="40" stroke="currentColor" stroke-width="1.5" fill="none" style="opacity: 0.5; margin-bottom: 8px;">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
           <circle cx="8.5" cy="8.5" r="1.5"></circle>
           <polyline points="21 15 16 10 5 21"></polyline>
         </svg>
-        <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Sua Foto do Produto Aqui</span>
+        <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Sua Foto aqui</span>
       </div>
     `;
   };
@@ -119,11 +119,14 @@ export function generatePresellHTML(data: PresellData | null): string {
       font-weight: 800; 
       text-transform: uppercase; 
       letter-spacing: 1px;
+      position: sticky;
+      top: 0;
+      z-index: 2000;
       ${isBlackHat ? 'background: #FF0000; animation: blink 1s infinite;' : ''}
     }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
 
-    .nav { background: #fff; border-bottom: 1px solid #E5E7EB; padding: 15px 0; position: sticky; top: 0; z-index: 1000; }
+    .nav { background: #fff; border-bottom: 1px solid #E5E7EB; padding: 15px 0; }
     .logo { font-weight: 900; font-size: 18px; color: #111827; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: -0.5px; }
     
     .card { background: var(--card); padding: 35px; border-radius: var(--radius); box-shadow: 0 4px 25px rgba(0,0,0,0.03); margin-top: 25px; border: 1px solid rgba(0,0,0,0.04); }
@@ -157,34 +160,47 @@ export function generatePresellHTML(data: PresellData | null): string {
     .check-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 15px; font-size: 17px; font-weight: 600; color: #374151; }
     .check-icon { color: var(--primary); flex-shrink: 0; margin-top: 4px; }
 
-    .pricing-grid { display: grid; gap: 20px; margin: 45px 0; }
-    @media (min-width: 600px) { .pricing-grid { grid-template-columns: repeat(3, 1fr); align-items: center; } }
+    .pricing-grid { display: grid; gap: 20px; margin: 45px 0; align-items: center; }
+    @media (min-width: 600px) { .pricing-grid { grid-template-columns: repeat(${pricing.length || 1}, 1fr); } }
     
     .price-card { border: 2px solid #E5E7EB; border-radius: 20px; padding: 25px; text-align: center; transition: all 0.3s; background: #fff; position: relative; }
-    .price-card.featured { border-color: var(--primary); background: #F0F7FF; transform: scale(1.05); box-shadow: 0 15px 40px rgba(0,0,0,0.1); z-index: 10; }
+    .price-card.featured { border-color: var(--primary); background: #F0F7FF; transform: scale(1.1); box-shadow: 0 15px 40px rgba(0,0,0,0.1); z-index: 10; border-width: 3px; }
     .price-card .qty { font-size: 14px; font-weight: 900; text-transform: uppercase; color: #6B7280; letter-spacing: 0.5px; }
     .price-card .price { font-size: 34px; font-weight: 900; color: var(--text); margin: 15px 0; }
-    .price-card .savings { background: #10B981; color: #fff; font-size: 11px; font-weight: 900; padding: 5px 12px; border-radius: 25px; display: inline-block; margin-bottom: 15px; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); }
+    .price-card .savings { background: #10B981; color: #fff; font-size: 11px; font-weight: 900; padding: 5px 12px; border-radius: 25px; display: inline-block; margin-bottom: 15px; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+    .price-card .badge { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; font-size: 10px; font-weight: 900; padding: 6px 15px; border-radius: 4px; letter-spacing: 1px; }
+
+    .trust-seal { font-size: 11px; font-weight: 700; color: #6B7280; display: flex; items-center: center; justify-content: center; gap: 6px; margin-top: 15px; }
 
     .sticky-cta { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.97); backdrop-filter: blur(12px); padding: 15px 20px; border-top: 1px solid #E5E7EB; z-index: 2000; display: none; }
     body.scrolled .sticky-cta { display: block; }
+
+    .countdown-timer { font-family: monospace; font-weight: 900; font-size: 18px; color: #FF0000; margin-top: 10px; display: block; }
   `;
 
   const pricingSection = pricing.length > 0 ? `
     <div class="pricing-grid">
-      ${pricing.map(p => `
-        <div class="price-card ${p.isBestValue ? 'featured' : ''}">
+      ${pricing.map((p, idx) => {
+        const isCenter = p.isBestValue || (pricing.length === 3 && idx === 1);
+        return `
+        <div class="price-card ${isCenter ? 'featured' : ''}">
+          ${isCenter ? `<div class="badge">MELHOR ESCOLHA</div>` : ''}
           ${p.savings ? `<div class="savings">ECONOMIZE ${p.savings}</div>` : ''}
           <div class="qty">${p.quantity} ${p.unitName || 'Unidades'}</div>
-          <div style="margin: 20px 0;">${renderImage(0, productName)}</div>
+          <div style="margin: 20px 0; max-width: 150px; margin-left: auto; margin-right: auto;">${renderImage(0, productName)}</div>
           <div class="price">${p.price}</div>
-          <a href="${ctaLink}" class="btn" style="padding: 15px; font-size: 14px; margin: 10px 0 0;">COMPRAR AGORA</a>
+          ${isBlackHat && isCenter ? `<div class="countdown-timer" id="timer">09:59</div>` : ''}
+          <a href="${ctaLink}" class="btn" style="padding: 15px; font-size: 14px; margin: 10px 0 0; background: ${ctaColor};">COMPRAR AGORA</a>
+          <div class="trust-seal">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            GARANTIA DE 60 DIAS
+          </div>
         </div>
-      `).join('')}
+      `}).join('')}
     </div>
   ` : '';
 
-  // TEMPLATE: ROBUSTA (Sales Page / AlphaFuel Style)
+  // TEMPLATE: ROBUSTA
   if (templateType === 'Robusta') {
     return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -212,7 +228,7 @@ export function generatePresellHTML(data: PresellData | null): string {
       <div class="stars" style="justify-content: center;">
         ${Array(5).fill('★').join('')} <span style="font-weight: 800; font-size: 13px; color: #4B5563; margin-left: 5px;">(16.892+ AVALIAÇÕES VERIFICADAS)</span>
       </div>
-      <p style="font-size: 22px; font-weight: 600; color: #4B5563; margin-top: 15px;">${subheadline || ''}</p>
+      <p style="font-size: 20px; font-weight: 600; color: #4B5563; margin-top: 15px;">${subheadline || ''}</p>
       
       <div style="max-width: 580px; margin: 35px auto;">
         ${renderImage(0, productName)}
@@ -239,7 +255,7 @@ export function generatePresellHTML(data: PresellData | null): string {
       ${pricingSection}
 
       <div style="margin-top: 60px; padding: 40px; border: 2px solid #E5E7EB; border-radius: 24px; background: #fff; display: flex; align-items: center; gap: 30px; text-align: left;">
-        <div style="background: #F3F4F6; border-radius: 100%; width: 100px; height: 100px; flex-shrink: 0; display: flex; items-center; justify-center; color: var(--primary);">
+        <div style="background: #F3F4F6; border-radius: 100%; width: 100px; height: 100px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--primary);">
            <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: auto;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
         </div>
         <div>
@@ -265,14 +281,28 @@ export function generatePresellHTML(data: PresellData | null): string {
     </footer>
     <script>
       window.addEventListener('scroll', function() {
-        document.body.classList.toggle('scrolled', window.scrollY > 600);
+        document.body.classList.toggle('scrolled', window.scrollY > 800);
       });
+
+      ${isBlackHat ? `
+        let time = 600;
+        const timerEl = document.getElementById('timer');
+        if (timerEl) {
+          setInterval(() => {
+            if (time <= 0) return;
+            time--;
+            const mins = Math.floor(time / 60);
+            const secs = time % 60;
+            timerEl.textContent = \`\${mins.toString().padStart(2, '0')}:\${secs.toString().padStart(2, '0')}\`;
+          }, 1000);
+        }
+      ` : ''}
     </script>
 </body>
 </html>`;
   }
 
-  // FALLBACK: REVIEW (Nutra System v6 Editorial)
+  // FALLBACK: REVIEW
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -328,14 +358,14 @@ export function generatePresellHTML(data: PresellData | null): string {
         <div style="text-align: center; margin-top: 60px; border-top: 1px solid #E5E7EB; pt-50px">
           <h2 style="font-size: 30px;">Veredito Editorial</h2>
           <p>Após 30 dias de testes controlados, nossa equipe concluiu que o <strong>${productName}</strong> é a solução mais eficaz testada este ano.</p>
-          <a href="${ctaLink}" class="btn btn-pulse" style="max-width: 500px; margin: 35px auto;">${callToAction}</a>
+          <a href="${ctaLink}" class="btn btn-pulse" style="max-width: 500px; margin: 35px auto; background: ${ctaColor};">${callToAction}</a>
         </div>
       </article>
     </div>
     
     <script>
       window.addEventListener('scroll', function() {
-        document.body.classList.toggle('scrolled', window.scrollY > 600);
+        document.body.classList.toggle('scrolled', window.scrollY > 800);
       });
     </script>
 </body>

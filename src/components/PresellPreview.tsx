@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Eye, Code, FileCode, Monitor, Smartphone, Copy } from 'lucide-react';
+import { Download, Eye, Monitor, Smartphone, Copy, FileCode } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { generatePresellHTML, PresellData } from '@/lib/presell-template';
 import { useToast } from '@/hooks/use-toast';
@@ -25,12 +25,10 @@ export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
     setIsClient(true);
   }, []);
 
-  // Memoize HTML generation to avoid unnecessary re-renders
   const html = useMemo(() => {
     return generatePresellHTML(data);
   }, [data]);
 
-  // Auto-scroll to top when data changes (new generation)
   useEffect(() => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
@@ -119,7 +117,7 @@ export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
               "mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden border relative transition-all duration-300",
               viewMode === 'desktop' ? "max-w-full lg:max-w-3xl" : "max-w-[375px]"
             )}
-            style={{ minHeight: viewMode === 'desktop' ? '1200px' : '800px' }}
+            style={{ minHeight: '1200px' }}
           >
             <iframe
               srcDoc={html}
