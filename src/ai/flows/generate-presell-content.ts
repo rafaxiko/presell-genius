@@ -1,8 +1,4 @@
 'use server';
-/**
- * @fileOverview Genkit flow to generate Nutra Presell System v6 content.
- * Investigativo editorial tone, multi-language support, and template awareness.
- */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
@@ -14,8 +10,8 @@ const GeneratePresellContentInputSchema = z.object({
   targetLanguage: z
     .string()
     .describe('The target country for language identification.'),
-  templateType: z.enum(['Cookie', 'Robust', 'Review', 'BlackHat']).describe('The structural layout.'),
-  copyStyle: z.enum(['Conservador', 'Agressivo']).describe('The intensity of the copy.'),
+  templateType: z.enum(['Lançamento', 'Robusta', 'Review', 'Cookie', 'Lista (Top 3/5)']).describe('The structural layout.'),
+  copyStyle: z.enum(['White Hat (Conservador)', 'Black Hat (Agressivo)']).describe('The intensity of the copy.'),
 });
 export type GeneratePresellContentInput = z.infer<
   typeof GeneratePresellContentInputSchema
@@ -52,17 +48,16 @@ const prompt = ai.definePrompt({
 
 IDIOMA:
 O conteúdo deve ser 100% no idioma de: "{{{targetLanguage}}}".
-- Se Estados Unidos/UK/Canadá/Austrália: Inglês.
+- Se Estados Unidos/Canadá/UK/Austrália: Inglês.
 - Se Brasil/Portugal: Português.
 - Se México/Espanha: Espanhol.
 
-ESTRUTURA:
-Tipo de Template: {{{templateType}}}
-Estilo: {{{copyStyle}}}
+ESTILO:
+Nível de Blindagem: {{{copyStyle}}}
+Modelo: {{{templateType}}}
 
-Se "Cookie": Gere apenas uma Headline curta e poderosa e um CTA de 1 palavra.
-Se "BlackHat": Use Headlines agressivas, palavras de poder e gatilhos de medo/urgência.
-Se "Robust": Use a estrutura editorial v6 (Investigativo, Empático, Lógico).
+Se "Black Hat (Agressivo)": Use Headlines agressivas, urgência extrema, palavras de poder e gatilhos de medo.
+Se "White Hat (Conservador)": Use a estrutura editorial v6 (Investigativo, Empático, Lógico, tom de portal de notícias).
 
 Descrição do Produto:
 {{{salesPageDescription}}}`,

@@ -9,8 +9,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sparkles, ArrowRight, Palette, Link as LinkIcon, ListChecks, RotateCcw, Globe, Activity, Code2, LayoutTemplate, ShoppingBag, Upload, Trash2, ImageIcon, ShieldCheck } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Sparkles, Palette, Link as LinkIcon, ListChecks, RotateCcw, Globe, Activity, Code2, LayoutTemplate, ShoppingBag, Upload, Trash2, ImageIcon, ShieldCheck } from 'lucide-react';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 
@@ -19,8 +19,8 @@ const formSchema = z.object({
   salesPageDescription: z.string().min(20, 'Forneça uma descrição detalhada para a IA.'),
   officialProductUrl: z.string().url('A URL da página oficial é obrigatória.'),
   targetLanguage: z.string().min(1, 'Selecione um país.'),
-  templateType: z.enum(['Cookie', 'Robust', 'Review', 'BlackHat']),
-  copyStyle: z.enum(['Conservador', 'Agressivo']),
+  templateType: z.enum(['Lançamento', 'Robusta', 'Review', 'Cookie', 'Lista (Top 3/5)']),
+  copyStyle: z.enum(['White Hat (Conservador)', 'Black Hat (Agressivo)']),
   buttonColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Cor hexadecimal inválida.'),
   targetUrl: z.string().url('Seu link de afiliado é obrigatório.'),
   trackingLink: z.string().optional().or(z.literal('')),
@@ -58,8 +58,8 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
       salesPageDescription: '',
       officialProductUrl: '',
       targetLanguage: 'Brasil',
-      templateType: 'Robust',
-      copyStyle: 'Conservador',
+      templateType: 'Robusta',
+      copyStyle: 'White Hat (Conservador)',
       buttonColor: '#2952A3',
       targetUrl: 'https://seulink.com',
       trackingLink: '',
@@ -99,7 +99,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl font-bold flex items-center gap-2 text-primary">
             <Sparkles className="h-5 w-5" />
-            Configurar Gerador
+            Configurar Página
           </CardTitle>
           <Button variant="ghost" size="sm" type="button" onClick={() => { form.reset(); onClear(); }} className="text-xs text-slate-400 gap-1 h-8">
             <RotateCcw className="h-3 w-3" /> Limpar
@@ -142,15 +142,16 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                 <FormField control={form.control} name="templateType" render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-2">
-                      <LayoutTemplate className="h-3 w-3" /> Tipo de Template
+                      <LayoutTemplate className="h-3 w-3" /> Modelo da Página
                     </FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                       <FormControl><SelectTrigger className="h-9"><SelectValue /></SelectTrigger></FormControl>
                       <SelectContent>
-                        <SelectItem value="Cookie">Cookie (Lançamento)</SelectItem>
-                        <SelectItem value="Robust">Robusta (v6)</SelectItem>
-                        <SelectItem value="Review">Review (Análise)</SelectItem>
-                        <SelectItem value="BlackHat">Black Hat (Agressivo)</SelectItem>
+                        <SelectItem value="Lançamento">Lançamento</SelectItem>
+                        <SelectItem value="Robusta">Robusta</SelectItem>
+                        <SelectItem value="Review">Review</SelectItem>
+                        <SelectItem value="Cookie">Cookie</SelectItem>
+                        <SelectItem value="Lista (Top 3/5)">Lista (Top 3/5)</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormItem>
@@ -159,13 +160,13 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                 <FormField control={form.control} name="copyStyle" render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-2">
-                      <ShieldCheck className="h-3 w-3" /> Estilo do Copy
+                      <ShieldCheck className="h-3 w-3" /> Nível de Blindagem
                     </FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                       <FormControl><SelectTrigger className="h-9"><SelectValue /></SelectTrigger></FormControl>
                       <SelectContent>
-                        <SelectItem value="Conservador">Conservador (Editorial)</SelectItem>
-                        <SelectItem value="Agressivo">Agressivo (Black Hat)</SelectItem>
+                        <SelectItem value="White Hat (Conservador)">White Hat (Conservador)</SelectItem>
+                        <SelectItem value="Black Hat (Agressivo)">Black Hat (Agressivo)</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormItem>
@@ -230,10 +231,10 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
               <FormField control={form.control} name="salesPageDescription" render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-2">
-                    <ListChecks className="h-3 w-3" /> Descrição para IA
+                    <ListChecks className="h-3 w-3" /> Descrição do Produto (IA)
                   </FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Cole o texto da página de vendas aqui..." className="min-h-[120px] resize-none text-sm" {...field} />
+                    <Textarea placeholder="Cole o texto da página de vendas aqui para extração de preços e kits..." className="min-h-[120px] resize-none text-sm" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -242,7 +243,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
               <FormField control={form.control} name="targetUrl" render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-2">
-                    <LinkIcon className="h-3 w-3" /> Checkout / Link de Afiliado
+                    <LinkIcon className="h-3 w-3" /> Link de Afiliado
                   </FormLabel>
                   <FormControl><Input placeholder="https://..." className="h-9" {...field} /></FormControl>
                   <FormMessage />
@@ -250,11 +251,11 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
               )} />
 
               <div className="pt-4 space-y-4 border-t">
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-primary/70">Scripts & Rastreio</h4>
+                <h4 className="text-[10px] font-bold uppercase tracking-widest text-primary/70">Rastreamento</h4>
                 <FormField control={form.control} name="trackingLink" render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-2">
-                      <Activity className="h-3 w-3" /> Link de Rastreamento (Opcional)
+                      <Activity className="h-3 w-3" /> Link de Rastreio (Opcional)
                     </FormLabel>
                     <FormControl><Input className="h-9" {...field} /></FormControl>
                   </FormItem>
@@ -274,7 +275,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
 
           <div className="pt-6 border-t">
             <Button type="submit" className="w-full h-12 text-sm font-bold bg-primary hover:bg-primary/90 shadow-lg" disabled={isGenerating}>
-              {isGenerating ? "Gerando Página..." : "CRIAR PÁGINA AGORA"}
+              {isGenerating ? "Processando IA..." : "CRIAR PÁGINA AGORA"}
             </Button>
           </div>
         </form>
