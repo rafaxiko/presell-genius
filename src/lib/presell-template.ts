@@ -1,28 +1,16 @@
 export type PricingOption = {
   quantity: string;
-  discount: string;
+  discount?: string;
   price: string;
   totalPrice?: string;
   savings?: string;
   isBestValue: boolean;
-  unitName?: string; // e.g., "Potes", "Garrafas", "Licenças"
+  unitName?: string;
 };
 
 export type FAQItem = {
   q: string;
   a: string;
-};
-
-export type ComparisonRow = {
-  feature: string;
-  product: string;
-  competitor: string;
-};
-
-export type Testimonial = {
-  name: string;
-  text: string;
-  rating: number;
 };
 
 export type PresellData = {
@@ -37,12 +25,7 @@ export type PresellData = {
   curiosityBridge: string;
   features: string[];
   benefits: string[];
-  comparisonTable?: ComparisonRow[];
-  pros?: string[];
-  cons?: string[];
-  testimonials?: Testimonial[];
   pricing?: PricingOption[];
-  faqs?: FAQItem[];
   callToAction: string;
   buttonColor: string;
   targetUrl: string;
@@ -85,20 +68,19 @@ export function generatePresellHTML(data: PresellData | null): string {
   const ctaLink = trackingLink || targetUrl;
   const isBlackHat = copyStyle === 'Black Hat (Agressivo)';
   const primaryColor = isBlackHat ? '#FF0000' : (buttonColor || '#2952A3');
-  const secondaryColor = '#F3F4F6';
 
   const renderImage = (index: number, alt: string, className: string = "") => {
     if (productImageUrls && productImageUrls[index]) {
-      return `<img src="${productImageUrls[index]}" alt="${alt}" class="${className}" style="max-width: 100%; border-radius: 12px; display: block; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">`;
+      return `<img src="${productImageUrls[index]}" alt="${alt}" class="${className}" style="max-width: 100%; height: auto; border-radius: 12px; display: block; margin: 0 auto;">`;
     }
     return `
-      <div style="width: 100%; aspect-ratio: 16/9; background: #f3f4f6; border: 1px dashed #d1d5db; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #9ca3af;" class="${className}">
-        <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" stroke-width="1.5" fill="none" style="opacity: 0.3; margin-bottom: 8px;">
+      <div style="width: 100%; aspect-ratio: 16/9; background: ${primaryColor}11; border: 2px dashed ${primaryColor}44; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: ${primaryColor};" class="${className}">
+        <svg viewBox="0 0 24 24" width="40" height="40" stroke="currentColor" stroke-width="1.5" fill="none" style="opacity: 0.5; margin-bottom: 8px;">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
           <circle cx="8.5" cy="8.5" r="1.5"></circle>
           <polyline points="21 15 16 10 5 21"></polyline>
         </svg>
-        <span style="font-size: 10px; font-weight: 700; text-transform: uppercase;">[IMAGEM DO PRODUTO]</span>
+        <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Sua Foto do Produto Aqui</span>
       </div>
     `;
   };
@@ -123,40 +105,25 @@ export function generatePresellHTML(data: PresellData | null): string {
     }
     .container { max-width: 720px; margin: 0 auto; padding: 0 20px; }
     
-    .top-bar { 
-      background: ${isBlackHat ? '#FF0000' : '#111827'}; 
+    .countdown-bar { 
+      background: #111827; 
       color: #fff; 
       text-align: center; 
-      padding: 8px; 
-      font-size: 11px; 
+      padding: 10px; 
+      font-size: 12px; 
       font-weight: 800; 
       text-transform: uppercase; 
-      ${isBlackHat ? 'animation: blink 1s infinite;' : ''}
+      ${isBlackHat ? 'background: #FF0000; animation: blink 1s infinite;' : ''}
     }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
 
-    .nav { 
-      background: #fff; 
-      border-bottom: 1px solid #E5E7EB; 
-      padding: 12px 0; 
-      position: sticky; 
-      top: 0; 
-      z-index: 1000;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-    }
-    .logo { font-weight: 900; font-size: 16px; color: #111827; display: flex; align-items: center; gap: 6px; }
+    .nav { background: #fff; border-bottom: 1px solid #E5E7EB; padding: 15px 0; position: sticky; top: 0; z-index: 1000; }
+    .logo { font-weight: 900; font-size: 18px; color: #111827; display: flex; align-items: center; gap: 8px; }
     
-    .card { 
-      background: var(--card); 
-      padding: 25px; 
-      border-radius: var(--radius); 
-      box-shadow: 0 4px 20px rgba(0,0,0,0.04); 
-      margin-top: 20px; 
-      border: 1px solid rgba(0,0,0,0.05);
-    }
-    h1 { font-size: 26px; font-weight: 900; line-height: 1.2; color: #111827; margin-bottom: 15px; }
-    h2 { font-size: 22px; font-weight: 800; color: #111827; margin-top: 30px; margin-bottom: 15px; }
-    p { margin-bottom: 15px; font-size: 17px; color: #374151; }
+    .card { background: var(--card); padding: 30px; border-radius: var(--radius); box-shadow: 0 4px 20px rgba(0,0,0,0.04); margin-top: 25px; border: 1px solid rgba(0,0,0,0.05); }
+    h1 { font-size: 28px; font-weight: 900; line-height: 1.2; color: #111827; margin-bottom: 15px; }
+    h2 { font-size: 24px; font-weight: 800; color: #111827; margin-top: 40px; margin-bottom: 20px; }
+    p { margin-bottom: 15px; font-size: 18px; color: #374151; }
     
     .btn { 
       display: block; 
@@ -164,92 +131,37 @@ export function generatePresellHTML(data: PresellData | null): string {
       background: var(--primary); 
       color: #fff; 
       text-align: center; 
-      padding: 20px; 
+      padding: 22px; 
       border-radius: 12px; 
       font-weight: 900; 
-      font-size: 17px; 
+      font-size: 18px; 
       text-decoration: none; 
       text-transform: uppercase; 
-      margin: 20px 0; 
+      margin: 25px 0; 
       transition: all 0.2s;
-      box-shadow: 0 8px 15px ${primaryColor}44;
+      box-shadow: 0 8px 20px ${primaryColor}44;
       border: none;
       cursor: pointer;
     }
     .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
-    .btn:active { transform: scale(0.98); }
-    
     .btn-pulse { animation: pulse 2s infinite; }
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 ${primaryColor}66; } 70% { box-shadow: 0 0 0 10px ${primaryColor}00; } 100% { box-shadow: 0 0 0 0 ${primaryColor}00; } }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 ${primaryColor}66; } 70% { box-shadow: 0 0 0 12px ${primaryColor}00; } 100% { box-shadow: 0 0 0 0 ${primaryColor}00; } }
 
-    .sticky-cta {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(10px);
-      padding: 12px 20px;
-      border-top: 1px solid #E5E7EB;
-      z-index: 2000;
-      display: none;
-    }
-    body.scrolled .sticky-cta { display: block; }
+    .stars { color: #FBBF24; display: flex; gap: 3px; margin: 15px 0; font-size: 14px; align-items: center; }
+    .check-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; font-size: 16px; font-weight: 600; }
+    .check-icon { color: var(--primary); flex-shrink: 0; margin-top: 4px; }
 
-    /* Review Stars for Black Hat */
-    .stars { color: #FBBF24; display: flex; gap: 2px; margin: 10px 0; }
-    .review-count { font-size: 12px; color: #6B7280; font-weight: 600; }
-
-    /* Pricing Cards Layout */
-    .pricing-grid { display: grid; gap: 15px; margin: 30px 0; }
-    @media (min-width: 600px) { .pricing-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); } }
+    .pricing-grid { display: grid; gap: 20px; margin: 40px 0; }
+    @media (min-width: 600px) { .pricing-grid { grid-template-columns: repeat(3, 1fr); align-items: center; } }
     
-    .price-card {
-      border: 2px solid #E5E7EB;
-      border-radius: 16px;
-      padding: 20px;
-      text-align: center;
-      transition: all 0.3s;
-      position: relative;
-    }
-    .price-card.featured {
-      border-color: var(--primary);
-      background: #F0F7FF;
-      transform: scale(1.03);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-      z-index: 10;
-    }
-    .price-card.featured::after {
-      content: 'MAIS VENDIDO';
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--primary);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 900;
-      padding: 4px 12px;
-      border-radius: 20px;
-    }
-    .price-card .qty { font-size: 14px; font-weight: 800; text-transform: uppercase; color: #6B7280; }
-    .price-card .price { font-size: 28px; font-weight: 900; color: var(--text); margin: 10px 0; }
-    .price-card .savings { font-size: 12px; font-weight: 700; color: #10B981; }
+    .price-card { border: 2px solid #E5E7EB; border-radius: 20px; padding: 25px; text-align: center; transition: all 0.3s; background: #fff; }
+    .price-card.featured { border-color: var(--primary); background: #F0F7FF; transform: scale(1.05); box-shadow: 0 15px 35px rgba(0,0,0,0.08); z-index: 10; }
+    .price-card .qty { font-size: 15px; font-weight: 900; text-transform: uppercase; color: #6B7280; }
+    .price-card .price { font-size: 32px; font-weight: 900; color: var(--text); margin: 15px 0; }
+    .price-card .savings { background: #10B981; color: #fff; font-size: 11px; font-weight: 900; padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 15px; }
 
-    @media (max-width: 600px) {
-      h1 { font-size: 22px; }
-      .card { padding: 20px; }
-    }
-  `;
-
-  const script = `
-    window.addEventListener('scroll', function() {
-      if (window.scrollY > 400) {
-        document.body.classList.add('scrolled');
-      } else {
-        document.body.classList.remove('scrolled');
-      }
-    });
+    .sticky-cta { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 15px 20px; border-top: 1px solid #E5E7EB; z-index: 2000; display: none; }
+    body.scrolled .sticky-cta { display: block; }
   `;
 
   const pricingSection = pricing.length > 0 ? `
@@ -257,41 +169,90 @@ export function generatePresellHTML(data: PresellData | null): string {
       ${pricing.map(p => `
         <div class="price-card ${p.isBestValue ? 'featured' : ''}">
           <div class="qty">${p.quantity} ${p.unitName || 'Unidades'}</div>
-          ${renderImage(0, productName, "img-small")}
+          <div style="margin: 15px 0;">${renderImage(0, productName)}</div>
           <div class="price">${p.price}</div>
           ${p.savings ? `<div class="savings">ECONOMIZE ${p.savings}</div>` : ''}
-          <a href="${ctaLink}" class="btn" style="padding: 12px; font-size: 14px; margin: 15px 0 0;">PEDIR AGORA</a>
+          <a href="${ctaLink}" class="btn" style="padding: 15px; font-size: 14px; margin: 10px 0 0;">COMPRAR AGORA</a>
         </div>
       `).join('')}
     </div>
   ` : '';
 
-  // TEMPLATE: COOKIE
-  if (templateType === 'Cookie') {
+  // TEMPLATE: ROBUSTA (Sales Page / AlphaFuel Style)
+  if (templateType === 'Robusta') {
     return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${productName}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <style>${css} body { background: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; padding: 0; }</style>
+    <style>${css}</style>
 </head>
 <body>
-    <div class="container" style="text-align: center; max-width: 450px;">
-        <h1>${headline}</h1>
-        <div style="margin: 30px 0;">
-          ${renderImage(0, productName)}
-        </div>
-        <a href="${ctaLink}" class="btn btn-pulse" style="font-size: 24px;">CONTINUAR</a>
-        <p style="font-size: 12px; color: #999; margin-top: 40px;">© 2026 ${productName}</p>
+    <div class="countdown-bar">${isBlackHat ? '⚠️ ATENÇÃO: ÚLTIMAS UNIDADES EM ESTOQUE COM DESCONTO' : 'OFERTA ESPECIAL: FRETE GRÁTIS DISPONÍVEL HOJE'}</div>
+    
+    <div class="container" style="padding-top: 40px; text-align: center;">
+      <div class="stars" style="justify-content: center;">
+        ${Array(5).fill('★').join('')} <span style="font-weight: 700;">(16.892+ AVALIAÇÕES)</span>
+      </div>
+      <h1 style="font-size: 34px; margin-bottom: 10px;">${headline}</h1>
+      <p style="font-size: 20px; font-weight: 600; color: #6B7280; margin-bottom: 30px;">${subheadline || ''}</p>
+      
+      <div style="max-width: 550px; margin: 0 auto;">
+        ${renderImage(0, productName)}
+      </div>
+
+      <div style="text-align: left; margin-top: 40px; max-width: 600px; margin-left: auto; margin-right: auto;">
+        ${benefits.map(b => `
+          <div class="check-item">
+            <svg class="check-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            ${b}
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="card" style="text-align: left;">
+        <h2>A Revolução de ${productName}</h2>
+        <p>${whatIsSection}</p>
+        <p>${problemsSection}</p>
+      </div>
+
+      <h2 style="font-size: 32px; margin-top: 60px;">Escolha Seu Pacote Abaixo</h2>
+      <p>Aproveite os preços promocionais enquanto durar o estoque.</p>
+
+      ${pricingSection}
+
+      <div style="margin-top: 50px; padding: 30px; border: 2px solid #E5E7EB; border-radius: 20px; background: #fff;">
+        <h3 style="font-weight: 900; margin-bottom: 10px;">Garantia de Satisfação Total</h3>
+        <p style="font-size: 15px; margin-bottom: 0;">Se você não ficar 100% satisfeito com os resultados nos primeiros 60 dias, nós devolvemos seu dinheiro integralmente. Risco zero.</p>
+      </div>
+
+      <a href="${ctaLink}" class="btn btn-pulse" style="max-width: 500px; margin: 40px auto;">${callToAction}</a>
     </div>
+
+    <div class="sticky-cta">
+      <div class="container">
+        <a href="${ctaLink}" class="btn" style="margin-top: 0; padding: 15px; font-size: 15px;">${callToAction}</a>
+      </div>
+    </div>
+
+    <footer style="text-align: center; padding: 60px 0; background: #111827; color: #9CA3AF; margin-top: 80px; font-size: 12px;">
+      <div class="container">
+        <p>© 2026 ${productName} - Todos os direitos reservados.</p>
+      </div>
+    </footer>
+    <script>
+      window.addEventListener('scroll', function() {
+        document.body.classList.toggle('scrolled', window.scrollY > 500);
+      });
+    </script>
 </body>
 </html>`;
   }
 
-  // TEMPLATE: REVIEW (Editorial v6)
-  if (templateType === 'Review') {
-    return `<!DOCTYPE html>
+  // Fallback para Review (Editorial Nutra v6)
+  return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -301,11 +262,11 @@ export function generatePresellHTML(data: PresellData | null): string {
     <style>${css}</style>
 </head>
 <body>
-    <div class="top-bar">${isBlackHat ? '🔥 ATENÇÃO: ÚLTIMAS UNIDADES EM ESTOQUE COM DESCONTO' : 'PORTAL EDITORIAL: INVESTIGAÇÃO ESPECIAL ATUALIZADA'}</div>
+    <div class="countdown-bar">${isBlackHat ? '🔥 INVESTIGAÇÃO: O QUE AS GRANDES EMPRESAS ESTÃO ESCONDENDO' : 'PORTAL EDITORIAL: ANÁLISE ESPECIAL ATUALIZADA'}</div>
     <nav class="nav">
       <div class="container">
         <div class="logo">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--primary)"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary)"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
           PORTAL SAÚDE
         </div>
       </div>
@@ -313,22 +274,15 @@ export function generatePresellHTML(data: PresellData | null): string {
 
     <div class="container">
       <article class="card">
-        <div style="color: #6B7280; font-size: 12px; margin-bottom: 12px; font-weight: 700;">${editorialIntro}</div>
+        <div style="color: #6B7280; font-size: 13px; margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">${editorialIntro}</div>
         <h1>${headline}</h1>
         
-        ${isBlackHat ? `
-          <div class="stars">
-            ${Array(5).fill('★').join('')}
-            <span class="review-count">(16.892+ Avaliações Verificadas)</span>
-          </div>
-        ` : ''}
-
-        <div style="margin: 20px 0;">
+        <div style="margin: 25px 0;">
           ${renderImage(0, productName)}
         </div>
 
-        <div style="background: #F3F4F6; border-left: 4px solid var(--primary); padding: 20px; margin: 25px 0; border-radius: 4px 12px 12px 4px;">
-          <p style="margin: 0; font-style: italic; font-size: 16px;">"${quickSummary}"</p>
+        <div style="background: #F3F4F6; border-left: 5px solid var(--primary); padding: 25px; margin: 30px 0; border-radius: 4px 12px 12px 4px;">
+          <p style="margin: 0; font-style: italic; font-size: 17px; color: #111827;">"${quickSummary}"</p>
         </div>
         
         <p>${patternInterrupt}</p>
@@ -341,95 +295,28 @@ export function generatePresellHTML(data: PresellData | null): string {
 
         <p>${curiosityBridge}</p>
 
-        <div style="background: var(--primary); color: #fff; padding: 25px; border-radius: 16px; margin: 30px 0;">
-          <h3 style="margin: 0 0 12px; font-size: 20px; font-weight: 900;">Destaques Principais:</h3>
-          <ul style="padding-left: 18px; font-size: 16px; margin: 0;">
-            ${features.map(f => `<li style="margin-bottom: 6px;">${f}</li>`).join('')}
+        <div style="background: var(--primary); color: #fff; padding: 30px; border-radius: 20px; margin: 40px 0;">
+          <h3 style="margin: 0 0 15px; font-size: 22px; font-weight: 900;">Destaques Principais:</h3>
+          <ul style="padding-left: 20px; font-size: 17px; margin: 0;">
+            ${features.map(f => `<li style="margin-bottom: 10px;">${f}</li>`).join('')}
           </ul>
         </div>
 
         ${pricingSection}
 
-        <div style="text-align: center; margin-top: 40px;">
+        <div style="text-align: center; margin-top: 50px;">
           <h2>Veredito Editorial</h2>
-          <p>Após nossa análise, o <strong>${productName}</strong> destaca-se como a solução mais confiável de 2026 para quem busca resultados reais.</p>
+          <p>Após nossa análise rigorosa, o <strong>${productName}</strong> destaca-se como a melhor escolha custo-benefício para 2026.</p>
           <a href="${ctaLink}" class="btn btn-pulse">${callToAction}</a>
         </div>
       </article>
     </div>
-
-    <div class="sticky-cta">
-      <div class="container">
-        <a href="${ctaLink}" class="btn" style="margin-top: 0; padding: 15px; font-size: 15px;">${callToAction}</a>
-      </div>
-    </div>
-
-    <footer style="text-align: center; padding: 40px 0; color: #9CA3AF; font-size: 11px;">
-      <div class="container">
-        <p>© 2026 ${productName} - Todos os direitos reservados.</p>
-      </div>
-    </footer>
-    <script>${script}</script>
-    ${clarityScript || ''}
-</body>
-</html>`;
-  }
-
-  // TEMPLATE: ROBUSTA (Sales Page Style)
-  return `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${productName} - Site Oficial</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <style>${css} body { background: #fff; }</style>
-</head>
-<body>
-    <div class="top-bar">${isBlackHat ? '🔥 OFERTA POR TEMPO LIMITADO: ÚLTIMAS UNIDADES' : 'FRETE GRÁTIS PARA TODO O PAÍS HOJE'}</div>
     
-    <div class="container" style="padding-top: 40px; text-align: center;">
-      <h1 style="font-size: 32px; color: var(--primary);">${headline}</h1>
-      <p style="font-size: 20px; font-weight: 600;">${subheadline || ''}</p>
-      
-      <div style="max-width: 500px; margin: 30px auto;">
-        ${renderImage(0, productName)}
-      </div>
-
-      <div class="card" style="text-align: left; background: #f8fafc;">
-        <h2 style="margin-top: 0;">Por que escolher ${productName}?</h2>
-        <p>${whatIsSection}</p>
-        <ul style="padding-left: 20px;">
-          ${benefits.map(b => `<li style="margin-bottom: 8px; font-weight: 500;">${b}</li>`).join('')}
-        </ul>
-      </div>
-
-      <h2 style="font-size: 28px; margin-top: 60px;">Escolha seu Pacote Abaixo</h2>
-      <p>Aproveite nossos descontos exclusivos de lançamento.</p>
-
-      ${pricingSection}
-
-      <div style="margin-top: 60px; padding: 40px; background: #fff; border: 2px solid var(--primary); border-radius: 20px;">
-        <h2 style="margin-top: 0;">Garantia de Satisfação Total</h2>
-        <p>Se você não ficar 100% satisfeito com os resultados nos primeiros 60 dias, devolvemos seu dinheiro integralmente.</p>
-        <img src="https://picsum.photos/seed/secure/200/50" alt="Seguro" style="margin-top: 10px; opacity: 0.7;">
-      </div>
-
-      <a href="${ctaLink}" class="btn btn-pulse" style="font-size: 22px; max-width: 500px; margin: 40px auto;">${callToAction}</a>
-    </div>
-
-    <div class="sticky-cta">
-      <div class="container">
-        <a href="${ctaLink}" class="btn" style="margin-top: 0; padding: 15px; font-size: 15px;">${callToAction}</a>
-      </div>
-    </div>
-
-    <footer style="text-align: center; padding: 50px 0; background: #111827; color: #fff; margin-top: 80px;">
-      <div class="container">
-        <p>© 2026 ${productName} - Site Oficial Autorizado.</p>
-      </div>
-    </footer>
-    <script>${script}</script>
+    <script>
+      window.addEventListener('scroll', function() {
+        document.body.classList.toggle('scrolled', window.scrollY > 600);
+      });
+    </script>
 </body>
 </html>`;
 }
