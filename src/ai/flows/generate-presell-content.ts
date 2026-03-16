@@ -7,7 +7,7 @@ const PricingPackageSchema = z.object({
   quantity: z.string().describe('Quantidade (ex: 1, 3, 6).'),
   unitName: z.string().describe('Unidade (Potes, Frascos, Licenças).'),
   price: z.string().describe('Preço exibido (ex: R$ 197,00).'),
-  savings: z.string().describe('Economia real (ex: R$ 780,00 ou 50%).'),
+  savings: z.string().describe('Apenas o valor da economia, sem rótulos. Ex: "R$ 780,00" ou "50%".'),
   isBestValue: z.boolean().describe('Verdadeiro apenas para o kit de 6 unidades.'),
   isMostPopular: z.boolean().describe('Verdadeiro para o kit de 3 unidades.'),
   totalPrice: z.string().optional().describe('Preço total do pacote.'),
@@ -64,7 +64,7 @@ const GeneratePresellContentOutputSchema = z.object({
   curiosityBridge: z.string().describe('Gancho para continuar a leitura.'),
   features: z.array(z.string()).describe('Características principais do produto.'),
   benefits: z.array(z.string()).describe('Benefícios emocionais.'),
-  pricing: z.array(PricingPackageSchema).describe('Os 3 pacotes de preço (1, 3 e 6 unidades).'),
+  pricing: z.array(PricingPackageSchema).describe('Os pacotes de preço encontrados na descrição.'),
   testimonials: z.array(TestimonialSchema).min(6).describe('Mínimo de 6 depoimentos altamente emocionais.'),
   faq_items: z.array(FAQItemSchema).min(6).describe('Mínimo de 6 itens de FAQ.'),
   ingredients: z.array(IngredientSchema).min(6).describe('Mínimo de 6 ingredientes principais.'),
@@ -86,31 +86,25 @@ const prompt = ai.definePrompt({
   name: 'generatePresellContentPrompt',
   input: {schema: GeneratePresellContentInputSchema},
   output: {schema: GeneratePresellContentOutputSchema},
-  prompt: `Você é um Redator Publicitário Sênior de Resposta Direta e Analista de Dados especializado no mercado Nutra.
+  prompt: `Você é um Redator Publicitário Sênior de Resposta Direta e Analista de Dados.
 
 SUA TAREFA:
-Extrair informações do produto e gerar uma estrutura de dados JSON rigorosa para o template "Robusta White".
+Extrair informações do produto e gerar uma estrutura de dados JSON rigorosa para o template "{{{templateType}}}".
 
 DIRETRIZES DE TONE & COMPLIANCE (ESTRITO):
-- Estilo: White Hat (Autoridade, Baseado em Ciência, Confiável).
-- NUNCA use: "cura", "garantido", "milagre", "perca X kg", "100% provado", "fórmula mágica".
-- USE: "pode apoiar", "estudado para", "projetado para ajudar", "verificar disponibilidade", "experiência pessoal".
-- Depoimentos: Devem ser altamente emocionais, focados em estilo de vida e confiança. NUNCA mencione perda de peso específica ou curas médicas nos depoimentos.
+- Estilo: {{{copyStyle}}}
+- Se White Hat: Use tom editorial, autoridade e base científica. NUNCA use "cura", "garantido", "milagre".
+- Se Black Hat: Headline de alto impacto, urgência e escassez agressiva.
+- Depoimentos: Devem ser altamente emocionais, focados em estilo de vida e confiança.
 
-LÓGICA DE PREÇOS:
-- Kit 1: 1 Unidade.
-- Kit 2: 6 Unidades (MELHOR ESCOLHA / BEST VALUE).
-- Kit 3: 3 Unidades (MAIS POPULAR).
-- Identifique o nome da unidade (Potes, Frascos, Licenças, etc.).
+LÓGICA DE DADOS:
+- Economia (savings): Forneça APENAS o valor (ex: "R$ 780,00" ou "50%"). NUNCA inclua o texto "Economize" ou similar, pois o rótulo já está no template.
+- Preços: Identifique EXATAMENTE as quantidades e preços citados na descrição. Não invente kits se não estiverem no texto.
+- Cores: Tente identificar a cor principal da marca (HEX).
 
 IDIOMA:
 - Identifique o idioma de destino baseado em: "{{{targetLanguage}}}".
 - Gere TODO o conteúdo no idioma detectado.
-
-REQUISITOS DE DENSIDADE:
-- Gere pelo menos 6 depoimentos únicos e variados.
-- Gere pelo menos 6 ingredientes com descrições de benefícios.
-- Gere pelo menos 6 perguntas e respostas frequentes.
 
 PRODUTO PARA ANÁLISE:
 {{{salesPageDescription}}}`,

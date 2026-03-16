@@ -121,10 +121,14 @@ export function generatePresellHTML(data: PresellData | null): string {
     
     .pricing-grid { display: grid; gap: 24px; margin-top: 40px; align-items: flex-end; }
     @media (min-width: 768px) { .pricing-grid { grid-template-columns: repeat(3, 1fr); } }
-    .price-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 20px; padding: 40px 24px; text-align: center; position: relative; transition: all 0.3s; }
+    .price-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 20px; padding: 40px 24px; text-align: center; position: relative; transition: all 0.3s; display: flex; flex-direction: column; }
     .price-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
     .price-card.featured { border: 3px solid var(--primary); transform: scale(1.05); z-index: 10; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-    @media (max-width: 768px) { .price-card.featured { transform: scale(1); margin-bottom: 20px; } }
+    @media (max-width: 768px) { 
+      .price-card.featured { transform: scale(1); margin-bottom: 20px; order: 1 !important; } 
+      .price-card.popular { order: 2 !important; }
+      .price-card:not(.featured):not(.popular) { order: 3 !important; }
+    }
     .price-card .qty { font-size: 15px; font-weight: 800; color: var(--navy); text-transform: uppercase; margin-bottom: 10px; }
     .price-card .price { font-size: 38px; font-weight: 900; color: var(--navy); margin: 16px 0; }
     .price-card .savings { background: #DCFCE7; color: #166534; font-weight: 800; font-size: 12px; padding: 4px 12px; border-radius: 50px; display: inline-block; margin-bottom: 15px; }
@@ -146,15 +150,14 @@ export function generatePresellHTML(data: PresellData | null): string {
     .scarcity-bar span { color: #F87171; }
   `;
 
-  // Sort pricing for desktop: 1, 6, 3 (Featured in center)
-  const sortedPricing = [...pricing].sort((a, b) => {
-    if (a.isBestValue) return 0; // Center
-    if (b.isBestValue) return 0;
+  // Dynamic order for desktop
+  const displayPricing = [...pricing].sort((a, b) => {
+    if (a.isBestValue) return 0; // Central logic handled by CSS order or array position
     return 0;
   });
   
-  // Custom display order: Kit 1, Kit 6 (Best), Kit 3
-  const displayPricing = [
+  // Logical ordering: 1, 6 (Best), 3 (Popular)
+  const orderedPricing = [
     pricing.find(p => !p.isBestValue && !p.isMostPopular),
     pricing.find(p => p.isBestValue),
     pricing.find(p => p.isMostPopular)
@@ -186,7 +189,7 @@ export function generatePresellHTML(data: PresellData | null): string {
     <section class="section-white">
       <div class="container hero">
         <div>
-          <div class="stars">★★★★★ <span style="color: var(--gray); font-size: 12px; font-weight: 800; margin-left: 10px;">16.892+ AVALIAÇÕES VERIFICADAS</span></div>
+          <div class="stars">★★★★★ <span style="color: var(--gray); font-size: 12px; font-weight: 800; margin-left: 10px;">AVALIAÇÕES VERIFICADAS</span></div>
           <h1>${headline}</h1>
           <p style="font-size: 20px; margin-bottom: 30px;">${subheadline || editorialIntro}</p>
           <a href="#pricing" class="btn">VERIFICAR DISPONIBILIDADE</a>
@@ -197,7 +200,7 @@ export function generatePresellHTML(data: PresellData | null): string {
 
     <section class="section-gray">
       <div class="container" style="max-width: 800px; text-align: center;">
-        <h2>A Ciência do Equilíbrio</h2>
+        <h2>${quickSummary || 'A Ciência do Equilíbrio'}</h2>
         <p style="font-size: 18px;">${whatIsSection}</p>
         <p style="font-size: 18px; margin-top: 20px;">${problemsSection}</p>
       </div>
@@ -221,8 +224,8 @@ export function generatePresellHTML(data: PresellData | null): string {
       <div class="container">
         <h2>Selecione Seu Pacote Promocional</h2>
         <div class="pricing-grid">
-          ${displayPricing.map(p => `
-            <div class="price-card ${p.isBestValue ? 'featured' : ''}" style="order: ${p.isBestValue ? 2 : (p.isMostPopular ? 3 : 1)};">
+          ${orderedPricing.map(p => `
+            <div class="price-card ${p.isBestValue ? 'featured' : (p.isMostPopular ? 'popular' : '')}" style="order: ${p.isBestValue ? 2 : (p.isMostPopular ? 3 : 1)};">
               ${p.isBestValue ? '<div class="badge">MELHOR ESCOLHA</div>' : (p.isMostPopular ? '<div class="badge">MAIS POPULAR</div>' : '')}
               <div class="qty">${p.quantity} ${p.unitName || 'Unidades'}</div>
               <div style="margin: 20px 0;">${renderImage(0, productName)}</div>
