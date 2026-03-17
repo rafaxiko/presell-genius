@@ -4,109 +4,115 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const PricingPackageSchema = z.object({
-  quantity: z.string().describe('Quantidade (ex: 1, 3, 6).'),
-  unitName: z.string().describe('Unidade (Potes, Frascos, Licenças).'),
-  price: z.string().describe('Preço exibido (ex: R$ 197,00).'),
-  savings: z.string().describe('Apenas o valor da economia, sem rótulos. Ex: "R$ 780,00" ou "50%".'),
-  isBestValue: z.boolean().describe('Verdadeiro apenas para o kit de 6 unidades.'),
-  isMostPopular: z.boolean().describe('Verdadeiro para o kit de 3 unidades.'),
-  totalPrice: z.string().optional().describe('Preço total do pacote.'),
+  id: z.string(),
+  label: z.string().describe('Ex: 1 Frasco, 6 Frascos (BEST VALUE), 3 Frascos (MOST POPULAR).'),
+  bottles: z.string(),
+  supply: z.string().describe('Ex: 30 Day Supply.'),
+  price_per: z.string().describe('Preço por unidade (ex: $49).'),
+  original_total: z.string().describe('Preço total sem desconto.'),
+  discounted_total: z.string().describe('Preço total com desconto.'),
+  savings: z.string().describe('Apenas o valor da economia (ex: $780).'),
+  shipping: z.string().describe('Status do frete (ex: Free Shipping).'),
+  isBestValue: z.boolean(),
+  isMostPopular: z.boolean(),
+  desktop_position: z.number(),
+  mobile_position: z.number(),
 });
 
 const TestimonialSchema = z.object({
-  name: z.string().describe('Nome do cliente.'),
-  text: z.string().describe('Depoimento focado em estilo de vida e confiança, sem promessas de cura.'),
-  location: z.string().describe('Localização do cliente.'),
+  name: z.string(),
+  location: z.string(),
+  title: z.string().describe('Título curto do depoimento.'),
+  body: z.string().describe('Depoimento focado em estilo de vida e confiança, tom White Hat.'),
+  photo_url: z.string().optional(),
 });
 
 const FAQItemSchema = z.object({
-  question: z.string().describe('Pergunta comum do cliente.'),
-  answer: z.string().describe('Resposta editorial e segura (White Hat).'),
+  question: z.string(),
+  answer: z.string(),
 });
 
 const IngredientSchema = z.object({
-  name: z.string().describe('Nome do ingrediente principal.'),
-  description: z.string().describe('Benefício principal focado em suporte à saúde.'),
-});
-
-const BonusSchema = z.object({
-  title: z.string().describe('Título do bônus.'),
-  value: z.string().describe('Valor estimado do bônus (ex: R$ 97,00).'),
-  description: z.string().describe('Descrição curta do que o bônus oferece.'),
-  enabled: z.boolean().describe('Se o bônus foi encontrado na descrição.'),
+  name: z.string(),
+  benefit: z.string().describe('Benefício principal focado em suporte à saúde.'),
+  image_url: z.string().optional(),
 });
 
 const GeneratePresellContentInputSchema = z.object({
-  salesPageDescription: z
-    .string()
-    .describe('Descrição detalhada do produto ou URL da página de vendas.'),
-  targetLanguage: z
-    .string()
-    .describe('País de destino para identificação automática do idioma.'),
-  templateType: z.enum(['Lançamento', 'Robusta', 'Review', 'Cookie', 'Lista (Top 3/5)']).describe('O layout estrutural.'),
-  copyStyle: z.enum(['White Hat (Conservador)', 'Black Hat (Agressivo)']).describe('O nível de blindagem.'),
+  salesPageDescription: z.string().describe('URL ou texto da página de vendas.'),
+  targetLanguage: z.string().describe('Idioma/País de destino.'),
+  templateType: z.enum(['Lançamento', 'Robusta', 'Review', 'Cookie', 'Lista (Top 3/5)']),
+  copyStyle: z.enum(['White Hat (Conservador)', 'Black Hat (Agressivo)']),
 });
 
-export type GeneratePresellContentInput = z.infer<
-  typeof GeneratePresellContentInputSchema
->;
+export type GeneratePresellContentInput = z.infer<typeof GeneratePresellContentInputSchema>;
 
 const GeneratePresellContentOutputSchema = z.object({
-  productName: z.string().describe('Nome oficial do produto.'),
-  primaryColor: z.string().describe('Cor principal da marca em formato HEX (ex: #2952A3).'),
-  headline: z.string().describe('Headline magnética e complacente.'),
-  subheadline: z.string().describe('Texto de apoio focado em benefícios gerais.'),
-  editorialIntro: z.string().describe('Meta-texto editorial.'),
-  quickSummary: z.string().describe('Resumo rápido e profissional.'),
-  patternInterrupt: z.string().describe('Texto que desafia suposições comuns.'),
-  problemsSection: z.string().describe('Descrição empática de desafios comuns.'),
-  whatIsSection: z.string().describe('Explicação técnica da solução.'),
-  curiosityBridge: z.string().describe('Gancho para continuar a leitura.'),
-  features: z.array(z.string()).describe('Características principais do produto.'),
-  benefits: z.array(z.string()).describe('Benefícios emocionais.'),
-  pricing: z.array(PricingPackageSchema).describe('Os pacotes de preço encontrados na descrição.'),
-  testimonials: z.array(TestimonialSchema).min(6).describe('Mínimo de 6 depoimentos altamente emocionais.'),
-  faq_items: z.array(FAQItemSchema).min(6).describe('Mínimo de 6 itens de FAQ.'),
-  ingredients: z.array(IngredientSchema).min(6).describe('Mínimo de 6 ingredientes principais.'),
-  bonuses: z.array(BonusSchema).describe('Lista de bônus encontrados.'),
-  callToAction: z.string().describe('Texto do botão (ex: Verificar Oferta Oficial).'),
+  meta: z.object({
+    product_name: z.string(),
+    primary_color: z.string().describe('HEX da cor principal.'),
+    publish_date: z.string(),
+    rating: z.string(),
+    review_count: z.string(),
+    seo_description: z.string(),
+  }),
+  hero: z.object({
+    headline: z.string(),
+    subheadline: z.string(),
+    cta_text: z.string(),
+    trust_badges: z.array(z.string()),
+    social_proof_line: z.string(),
+  }),
+  mechanism: z.object({
+    tag: z.string(),
+    headline: z.string(),
+    subheadline: z.string(),
+    paragraphs: z.array(z.string()).min(3),
+    quote: z.string(),
+  }),
+  overview: z.object({
+    headline: z.string(),
+    description: z.string(),
+    bullets: z.array(z.object({ icon: z.string(), text: z.string() })),
+  }),
+  pricing: z.object({
+    headline: z.string(),
+    subheadline: z.string(),
+    per_bottle_label: z.string().describe('Ex: por frasco, per bottle.'),
+    bundles: z.array(PricingPackageSchema),
+  }),
+  ingredients: z.array(IngredientSchema).min(6),
+  testimonials: z.array(TestimonialSchema).min(3),
+  faq: z.array(FAQItemSchema).min(6),
+  footer: z.object({
+    copyright_text: z.string(),
+  })
 });
 
-export type GeneratePresellContentOutput = z.infer<
-  typeof GeneratePresellContentOutputSchema
->;
-
-export async function generatePresellContent(
-  input: GeneratePresellContentInput
-): Promise<GeneratePresellContentOutput> {
-  return generatePresellContentFlow(input);
-}
+export type GeneratePresellContentOutput = z.infer<typeof GeneratePresellContentOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'generatePresellContentPrompt',
   input: {schema: GeneratePresellContentInputSchema},
   output: {schema: GeneratePresellContentOutputSchema},
-  prompt: `Você é um Redator Publicitário Sênior de Resposta Direta e Analista de Dados.
+  prompt: `Você é um Redator Publicitário Sênior e Analista de Dados especializado em Nutracêuticos.
 
-SUA TAREFA:
-Extrair informações do produto e gerar uma estrutura de dados JSON rigorosa para o template "{{{templateType}}}".
+SUA MISSÃO:
+Extrair dados e gerar copy de alta conversão para o template "Robusta White v2".
 
 DIRETRIZES DE TONE & COMPLIANCE (ESTRITO):
 - Estilo: {{{copyStyle}}}
-- Se White Hat: Use tom editorial, autoridade e base científica. NUNCA use "cura", "garantido", "milagre".
-- Se Black Hat: Headline de alto impacto, urgência e escassez agressiva.
-- Depoimentos: Devem ser altamente emocionais, focados em estilo de vida e confiança.
+- Se White Hat: Tom editorial, científico e autoritário. Use termos como "pode apoiar", "estudado para". NUNCA use "cura", "garantia de resultado", "milagre".
+- Se Black Hat: Headline de alto impacto, urgência agressiva e gatilhos de escassez.
+- Idioma: O conteúdo gerado deve estar em {{{targetLanguage}}}.
 
-LÓGICA DE DADOS:
-- Economia (savings): Forneça APENAS o valor (ex: "R$ 780,00" ou "50%"). NUNCA inclua o texto "Economize" ou similar, pois o rótulo já está no template.
-- Preços: Identifique EXATAMENTE as quantidades e preços citados na descrição. Não invente kits se não estiverem no texto.
-- Cores: Tente identificar a cor principal da marca (HEX).
+LÓGICA DE PRECIFICAÇÃO:
+- Bundle 1: 1 Frasco (Entrada). Desktop pos 1, Mobile pos 3.
+- Bundle 2: 6 Frascos (BEST VALUE). Desktop pos 2, Mobile pos 1.
+- Bundle 3: 3 Frascos (MOST POPULAR). Desktop pos 3, Mobile pos 2.
+- Savings: Forneça APENAS o valor (ex: $780). O rótulo "ECONOMIZE" já está no template.
 
-IDIOMA:
-- Identifique o idioma de destino baseado em: "{{{targetLanguage}}}".
-- Gere TODO o conteúdo no idioma detectado.
-
-PRODUTO PARA ANÁLISE:
+PRODUTO:
 {{{salesPageDescription}}}`,
 });
 
@@ -121,3 +127,7 @@ const generatePresellContentFlow = ai.defineFlow(
     return output!;
   }
 );
+
+export async function generatePresellContent(input: GeneratePresellContentInput): Promise<GeneratePresellContentOutput> {
+  return generatePresellContentFlow(input);
+}

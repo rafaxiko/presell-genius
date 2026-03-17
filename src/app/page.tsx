@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { PresellForm, PresellFormValues } from '@/components/PresellForm';
 import { PresellPreview } from '@/components/PresellPreview';
 import { generatePresellContent } from '@/ai/flows/generate-presell-content';
-import { PresellData } from '@/lib/presell-template';
+import { PresellData, generatePresellHTML } from '@/lib/presell-template';
 import { Zap, Rocket, Star, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Toaster } from '@/components/ui/toaster';
@@ -31,26 +31,17 @@ export default function PresellGeniusApp() {
       });
 
       const newData: PresellData = {
-        productName: result.productName || values.productName,
-        headline: result.headline,
-        subheadline: result.subheadline,
-        editorialIntro: result.editorialIntro,
-        quickSummary: result.quickSummary,
-        patternInterrupt: result.patternInterrupt,
-        problemsSection: result.problemsSection,
-        whatIsSection: result.whatIsSection,
-        curiosityBridge: result.curiosityBridge,
-        features: result.features,
-        benefits: result.benefits,
+        meta: result.meta,
+        hero: result.hero,
+        mechanism: result.mechanism,
+        overview: result.overview,
         pricing: result.pricing,
+        ingredients: result.ingredients,
         testimonials: result.testimonials,
-        callToAction: result.callToAction,
-        buttonColor: values.buttonColor,
-        primaryColor: result.primaryColor,
-        targetUrl: values.targetUrl,
+        faq: result.faq,
+        footer: result.footer,
         productImageUrls: productImageUrls,
-        trackingLink: values.trackingLink,
-        clarityScript: values.clarityScript,
+        targetUrl: values.targetUrl,
         templateType: values.templateType as any,
         copyStyle: values.copyStyle,
         targetLanguage: values.targetLanguage,
@@ -60,14 +51,14 @@ export default function PresellGeniusApp() {
 
       toast({
         title: "Página Gerada!",
-        description: "Estrutura Robusta White aplicada com sucesso.",
+        description: "Motor de extração v2 processado com sucesso.",
       });
     } catch (error) {
       console.error(error);
       toast({
         variant: "destructive",
         title: "Erro na Geração",
-        description: "A IA encontrou um problema. Tente novamente.",
+        description: "A IA encontrou um problema ao extrair os dados.",
       });
     } finally {
       setIsGenerating(false);
@@ -82,6 +73,26 @@ export default function PresellGeniusApp() {
         productImageUrls: images,
       });
     }
+  };
+
+  const handleDownload = (wrapForElementor: boolean) => {
+    if (!generatedData) return;
+    
+    const content = wrapForElementor 
+      ? JSON.stringify(generatedData, null, 2)
+      : generatePresellHTML(generatedData);
+      
+    const blob = new Blob([content], { type: wrapForElementor ? 'application/json' : 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = wrapForElementor 
+      ? `presell-${generatedData.meta.product_name.toLowerCase()}.json`
+      : `index.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const handleClear = () => {
@@ -105,13 +116,13 @@ export default function PresellGeniusApp() {
           </span>
           <div className="ml-4 hidden sm:flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 border border-slate-200">
             <Globe className="h-3 w-3 text-primary" />
-            ELITE ENGINE
+            V2 ENGINE
           </div>
         </div>
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
             <Rocket className="h-3.5 w-3.5" />
-            COMPLIANCE ENGINE
+            ELITE EXTRACTION
           </div>
           <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded text-[10px] font-bold text-yellow-700 border border-yellow-100">
             <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
@@ -135,7 +146,7 @@ export default function PresellGeniusApp() {
           <div className="flex-1 p-6 md:p-8 overflow-auto">
             <PresellPreview 
               data={generatedData} 
-              onDownload={() => {}} 
+              onDownload={handleDownload} 
               onUpdateImages={handleUpdateImages}
             />
           </div>
