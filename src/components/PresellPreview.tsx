@@ -1,16 +1,15 @@
 'use client';
 
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Eye, Monitor, Smartphone, Copy, FileCode } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { generatePresellHTML, PresellData } from '@/lib/presell-template';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 interface PresellPreviewProps {
-  data: PresellData | null;
+  data: string | null;
   onDownload: (wrapForElementor: boolean) => void;
   onUpdateImages: (images: string[]) => void;
 }
@@ -25,10 +24,6 @@ export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
     setIsClient(true);
   }, []);
 
-  const html = useMemo(() => {
-    return generatePresellHTML(data);
-  }, [data]);
-
   useEffect(() => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
@@ -36,8 +31,8 @@ export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
   }, [data]);
 
   const copyToClipboard = () => {
-    if (typeof navigator !== 'undefined') {
-      navigator.clipboard.writeText(html);
+    if (typeof navigator !== 'undefined' && data) {
+      navigator.clipboard.writeText(data);
       toast({
         title: "Copiado!",
         description: "Código fonte copiado para a área de transferência.",
@@ -70,7 +65,7 @@ export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
           </Button>
         </div>
       </CardHeader>
-      
+
       <Tabs defaultValue="preview" className="flex-1 flex flex-col overflow-hidden">
         <div className="px-6 py-2 bg-white border-b flex justify-between items-center shrink-0">
           <div className="flex items-center gap-4">
@@ -78,9 +73,9 @@ export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
               <TabsTrigger value="preview" className="data-[state=active]:bg-white text-[10px] px-3 font-bold uppercase tracking-wider">Visualizar</TabsTrigger>
               <TabsTrigger value="code" className="data-[state=active]:bg-white text-[10px] px-3 font-bold uppercase tracking-wider">Código</TabsTrigger>
             </TabsList>
-            
+
             <div className="flex bg-slate-100 p-1 rounded-md h-8">
-              <button 
+              <button
                 onClick={() => setViewMode('desktop')}
                 className={cn(
                   "px-2 rounded flex items-center justify-center transition-all",
@@ -90,7 +85,7 @@ export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
               >
                 <Monitor className="h-4 w-4" />
               </button>
-              <button 
+              <button
                 onClick={() => setViewMode('mobile')}
                 className={cn(
                   "px-2 rounded flex items-center justify-center transition-all",
@@ -102,7 +97,7 @@ export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
               </button>
             </div>
           </div>
-          
+
           <TabsContent value="code" className="m-0">
             <Button variant="ghost" size="sm" onClick={copyToClipboard} className="text-[10px] h-6 gap-1 px-2">
               <Copy className="h-3 w-3" />
@@ -110,28 +105,34 @@ export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
             </Button>
           </TabsContent>
         </div>
-        
+
         <TabsContent value="preview" className="flex-1 m-0 bg-slate-100/30 p-4 md:p-8 overflow-auto scroll-smooth" ref={scrollContainerRef}>
-          <div 
+          <div
             className={cn(
               "mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden border relative transition-all duration-300",
               viewMode === 'desktop' ? "max-w-full lg:max-w-3xl" : "max-w-[375px]"
             )}
             style={{ minHeight: '1200px' }}
           >
-            <iframe
-              srcDoc={html}
-              title="Presell Preview"
-              className="w-full h-full border-none min-h-[1200px]"
-              sandbox="allow-scripts"
-            />
+            {data ? (
+              <iframe
+                srcDoc={data}
+                title="Presell Preview"
+                className="w-full h-full border-none min-h-[1200px]"
+                sandbox="allow-scripts"
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full min-h-[1200px] text-slate-400 text-sm">
+                Preencha o formulário e clique em "Criar Página Agora"
+              </div>
+            )}
           </div>
         </TabsContent>
-        
+
         <TabsContent value="code" className="flex-1 m-0 overflow-auto">
           <div className="p-6 bg-slate-900 text-slate-300 font-mono text-[11px] h-full">
             <pre className="whitespace-pre-wrap leading-relaxed">
-              {html}
+              {data || '// Nenhuma página gerada ainda'}
             </pre>
           </div>
         </TabsContent>
