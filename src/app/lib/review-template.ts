@@ -94,7 +94,7 @@ export function generateReviewHTML(
     HERO_HEADLINE: hero.headline ?? '',
     HERO_SUBHEADLINE: hero.subheadline ?? '',
     HERO_PRODUCT_IMAGE: getImg(0),
-    DATE_LABEL: hero.date_label ?? meta.publish_date ?? '',
+    DATE_LABEL: todayLabel,
     READ_TIME: hero.read_time ?? '8 min read',
     EDITORIAL_NOTE: meta.editorial_note ?? 'Editorially Reviewed',
 
