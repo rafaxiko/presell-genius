@@ -181,23 +181,72 @@ NIVEL 4 — CURIOSIDADE: "${variations.curiosity.prefix}"
 
     const parsed = parseGeminiJSON(text);
 
-    if (parsed.popup) {
-      parsed.popup.enabled = input.popupEnabled !== false;
+    // ============================================
+    // PATCHES FORÇADOS PÓS-GEMINI (ANTI-OVERRIDE)
+    // ============================================
+
+    // 1. DATA REAL
+    const today = new Date();
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const realDateLabel = `${monthNames[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()}`;
+    const realIsoDate = today.toISOString().split('T')[0];
+    if (parsed.hero) {
+      parsed.hero.date_label = realDateLabel;
+    }
+    if (parsed.meta) {
+      parsed.meta.publish_date = realIsoDate;
+      parsed.meta.publish_date_year = '2026';
+      parsed.meta.author_label = parsed.meta.author_label || 'Health Editorial Team';
     }
 
-    if (parsed.footer?.copyright_text) {
-      parsed.footer.copyright_text = parsed.footer.copyright_text.replace(/\d{4}/, '2026');
+    // 2. POPUP
+    const popupEnabled = input.popupEnabled !== false;
+    parsed.popup = {
+      enabled: popupEnabled,
+      appear_after_seconds: parsed.popup?.appear_after_seconds ?? 10,
+      visible_seconds: parsed.popup?.visible_seconds ?? 5,
+      repeat_every_seconds: parsed.popup?.repeat_every_seconds ?? 60,
+      product_image_url: parsed.popup?.product_image_url || '',
+      names: parsed.popup?.names?.length ? parsed.popup.names : ['Sarah','Michael','Jessica','Robert','Emily'],
+      cities: parsed.popup?.cities?.length ? parsed.popup.cities : ['Austin, TX','Seattle, WA','Denver, CO','Boston, MA','Portland, OR'],
+      action_text: parsed.popup?.action_text || 'just visited the official website'
+    };
+
+    // 3. BONUSES - validar contra productInfo
+    const productInfoLower = (input.productInfo || '').toLowerCase();
+    const hasRealBonuses = productInfoLower.includes('bonus') || productInfoLower.includes('brinde') || productInfoLower.includes('free gift') || productInfoLower.includes('extra');
+    if (parsed.pricing?.bundles) {
+      parsed.pricing.bundles = parsed.pricing.bundles.map((bundle: any) => ({
+        ...bundle,
+        bonuses_included: hasRealBonuses ? (bundle.bonuses_included ?? false) : false,
+        supply_days: bundle.supply_days?.toString().includes('Day') ? bundle.supply_days : `${bundle.supply_days || 30} Day Supply`,
+        bottles: bundle.bottles?.toString().includes('Bottle') ? bundle.bottles : `${bundle.bottles || 1} Bottle${Number(bundle.bottles) > 1 ? 's' : ''}`
+      }));
     }
 
-    if (dnaData?.success && parsed.meta) {
-      if (dnaData.primary_color && dnaData.primary_color !== '#E85D26') {
-        parsed.meta.primary_color = dnaData.primary_color;
-      }
+    // 4. FINAL CTA - sincronizar com bundle best_value
+    const bundles = parsed.pricing?.bundles || [];
+    const bestValueBundle = bundles.find((b: any) => b.featured) || bundles[1] || bundles[0] || {};
+    if (parsed.final_cta) {
+      parsed.final_cta.bundle_label = bestValueBundle.label || 'Best Value Package';
+      parsed.final_cta.price_per_bottle = bestValueBundle.price_per_bottle || parsed.final_cta.price_per_bottle || '';
+      parsed.final_cta.price_original = bestValueBundle.price_total_original || parsed.final_cta.price_original || '';
+    }
+
+    // 5. COPYRIGHT
+    if (parsed.footer) {
+      parsed.footer.copyright_text = `© ${today.getFullYear()} HealthReviewHub. All rights reserved.`;
+    }
+
+    // 6. PRIMARY COLOR DO DNA
+    if (dnaData?.success && dnaData.primary_color && dnaData.primary_color !== '#E85D26') {
+      if (parsed.meta) parsed.meta.primary_color = dnaData.primary_color;
     }
 
     parsed._seed = rawSeed;
     parsed._variations = variations;
     parsed._dna = dnaData;
+    parsed._patched_at = new Date().toISOString();
 
     return parsed;
 
