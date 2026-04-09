@@ -39,7 +39,7 @@ export function generateReviewHTML(
   country: string = 'Estados Unidos'
 ): string {
   const getImg = (index: number): string => images[index] ?? '';
-  const findImg = (indices: number[]): string => { for (const idx of indices) { const img = images[idx]; if (img && img.length > 10) return img; } return ''; };
+  const findImg = (indices: number[]): string => { for (const idx of indices) { const img = images[idx]; if (typeof img === 'string' && img.length > 10 && (img.startsWith('http') || img.startsWith('data:image'))) return img; } return ''; };
 
   const r = result as any;
   const seo = r.seo || {};
@@ -218,7 +218,8 @@ export function generateReviewHTML(
     BEN_4_DETAIL: benefits.items?.[3]?.detail ?? '',
 
     // Pros Cons
-    PROS_CONS_IMAGE: findImg([26, 25, 20, 19, 18, 12, 11]),
+    PROS_CONS_IMAGE: (() => { const img = findImg([26, 25, 20, 19, 18, 12, 11]); return img ? '<img src="'+img+'" alt="Product comparison" style="max-width:100%;border-radius:12px;" onerror="this.parentElement.style.display=\'none\'">' : ''; })(),
+    PROS_CONS_STYLE: findImg([26, 25, 20, 19, 18, 12, 11]) ? '' : 'display:none !important;',
     PROS_CONS_HEADLINE: prosCons.headline ?? '',
     PRO_1: prosCons.pros?.[0]?.text ?? '',
     PRO_2: prosCons.pros?.[1]?.text ?? '',
