@@ -367,6 +367,7 @@ export function generateReviewHTML(
     POPUP_CITIES_JSON: popupCities,
     POPUP_NAME_1: popup.names?.[0] ?? 'Sarah',
     POPUP_CITY_1: popup.cities?.[0] ?? 'Austin, TX',
+    POPUP_ENABLED: (r.popup?.enabled === true || r.popup_enabled === true) ? 'true' : 'false',
     POPUP_ACTION_TEXT: popup.action_text ?? 'just visited the official website',
 
     // Affiliate
