@@ -7,20 +7,18 @@ import { jsonrepair } from 'jsonrepair';
 
 const GenerateReviewContentInputSchema = z.object({
   productName: z.string().optional(),
-  productInfo: z.string().optional(),           // ← NOVO: info manual do produto
+  productInfo: z.string().optional(),
   salesPageDescription: z.string().optional(),
   officialProductUrl: z.string().optional(),
   dnaContext: z.string().optional(),
   targetLanguage: z.string(),
   templateType: z.enum(['Lançamento', 'Robusta', 'Review', 'Cookie', 'Lista (Top 3/5)']),
   copyStyle: z.enum(['White Hat (Conservador)', 'Black Hat (Agressivo)']),
-  popupEnabled: z.boolean().optional(),         // ← NOVO: toggle popup
+  popupEnabled: z.boolean().optional(),
 });
 
 export type GenerateReviewContentInput = z.infer<typeof GenerateReviewContentInputSchema>;
 export type GenerateReviewContentOutput = any;
-
-// ── 4 NÍVEIS DE VARIAÇÃO CONTROLADOS PELO SEED ──────────────────────────────
 
 const HEADLINE_PATTERNS = [
   { id: 'question',      template: '{product} Review {year}: Does It Actually Work for {benefit}?' },
@@ -32,10 +30,10 @@ const HEADLINE_PATTERNS = [
 ];
 
 const NARRATIVE_STYLES = [
-  { id: 'investigative', desc: 'Estilo investigativo jornalístico. O autor "investigou" o produto como repórter. Tom neutro mas curioso.' },
-  { id: 'story_lead',    desc: 'Começa com a história de uma pessoa real com o problema. Tom empático e pessoal.' },
-  { id: 'problem_first', desc: 'Começa directo com o problema que o produto resolve. Tom educacional e factual.' },
-  { id: 'expert_review', desc: 'Tom de especialista em saúde analisando o produto. Usa terminologia científica acessível.' },
+  { id: 'investigative', desc: 'Estilo investigativo jornalistico. O autor investigou o produto como reporter. Tom neutro mas curioso.' },
+  { id: 'story_lead',    desc: 'Comeca com a historia de uma pessoa real com o problema. Tom empatico e pessoal.' },
+  { id: 'problem_first', desc: 'Comeca directo com o problema que o produto resolve. Tom educacional e factual.' },
+  { id: 'expert_review', desc: 'Tom de especialista em saude analisando o produto. Usa terminologia cientifica acessivel.' },
 ];
 
 const VOCABULARY_SETS = [
@@ -57,10 +55,7 @@ const prompt = ai.definePrompt({
   model: 'googleai/gemini-2.5-flash',
   input: { schema: GenerateReviewContentInputSchema },
   output: { format: 'text' },
-  config: {
-    maxOutputTokens: 8192,
-    temperature: 0.7,
-  },
+  config: { maxOutputTokens: 65535, temperature: 0.7 },
   prompt: `Voce e um Copywriter especializado em REVIEW EDITORIAL para afiliados nutra.
 Sua tarefa e gerar conteudo para um template Review de 17 blocos, no estilo jornalistico independente.
 
@@ -90,281 +85,61 @@ O ano actual e 2026. Use SEMPRE 2026 nas headlines, datas e titulos. NUNCA use 2
 
 === REGRAS DE OURO (ESTRITO) ===
 1. TOM EDITORIAL: Parece review independente, nao publicidade. NUNCA use: "cura", "garante", "milagre". USE: "may support", "users report", "evidence suggests".
-2. MECANISMO UNICO: Identifica o mecanismo principal do produto (ex: oral microbiome, mitochondrial decline, brown fat activation). Este mecanismo e o fio condutor de TODA a page.
-3. HEADLINE BOF: A headline deve incluir o nome do produto + "Review" + ano 2026 + beneficio especifico. Segue o padrao do seed.
+2. MECANISMO UNICO: Identifica o mecanismo principal do produto. Este mecanismo e o fio condutor de TODA a page.
+3. HEADLINE BOF: A headline deve incluir o nome do produto + "Review" + ano 2026 + beneficio especifico.
 4. QUICK VERDICT: Aparece logo apos o hero. Resume em 5 pontos: rating, best for, main benefit, pros (3), cons (2).
 5. MECANISMO ANTES DO PRODUTO: Explica o problema e o mecanismo ANTES de apresentar o produto.
 6. FAQ BOF: Inclui obrigatoriamente: "is [product] legit", "is [product] a scam", "does [product] really work", "where to buy authentic [product]", "how long to see results".
-7. VARIACAO (4 NIVEIS): Segue ESTRITAMENTE o seed — headline pattern, narrativa, vocabulario e bullets de curiosidade devem reflectir o seed.
-8. E-E-A-T LEVE: Inclui "Reviewed by our editorial health team" ou similar. NAO inventar medicos ou especialistas falsos.
-9. COMPLIANCE ADS: Sem urgencia falsa agressiva. CTA final deve ser "Check Official Website" ou similar. Nao mencionar precos especificos na intro.
-10. IDIOMA: Todo conteudo em {{{targetLanguage}}}. Incluindo labels, SEO fields e todos os textos.
-11. FALLBACKS: Se algum dado nao estiver disponivel no DNA, gera conteudo plausivel baseado no nicho e ingredientes. NAO deixar campos vazios.
-12. SEO PIPELINE: Gera automaticamente title_tag, meta_description (3 variacoes), url_slug, schema_type.
-13. INGREDIENTES: Gera minimo 6, maximo 9. Cada um com nome, beneficio curto E explicacao cientifica de 2-3 frases. Usar APENAS ingredientes confirmados nos dados.
-14. DEPOIMENTOS: 3 depoimentos realistas, nomes americanos, localizacoes especificas, quote_title e quote_body distintos.
+7. VARIACAO (4 NIVEIS): Segue ESTRITAMENTE o seed.
+8. E-E-A-T LEVE: Inclui "Reviewed by our editorial health team" ou similar.
+9. COMPLIANCE ADS: Sem urgencia falsa agressiva. CTA final deve ser "Check Official Website" ou similar.
+10. IDIOMA: Todo conteudo em {{{targetLanguage}}}.
+11. FALLBACKS: Se algum dado nao estiver disponivel, gera conteudo plausivel. NAO deixar campos vazios.
+12. SEO PIPELINE: Gera automaticamente title_tag, meta_description, url_slug, schema_type.
+13. INGREDIENTES: Gera EXACTAMENTE 9 ingredientes. Cada um com name, benefit_short E scientific_explanation de 2-3 frases.
+14. DEPOIMENTOS: 3 depoimentos realistas com name, location, quote_title e quote_body. NUNCA mencionar anos específicos nos depoimentos. NUNCA copiar depoimentos reais da página oficial. Cria depoimentos FICTÍCIOS plausíveis.
 15. SCAM ALERT: Inclui bloco de alerta de falsificacao direcionando para site oficial.
-16. RATING: Rating editorial entre 4.6 e 4.9. NUNCA 5.0 (parece falso). Review count entre 8.000 e 15.000.
-17. COMPARISON: Tabela simples comparando produto vs "generic supplements" sem mencionar marcas especificas.
-18. PRICING: Usa os precos exactos fornecidos em productInfo. Se nao houver, deixa os campos de preco como strings vazias.
-19. POPUP: O campo popup.enabled deve ser {{{popupEnabled}}}. Se false, o popup nao deve aparecer na pagina.
+16. RATING: Rating editorial entre 4.6 e 4.9. Review count entre 8.000 e 15.000.
+17. COMPARISON: Tabela simples comparando produto vs "generic supplements".
+18. PRICING: Usa os precos exactos fornecidos em productInfo. Se nao houver, deixa os campos de preco como strings vazias. O campo supply_days deve SEMPRE incluir "Day Supply" (ex: "30 Day Supply", "90 Day Supply"). O campo bottles deve SEMPRE incluir "Bottle" ou "Bottles" (ex: "1 Bottle", "6 Bottles").
+20. BONUSES: REGRA CRÍTICA — Se o productInfo NAO mencionar explicitamente "bonus", "brinde", "free gift" ou similar, o campo bonuses NAO EXISTE no JSON. Simplesmente omite o campo bonuses completamente do JSON.
+21. NICHE: O campo meta.niche deve ser gerado SEMPRE EM INGLÊS, independente do idioma do conteúdo. Ex: "Cardiovascular Health", "Weight Loss", "Joint Support".
+22. INGREDIENTES SEM IMAGEM: O campo image_url dos ingredientes deve ser SEMPRE string vazia "". As imagens sao fornecidas pelo afiliado separadamente.
+19. POPUP: O campo popup.enabled deve ser {{{popupEnabled}}}.
 
-INSTRUCAO CRITICA DE FORMATO — SEGUIR EXACTAMENTE:
+INSTRUCAO CRITICA DE FORMATO:
 1. Responda APENAS com JSON valido. ZERO texto antes ou depois. ZERO markdown. ZERO backticks.
 2. O JSON deve ser COMPACTO numa unica linha. SEM quebras de linha. SEM identacao.
-3. NUNCA use aspas duplas dentro de valores. Use apostrofes simples (') ou reformule.
-4. NUNCA use \n, \t ou outros caracteres de controlo dentro de strings.
-5. Em arrays, SEMPRE separe os elementos com virgula. Ex: ["a","b","c"] NUNCA ["a" "b" "c"].
-6. VERIFICACAO FINAL antes de responder: o JSON e valido? todos os arrays tem virgulas?
+3. NUNCA use aspas duplas dentro de valores. Use apostrofes simples ou reformule.
+4. Em arrays, SEMPRE separe os elementos com virgula.
 
-Estrutura JSON esperada:
-{
-  "seo": {
-    "title_tag": "",
-    "meta_description_a": "",
-    "meta_description_b": "",
-    "meta_description_c": "",
-    "url_slug": "",
-    "schema_type": "Review",
-    "primary_keyword": "",
-    "secondary_keywords": ["", "", ""],
-    "faq_schema_items": [{"question": "", "answer": ""}]
-  },
-  "meta": {
-    "product_name": "",
-    "product_tagline": "",
-    "niche": "",
-    "target_country": "",
-    "target_language": "",
-    "primary_color": "",
-    "rating": "4.8",
-    "review_count": "11,248",
-    "publish_date": "",
-    "publish_date_year": "2026",
-    "author_label": "",
-    "editorial_note": ""
-  },
-  "hero": {
-    "headline": "",
-    "subheadline": "",
-    "product_image_url": "",
-    "author_label": "",
-    "date_label": "",
-    "read_time": ""
-  },
-  "quick_verdict": {
-    "rating": "4.8",
-    "best_for": "",
-    "main_benefit": "",
-    "pros": ["", "", ""],
-    "cons": ["", ""],
-    "cta_text": "",
-    "verdict_summary": ""
-  },
-  "intro": {
-    "opening_hook": "",
-    "problem_statement": "",
-    "review_purpose": "",
-    "read_notice": ""
-  },
-  "mechanism": {
-    "tag": "",
-    "headline": "",
-    "unique_mechanism_name": "",
-    "explanation": "",
-    "body_paragraphs": ["", "", ""],
-    "highlight_quote": "",
-    "image_url": ""
-  },
-  "what_is": {
-    "headline": "",
-    "description": "",
-    "product_image_url": "",
-    "bullets": [{"icon": "", "text": ""}],
-    "quality_tags": ["", "", ""]
-  },
-  "how_it_works": {
-    "headline": "",
-    "subheadline": "",
-    "steps": [
-      {"number": "01", "title": "", "description": ""},
-      {"number": "02", "title": "", "description": ""},
-      {"number": "03", "title": "", "description": ""}
-    ]
-  },
-  "ingredients": {
-    "headline": "",
-    "subheadline": "",
-    "items": [
-      {
-        "name": "",
-        "image_url": "",
-        "benefit_short": "",
-        "scientific_explanation": ""
-      }
-    ]
-  },
-  "benefits": {
-    "headline": "",
-    "items": [{"icon": "", "text": "", "detail": ""}]
-  },
-  "pros_cons": {
-    "headline": "",
-    "pros": [{"text": ""}],
-    "cons": [{"text": ""}]
-  },
-  "testimonials": {
-    "headline": "",
-    "subheadline": "",
-    "items": [
-      {
-        "photo_url": "",
-        "name": "",
-        "location": "",
-        "rating": "5",
-        "verified_label": "",
-        "quote_title": "",
-        "quote_body": ""
-      }
-    ]
-  },
-  "comparison": {
-    "headline": "",
-    "subheadline": "",
-    "product_name": "",
-    "rows": [
-      {
-        "feature": "",
-        "product": true,
-        "generic": false
-      }
-    ]
-  },
-  "scam_alert": {
-    "headline": "",
-    "warning_text": "",
-    "fake_signs": ["", "", ""],
-    "cta_text": "",
-    "official_note": ""
-  },
-  "pricing": {
-    "section_headline": "",
-    "section_subheadline": "",
-    "editorial_note": "",
-    "bundles": [
-      {
-        "id": "entry",
-        "desktop_position": 1,
-        "mobile_position": 3,
-        "label": "",
-        "bottles": "",
-        "supply_days": "",
-        "price_per_bottle": "",
-        "price_total_original": "",
-        "price_total_discount": "",
-        "savings": "",
-        "shipping": "",
-        "bonuses_included": false,
-        "free_shipping": false,
-        "cta_text": "",
-        "featured": false,
-        "ribbon": null
-      },
-      {
-        "id": "best_value",
-        "desktop_position": 2,
-        "mobile_position": 1,
-        "label": "",
-        "bottles": "",
-        "supply_days": "",
-        "price_per_bottle": "",
-        "price_total_original": "",
-        "price_total_discount": "",
-        "savings": "",
-        "shipping": "",
-        "bonuses_included": true,
-        "free_shipping": true,
-        "cta_text": "",
-        "featured": true,
-        "ribbon": ""
-      },
-      {
-        "id": "popular",
-        "desktop_position": 3,
-        "mobile_position": 2,
-        "label": "",
-        "bottles": "",
-        "supply_days": "",
-        "price_per_bottle": "",
-        "price_total_original": "",
-        "price_total_discount": "",
-        "savings": "",
-        "shipping": "",
-        "bonuses_included": true,
-        "free_shipping": true,
-        "cta_text": "",
-        "featured": false,
-        "ribbon": ""
-      }
-    ],
-    "payment_icons_url": "",
-    "guarantee_note": ""
-  },
-  "guarantee": {
-    "badge_url": "",
-    "days": "",
-    "headline": "",
-    "text": "",
-    "trust_pills": ["", "", ""]
-  },
-  "faq": {
-    "headline": "",
-    "subheadline": "",
-    "items": [
-      {"question": "", "answer": ""}
-    ]
-  },
-  "final_cta": {
-    "headline": "",
-    "subheadline": "",
-    "product_image_url": "",
-    "bundle_label": "",
-    "price_per_bottle": "",
-    "price_original": "",
-    "price_per_day": "",
-    "cta_text": "",
-    "trust_line": "",
-    "availability_note": ""
-  },
-  "footer": {
-    "disclaimer_advertising": "",
-    "disclaimer_results": "",
-    "disclaimer_medical": "",
-    "editorial_disclosure": "",
-    "privacy_url": "",
-    "terms_url": "",
-    "copyright_text": ""
-  },
-  "popup": {
-    "enabled": true,
-    "appear_after_seconds": 10,
-    "visible_seconds": 5,
-    "repeat_every_seconds": 60,
-    "product_image_url": "",
-    "names": ["", "", "", "", ""],
-    "cities": ["", "", "", "", ""],
-    "action_text": ""
-  }
-}`,
+Estrutura JSON esperada (preenche TODOS os campos com conteudo real):
+{"seo":{"title_tag":"","meta_description_a":"","meta_description_b":"","meta_description_c":"","url_slug":"","schema_type":"Review","primary_keyword":"","secondary_keywords":["","",""],"faq_schema_items":[{"question":"","answer":""}]},"meta":{"product_name":"","product_tagline":"","niche":"","target_country":"","target_language":"","primary_color":"","rating":"4.8","review_count":"11,248","publish_date":"","publish_date_year":"2026","author_label":"","editorial_note":""},"hero":{"headline":"","subheadline":"","product_image_url":"","author_label":"","date_label":"","read_time":""},"quick_verdict":{"rating":"4.8","best_for":"","main_benefit":"","pros":["","",""],"cons":["",""],"cta_text":"","verdict_summary":""},"intro":{"opening_hook":"","problem_statement":"","review_purpose":"","read_notice":""},"mechanism":{"tag":"","headline":"","unique_mechanism_name":"","explanation":"","body_paragraphs":["","",""],"highlight_quote":"","image_url":""},"what_is":{"headline":"","description":"","product_image_url":"","bullets":[{"icon":"✓","text":""}],"quality_tags":["","",""]},"how_it_works":{"headline":"","subheadline":"","steps":[{"number":"01","title":"","description":""},{"number":"02","title":"","description":""},{"number":"03","title":"","description":""}]},"ingredients":{"headline":"","subheadline":"","items":[{"name":"","image_url":"","benefit_short":"","scientific_explanation":""}]},"benefits":{"headline":"","items":[{"icon":"✓","text":"","detail":""}]},"pros_cons":{"headline":"","pros":[{"text":""}],"cons":[{"text":""}]},"testimonials":{"headline":"","subheadline":"","items":[{"photo_url":"","name":"","location":"","rating":"5","verified_label":"Verified Purchase","quote_title":"","quote_body":""}]},"comparison":{"headline":"","subheadline":"","product_name":"","rows":[{"feature":"","product":true,"generic":false}]},"scam_alert":{"headline":"","warning_text":"","fake_signs":["","",""],"cta_text":"","official_note":""},"pricing":{"section_headline":"","section_subheadline":"","editorial_note":"","bundles":[{"id":"entry","desktop_position":1,"mobile_position":3,"label":"","bottles":"","supply_days":"","price_per_bottle":"","price_total_original":"","price_total_discount":"","savings":"","shipping":"","bonuses_included":false,"free_shipping":false,"cta_text":"","featured":false,"ribbon":null},{"id":"best_value","desktop_position":2,"mobile_position":1,"label":"","bottles":"","supply_days":"","price_per_bottle":"","price_total_original":"","price_total_discount":"","savings":"","shipping":"","bonuses_included":true,"free_shipping":true,"cta_text":"","featured":true,"ribbon":"BEST VALUE!"},{"id":"popular","desktop_position":3,"mobile_position":2,"label":"","bottles":"","supply_days":"","price_per_bottle":"","price_total_original":"","price_total_discount":"","savings":"","shipping":"","bonuses_included":true,"free_shipping":true,"cta_text":"","featured":false,"ribbon":"MOST POPULAR"}],"payment_icons_url":"","guarantee_note":""},"guarantee":{"badge_url":"","days":"60","headline":"","text":"","trust_pills":["","",""]},"faq":{"headline":"","subheadline":"","items":[{"question":"","answer":""},{"question":"","answer":""},{"question":"","answer":""},{"question":"","answer":""},{"question":"","answer":""},{"question":"","answer":""}]},"final_cta":{"headline":"","subheadline":"","product_image_url":"","bundle_label":"","price_per_bottle":"","price_original":"","price_per_day":"","cta_text":"","trust_line":"","availability_note":""},"footer":{"disclaimer_advertising":"","disclaimer_results":"","disclaimer_medical":"","editorial_disclosure":"","privacy_url":"","terms_url":"","copyright_text":""},"popup":{"enabled":true,"appear_after_seconds":10,"visible_seconds":5,"repeat_every_seconds":60,"product_image_url":"","names":["","","","",""],"cities":["","","","",""],"action_text":""}}`,
 });
 
 function selectVariations(seed: string) {
   const hash = seed.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  const headline = HEADLINE_PATTERNS[hash % HEADLINE_PATTERNS.length];
-  const narrative = NARRATIVE_STYLES[(hash >> 2) % NARRATIVE_STYLES.length];
-  const vocabulary = VOCABULARY_SETS[(hash >> 4) % VOCABULARY_SETS.length];
-  const curiosity = CURIOSITY_STYLES[(hash >> 6) % CURIOSITY_STYLES.length];
-  return { headline, narrative, vocabulary, curiosity };
+  return {
+    headline: HEADLINE_PATTERNS[hash % HEADLINE_PATTERNS.length],
+    narrative: NARRATIVE_STYLES[(hash >> 2) % NARRATIVE_STYLES.length],
+    vocabulary: VOCABULARY_SETS[(hash >> 4) % VOCABULARY_SETS.length],
+    curiosity: CURIOSITY_STYLES[(hash >> 6) % CURIOSITY_STYLES.length],
+  };
+}
+
+function parseGeminiJSON(raw: string): any {
+  let text = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  if (start !== -1 && end > start) text = text.slice(start, end + 1);
+  try { return JSON.parse(text); } catch {}
+  try { return JSON.parse(jsonrepair(text)); } catch {}
+  try {
+    const sanitized = text.replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+    return JSON.parse(jsonrepair(sanitized));
+  } catch (e) {
+    throw new Error('JSON invalido apos 3 tentativas: ' + (e as any).message);
+  }
 }
 
 export async function generateReviewContent(
@@ -378,37 +153,20 @@ export async function generateReviewContent(
     let dnaData = null;
 
     if (input.officialProductUrl && input.officialProductUrl.startsWith('http')) {
-      console.log('[DNA] Review — a extrair DNA de:', input.officialProductUrl);
       dnaData = await fetchProductDNA(input.officialProductUrl);
       if (dnaData.success) {
         dnaContext = await formatDNAForPrompt(dnaData);
-        console.log('[DNA] Review — extraído. Secções:', dnaData.sections_detected);
-      } else {
-        console.warn('[DNA] Review — falhou:', dnaData.error);
       }
     }
 
     const variationBlock = `
-=== SEED DE VARIACAO CONSISTENTE (SEGUIR ESTRITAMENTE) ===
+=== SEED DE VARIACAO CONSISTENTE ===
 Seed: ${rawSeed}
-
-NIVEL 1 — PADRAO DE HEADLINE:
-Usa EXACTAMENTE este padrao: "${variations.headline.template}"
-Substitui {product} pelo nome do produto, {year} por 2026, {benefit} pelo beneficio principal.
-
-NIVEL 2 — ESTILO NARRATIVO:
-${variations.narrative.desc}
-
-NIVEL 3 — VOCABULARIO:
-Usa PREFERENCIALMENTE estes verbos e expressoes: ${variations.vocabulary.verbs.join(', ')}
-
-NIVEL 4 — ESTILO DE CURIOSIDADE:
-O opening hook e bullets de curiosidade devem seguir este padrao:
-"${variations.curiosity.prefix}"
-Adapta para o produto especifico.
-
-REGRA: Os 4 niveis devem ser COERENTES entre si. A narrativa, vocabulario e curiosidade devem reflectir o mesmo angulo que a headline.
-======================================================
+NIVEL 1 — PADRAO DE HEADLINE: Usa EXACTAMENTE este padrao: "${variations.headline.template}"
+NIVEL 2 — ESTILO NARRATIVO: ${variations.narrative.desc}
+NIVEL 3 — VOCABULARIO: ${variations.vocabulary.verbs.join(', ')}
+NIVEL 4 — CURIOSIDADE: "${variations.curiosity.prefix}"
+======================================
 `;
 
     dnaContext = variationBlock + dnaContext;
@@ -416,31 +174,17 @@ REGRA: Os 4 niveis devem ser COERENTES entre si. A narrativa, vocabulario e curi
     const { text } = await prompt({
       ...input,
       dnaContext,
-      popupEnabled: input.popupEnabled !== false, // padrão true
+      popupEnabled: input.popupEnabled !== false,
     } as any);
 
     if (!text) throw new Error('Nenhum dado retornado pela IA.');
 
-    // Extrai e faz parse com jsonrepair
-    let rawR = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-    const startR = rawR.indexOf('{'), endR = rawR.lastIndexOf('}');
-    if (startR !== -1 && endR > startR) rawR = rawR.slice(startR, endR + 1);
+    const parsed = parseGeminiJSON(text);
 
-    let parsed: any;
-    try {
-      parsed = JSON.parse(rawR);
-    } catch {
-      console.log('[Review] JSON directo falhou, a usar jsonrepair...');
-      const repairedR = jsonrepair(rawR);
-      parsed = JSON.parse(repairedR);
-    }
-
-    // Forçar popup.enabled conforme escolha do utilizador
     if (parsed.popup) {
       parsed.popup.enabled = input.popupEnabled !== false;
     }
 
-    // Forçar ano 2026 no copyright
     if (parsed.footer?.copyright_text) {
       parsed.footer.copyright_text = parsed.footer.copyright_text.replace(/\d{4}/, '2026');
     }
@@ -458,7 +202,7 @@ REGRA: Os 4 niveis devem ser COERENTES entre si. A narrativa, vocabulario e curi
     return parsed;
 
   } catch (error: any) {
-    console.error('[Review] Erro na geração:', error);
-    throw new Error(error.message || 'Falha ao gerar conteúdo Review.');
+    console.error('[Review] Erro:', error);
+    throw new Error(error.message || 'Falha ao gerar conteudo Review.');
   }
 }
