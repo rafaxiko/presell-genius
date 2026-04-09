@@ -55,7 +55,7 @@ const prompt = ai.definePrompt({
   model: 'googleai/gemini-2.5-flash',
   input: { schema: GenerateReviewContentInputSchema },
   output: { format: 'text' },
-  config: { maxOutputTokens: 65535, temperature: 0.7 },
+  config: { maxOutputTokens: 16000, temperature: 0.7 },
   prompt: `Voce e um Copywriter especializado em REVIEW EDITORIAL para afiliados nutra.
 Sua tarefa e gerar conteudo para um template Review de 17 blocos, no estilo jornalistico independente.
 
