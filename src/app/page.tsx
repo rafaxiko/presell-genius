@@ -112,7 +112,7 @@ export default function PresellGeniusApp() {
           ...commonFields,
           popupEnabled: values.popupEnabled ?? false,
         });
-
+        
         if (result?.meta) {
           result.meta.primary_color       = values.buttonColor;
           result.meta.primary_color_light = lightenColor(values.buttonColor, 0.85);
@@ -125,7 +125,6 @@ export default function PresellGeniusApp() {
           productImageUrls,
           values.targetLanguage
         );
-
       } else {
         // ── ROBUSTA WHITE + demais templates ─────────────────────────
         result = await generatePresellContent({
