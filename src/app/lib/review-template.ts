@@ -39,6 +39,9 @@ export function generateReviewHTML(
   country: string = 'Estados Unidos'
 ): string {
   const getImg = (index: number): string => images[index] ?? '';
+  const now = new Date();
+  const ptCountries = ['Brasil', 'Portugal'];
+  const todayLabel = ptCountries.includes(country) ? now.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }) : now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   const findImg = (indices: number[]): string => { for (const idx of indices) { const img = images[idx]; if (typeof img === 'string' && img.length > 10 && (img.startsWith('http') || img.startsWith('data:image'))) return img; } return ''; };
 
   const r = result as any;
