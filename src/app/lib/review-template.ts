@@ -45,6 +45,7 @@ export function generateReviewHTML(
   const findImg = (indices: number[]): string => { for (const idx of indices) { const img = images[idx]; if (typeof img === 'string' && img.length > 10 && (img.startsWith('http') || img.startsWith('data:image'))) return img; } return ''; };
 
   const r = result as any;
+  console.log("TESTI DEBUG:", JSON.stringify(r?.testimonials?.items?.slice(0,1)));
   const seo = r.seo || {};
   const meta = r.meta || {};
   const hero = r.hero || {};
