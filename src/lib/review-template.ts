@@ -45,7 +45,6 @@ export function generateReviewHTML(
   const findImg = (indices: number[]): string => { for (const idx of indices) { const img = images[idx]; if (typeof img === 'string' && img.length > 10 && (img.startsWith('http') || img.startsWith('data:image'))) return img; } return ''; };
 
   const r = result as any;
-  console.log("TESTI DEBUG:", JSON.stringify(r?.testimonials?.items?.slice(0,1)));
   const seo = r.seo || {};
   const meta = r.meta || {};
   const hero = r.hero || {};
@@ -238,9 +237,9 @@ export function generateReviewHTML(
     TESTI_HEADLINE: testimonials.headline ?? '',
     TESTI_SUBHEADLINE: testimonials.subheadline ?? '',
     VERIFIED_LABEL: 'Verified Purchase',
-    TESTI_1_INITIAL: ((n:string)=>n.trim().split(' ').filter(Boolean).map((w:string)=>w[0]).join('').slice(0,2).toUpperCase()||'ER')(testimonials.items?.[0]?.name||''),
-    TESTI_2_INITIAL: ((n:string)=>n.trim().split(' ').filter(Boolean).map((w:string)=>w[0]).join('').slice(0,2).toUpperCase()||'MS')(testimonials.items?.[1]?.name||''),
-    TESTI_3_INITIAL: ((n:string)=>n.trim().split(' ').filter(Boolean).map((w:string)=>w[0]).join('').slice(0,2).toUpperCase()||'SL')(testimonials.items?.[2]?.name||''),
+    TESTI_1_INITIAL: (testimonials.items?.[0]?.name||testimonials.items?.[0]?.author||'ER').trim().split(' ').filter(Boolean).map((w:string)=>w[0]).join('').slice(0,2).toUpperCase()||'ER',
+    TESTI_2_INITIAL: (testimonials.items?.[1]?.name||testimonials.items?.[1]?.author||'MS').trim().split(' ').filter(Boolean).map((w:string)=>w[0]).join('').slice(0,2).toUpperCase()||'MS',
+    TESTI_3_INITIAL: (testimonials.items?.[2]?.name||testimonials.items?.[2]?.author||'SL').trim().split(' ').filter(Boolean).map((w:string)=>w[0]).join('').slice(0,2).toUpperCase()||'SL',
     TESTI_1_BG: ['#2563EB','#7C3AED','#059669','#DC2626','#D97706'][(testimonials.items?.[0]?.name||'A').charCodeAt(0)%5],
     TESTI_2_BG: ['#2563EB','#7C3AED','#059669','#DC2626','#D97706'][(testimonials.items?.[1]?.name||'B').charCodeAt(0)%5],
     TESTI_3_BG: ['#2563EB','#7C3AED','#059669','#DC2626','#D97706'][(testimonials.items?.[2]?.name||'C').charCodeAt(0)%5],
