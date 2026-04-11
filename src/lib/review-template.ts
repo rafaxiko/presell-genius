@@ -39,6 +39,7 @@ export function generateReviewHTML(
   country: string = 'Estados Unidos'
 ): string {
   const getImg = (index: number): string => images[index] ?? '';
+  console.log('[generateReviewHTML] images.length:', images.length, '| slot14:', getImg(14), '| slot15:', getImg(15), '| slot16:', getImg(16));
   const now = new Date();
   const ptCountries = ['Brasil', 'Portugal'];
   const todayLabel = ptCountries.includes(country) ? now.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }) : now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
