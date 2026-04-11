@@ -287,7 +287,7 @@ export function generateReviewHTML(
     ONLY_LABEL: 'Only',
     PAYMENT_ICONS_URL: getImg(21) || pricing.payment_icons_url || '',
     BUNDLE_BONUS_TEXT: '',
-    BUNDLE_FREE_SHIPPING_TEXT: '✓ Free Shipping',
+    BUNDLE_FREE_SHIPPING_TEXT: 'Free Shipping',
 
     BUNDLE_1_LABEL: b1.label ?? '',
     BUNDLE_1_BOTTLES: b1.bottles ?? '',
