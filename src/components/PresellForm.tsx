@@ -65,9 +65,8 @@ const EXTRA_SLOTS: ImageSlot[] = [
   { index: 21, label: 'Ícones pagamento' },
 ];
 const REVIEW_EXTRA_SLOTS: ImageSlot[] = [
-  { index: 25, label: 'Scam Warning',       hint: 'Screenshot Amazon/eBay com alerta', optional: true },
-  { index: 26, label: 'Foto Pros & Cons',   hint: 'Frasco com ratings visuais',        optional: true },
-  { index: 27, label: 'Badges certificação', hint: 'GMP, FDA, GMO-Free, Made in USA',  optional: true },
+  { index: 25, label: 'Scam Warning',     hint: 'Screenshot Amazon/eBay com alerta', optional: true },
+  { index: 26, label: 'Foto Pros & Cons', hint: 'Frasco com ratings visuais',        optional: true },
 ];
 
 const COUNTRIES = [
