@@ -119,6 +119,15 @@ export default function PresellGeniusApp() {
           result.meta.primary_color_dark  = darkenColor(values.buttonColor, 0.25);
         }
 
+        result._testiOverrides = {
+          name1: (values as any).testi1Name || undefined,
+          loc1:  (values as any).testi1Location || undefined,
+          name2: (values as any).testi2Name || undefined,
+          loc2:  (values as any).testi2Location || undefined,
+          name3: (values as any).testi3Name || undefined,
+          loc3:  (values as any).testi3Location || undefined,
+        };
+
         html = generateReviewHTML(
           result,
           values.targetUrl,

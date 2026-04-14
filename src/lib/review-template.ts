@@ -72,8 +72,9 @@ export function generateReviewHTML(
   const b1 = bundles[0] || {};
   const b2 = bundles[1] || {};
   const b3 = bundles[2] || {};
-  const prosConsImg = findImg([26, 25, 20, 19, 18, 12, 11]);
+  const prosConsImg = findImg([26]);
   const hasProsConsImg = prosConsImg.length > 0;
+  const testiOverrides = r._testiOverrides || {};
   const guarantee = r.guarantee || {};
   const faq = r.faq || {};
   const finalCta = r.final_cta || {};
@@ -259,28 +260,28 @@ export function generateReviewHTML(
     TESTI_HEADLINE: testimonials.headline ?? '',
     TESTI_SUBHEADLINE: testimonials.subheadline ?? '',
     VERIFIED_LABEL: 'Verified Purchase',
-    TESTI_1_PHOTO_HTML: getImg(14) ? `<img src="${getImg(14)}" class="testi-photo" alt="${testimonials.items?.[0]?.name||''}">` : '',
-    TESTI_2_PHOTO_HTML: getImg(15) ? `<img src="${getImg(15)}" class="testi-photo" alt="${testimonials.items?.[1]?.name||''}">` : '',
-    TESTI_3_PHOTO_HTML: getImg(16) ? `<img src="${getImg(16)}" class="testi-photo" alt="${testimonials.items?.[2]?.name||''}">` : '',
-    TESTI_1_INITIAL: (testimonials.items?.[0]?.name||testimonials.items?.[0]?.author||'ER').trim().split(' ').filter(Boolean).map((w:string)=>w[0]).join('').slice(0,2).toUpperCase()||'ER',
-    TESTI_2_INITIAL: (testimonials.items?.[1]?.name||testimonials.items?.[1]?.author||'MS').trim().split(' ').filter(Boolean).map((w:string)=>w[0]).join('').slice(0,2).toUpperCase()||'MS',
-    TESTI_3_INITIAL: (testimonials.items?.[2]?.name||testimonials.items?.[2]?.author||'SL').trim().split(' ').filter(Boolean).map((w:string)=>w[0]).join('').slice(0,2).toUpperCase()||'SL',
-    TESTI_1_BG: ['#2563EB','#7C3AED','#059669','#DC2626','#D97706'][(testimonials.items?.[0]?.name||'A').charCodeAt(0)%5],
-    TESTI_2_BG: ['#2563EB','#7C3AED','#059669','#DC2626','#D97706'][(testimonials.items?.[1]?.name||'B').charCodeAt(0)%5],
-    TESTI_3_BG: ['#2563EB','#7C3AED','#059669','#DC2626','#D97706'][(testimonials.items?.[2]?.name||'C').charCodeAt(0)%5],
+    TESTI_1_PHOTO_HTML: getImg(14) ? `<img src="${getImg(14)}" class="testi-photo" alt="${testiOverrides.name1||testimonials.items?.[0]?.name||''}">` : '',
+    TESTI_2_PHOTO_HTML: getImg(15) ? `<img src="${getImg(15)}" class="testi-photo" alt="${testiOverrides.name2||testimonials.items?.[1]?.name||''}">` : '',
+    TESTI_3_PHOTO_HTML: getImg(16) ? `<img src="${getImg(16)}" class="testi-photo" alt="${testiOverrides.name3||testimonials.items?.[2]?.name||''}">` : '',
+    TESTI_1_INITIAL: (testiOverrides.name1||testimonials.items?.[0]?.name||testimonials.items?.[0]?.author||'ER').trim().split(' ').filter(Boolean).map((w:string)=>w[0]).join('').slice(0,2).toUpperCase()||'ER',
+    TESTI_2_INITIAL: (testiOverrides.name2||testimonials.items?.[1]?.name||testimonials.items?.[1]?.author||'MS').trim().split(' ').filter(Boolean).map((w:string)=>w[0]).join('').slice(0,2).toUpperCase()||'MS',
+    TESTI_3_INITIAL: (testiOverrides.name3||testimonials.items?.[2]?.name||testimonials.items?.[2]?.author||'SL').trim().split(' ').filter(Boolean).map((w:string)=>w[0]).join('').slice(0,2).toUpperCase()||'SL',
+    TESTI_1_BG: ['#2563EB','#7C3AED','#059669','#DC2626','#D97706'][(testiOverrides.name1||testimonials.items?.[0]?.name||'A').charCodeAt(0)%5],
+    TESTI_2_BG: ['#2563EB','#7C3AED','#059669','#DC2626','#D97706'][(testiOverrides.name2||testimonials.items?.[1]?.name||'B').charCodeAt(0)%5],
+    TESTI_3_BG: ['#2563EB','#7C3AED','#059669','#DC2626','#D97706'][(testiOverrides.name3||testimonials.items?.[2]?.name||'C').charCodeAt(0)%5],
     TESTI_1_PHOTO: getImg(14) || 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2252%22%20height%3D%2252%22%3E%3Ccircle%20cx%3D%2226%22%20cy%3D%2226%22%20r%3D%2226%22%20fill%3D%22%23e5e7eb%22%2F%3E%3C%2Fsvg%3E',
-    TESTI_1_NAME: testimonials.items?.[0]?.name ?? '',
-    TESTI_1_LOCATION: testimonials.items?.[0]?.location ?? '',
+    TESTI_1_NAME: testiOverrides.name1 || (testimonials.items?.[0]?.name ?? ''),
+    TESTI_1_LOCATION: testiOverrides.loc1 || (testimonials.items?.[0]?.location ?? ''),
     TESTI_1_TITLE: testimonials.items?.[0]?.quote_title ?? '',
     TESTI_1_BODY: testimonials.items?.[0]?.quote_body ?? '',
     TESTI_2_PHOTO: getImg(15) || 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2252%22%20height%3D%2252%22%3E%3Ccircle%20cx%3D%2226%22%20cy%3D%2226%22%20r%3D%2226%22%20fill%3D%22%23e5e7eb%22%2F%3E%3C%2Fsvg%3E',
-    TESTI_2_NAME: testimonials.items?.[1]?.name ?? '',
-    TESTI_2_LOCATION: testimonials.items?.[1]?.location ?? '',
+    TESTI_2_NAME: testiOverrides.name2 || (testimonials.items?.[1]?.name ?? ''),
+    TESTI_2_LOCATION: testiOverrides.loc2 || (testimonials.items?.[1]?.location ?? ''),
     TESTI_2_TITLE: testimonials.items?.[1]?.quote_title ?? '',
     TESTI_2_BODY: testimonials.items?.[1]?.quote_body ?? '',
     TESTI_3_PHOTO: getImg(16) || 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2252%22%20height%3D%2252%22%3E%3Ccircle%20cx%3D%2226%22%20cy%3D%2226%22%20r%3D%2226%22%20fill%3D%22%23e5e7eb%22%2F%3E%3C%2Fsvg%3E',
-    TESTI_3_NAME: testimonials.items?.[2]?.name ?? '',
-    TESTI_3_LOCATION: testimonials.items?.[2]?.location ?? '',
+    TESTI_3_NAME: testiOverrides.name3 || (testimonials.items?.[2]?.name ?? ''),
+    TESTI_3_LOCATION: testiOverrides.loc3 || (testimonials.items?.[2]?.location ?? ''),
     TESTI_3_TITLE: testimonials.items?.[2]?.quote_title ?? '',
     TESTI_3_BODY: testimonials.items?.[2]?.quote_body ?? '',
 

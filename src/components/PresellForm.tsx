@@ -25,6 +25,12 @@ const formSchema = z.object({
   trackingLink: z.string().optional().or(z.literal('')),
   clarityScript: z.string().optional().or(z.literal('')),
   popupEnabled: z.boolean().optional(),
+  testi1Name: z.string().optional().or(z.literal('')),
+  testi1Location: z.string().optional().or(z.literal('')),
+  testi2Name: z.string().optional().or(z.literal('')),
+  testi2Location: z.string().optional().or(z.literal('')),
+  testi3Name: z.string().optional().or(z.literal('')),
+  testi3Location: z.string().optional().or(z.literal('')),
 });
 
 export type PresellFormValues = z.infer<typeof formSchema>;
@@ -451,6 +457,25 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                         </div>
                       </div>
                       {renderSlots(REVIEW_EXTRA_SLOTS)}
+                      <SectionLabel>Depoimentos — nomes reais (opcional)</SectionLabel>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {([1,2,3] as const).map(n => (
+                          <div key={n} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                            <FormField control={form.control} name={`testi${n}Name` as any} render={({ field }) => (
+                              <FormItem>
+                                <FieldLabel optional>Depoimento {n} — nome</FieldLabel>
+                                <FormControl><input placeholder={`Ex: Sarah M.`} {...field} style={inputStyle} onFocus={focusIn} onBlur={focusOut} /></FormControl>
+                              </FormItem>
+                            )} />
+                            <FormField control={form.control} name={`testi${n}Location` as any} render={({ field }) => (
+                              <FormItem>
+                                <FieldLabel optional>Localização</FieldLabel>
+                                <FormControl><input placeholder={`Ex: Austin, TX`} {...field} style={inputStyle} onFocus={focusIn} onBlur={focusOut} /></FormControl>
+                              </FormItem>
+                            )} />
+                          </div>
+                        ))}
+                      </div>
                     </>
                   )}
                 </div>
