@@ -7,7 +7,7 @@ import { generatePresellContent, GeneratePresellContentOutput } from '@/ai/flows
 import { generateReviewContent } from '@/ai/flows/generate-review-content';
 import { generatePresellHTML } from '@/lib/presell-template';
 import { generateReviewHTML } from '@/lib/review-template';
-import { Zap, Rocket, Star, Globe, Eye } from 'lucide-react';
+import { Zap, Globe, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Toaster } from '@/components/ui/toaster';
 
@@ -278,14 +278,6 @@ export default function PresellGeniusApp() {
               Visualizar
             </button>
           )}
-          <div className="hidden md:flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-            <Rocket className="h-3.5 w-3.5" />
-            ELITE EXTRACTION
-          </div>
-          <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded text-[10px] font-bold text-yellow-700 border border-yellow-100">
-            <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-            PREMIUM
-          </div>
         </div>
       </header>
 

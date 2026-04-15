@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Eye, Monitor, Smartphone, Copy, FileCode } from 'lucide-react';
+import { Download, Eye, Monitor, Smartphone, Copy } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -55,10 +55,6 @@ export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => onDownload(true)} className="gap-2 text-[10px] h-9 font-bold px-4">
-            <FileCode className="h-4 w-4" />
-            Baixar JSON (Elementor)
-          </Button>
           <Button size="sm" onClick={() => onDownload(false)} className="gap-2 shadow-md h-9 text-[10px] bg-primary hover:bg-primary/90 font-bold px-4">
             <Download className="h-4 w-4" />
             Baixar HTML (Direto)
@@ -71,7 +67,7 @@ export function PresellPreview({ data, onDownload }: PresellPreviewProps) {
           <div className="flex items-center gap-4">
             <TabsList className="bg-slate-100 p-1 h-8">
               <TabsTrigger value="preview" className="data-[state=active]:bg-white text-[10px] px-3 font-bold uppercase tracking-wider">Visualizar</TabsTrigger>
-              <TabsTrigger value="code" className="data-[state=active]:bg-white text-[10px] px-3 font-bold uppercase tracking-wider">Código</TabsTrigger>
+              <TabsTrigger value="code" className="data-[state=active]:bg-white text-[10px] px-3 font-bold uppercase tracking-wider">HTML</TabsTrigger>
             </TabsList>
 
             <div className="flex bg-slate-100 p-1 rounded-md h-8">

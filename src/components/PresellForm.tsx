@@ -40,7 +40,6 @@ interface ImageSlot { index: number; label: string; hint?: string; optional?: bo
 const PRODUCT_SLOTS: ImageSlot[] = [
   { index: 0, label: 'Hero / frasco principal', hint: 'Imagem principal' },
   { index: 1, label: 'Kit 1 frasco' },
-  { index: 2, label: 'Kit 2 frascos' },
   { index: 3, label: 'Kit 3 frascos' },
   { index: 4, label: 'Kit 6 frascos' },
   { index: 5, label: 'Mecanismo', hint: 'Médico / infográfico' },
