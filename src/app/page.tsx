@@ -98,6 +98,7 @@ export default function PresellGeniusApp() {
         productInfo:          values.productInfo ?? '',        // ← ANTI-ALUCINAÇÃO
         salesPageDescription: values.salesPageDescription ?? '',
         officialProductUrl:   values.officialProductUrl,
+        targetUrl:            values.targetUrl,
         targetLanguage:       targetLanguage,
         templateType:         values.templateType as any,
         copyStyle:            values.copyStyle,

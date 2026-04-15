@@ -2,14 +2,28 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { fetchProductDNA, formatDNAForPrompt } from '../../lib/fetch-product-dna';
 import { jsonrepair } from 'jsonrepair';
+
+// ── Agent 1: Strict extractor (temperature 0, urlContext) ────────────────────
+const EXTRACTOR_PROMPT = `You are a strict product page data extractor. Read the URL provided and extract ONLY data that is EXPLICITLY STATED on the page. NEVER invent, infer or hallucinate any value.
+
+Return ONLY a compact single-line JSON with no markdown and no backticks:
+{"product_name":"","tagline":"","prices":{"bundle_1":{"per_bottle":"","total":"","bottles":1},"bundle_3":{"per_bottle":"","total":"","bottles":3},"bundle_6":{"per_bottle":"","total":"","bottles":6}},"guarantee_days":"","free_shipping":false,"hero_headline":"","hero_subheadline":"","cta_text":"","ingredients":[],"bonuses":[],"trust_badges":[],"quality_seals":[]}
+
+RULES:
+- Extract ONLY data explicitly present on the page
+- Leave fields as empty string ("") if not found
+- ingredients: array of ingredient name strings only
+- bonuses: array of bonus name strings only
+- trust_badges: certifications like "GMP Certified", "Non-GMO", "Made in USA"
+- Return ONLY the JSON, zero other text`;
 
 const GenerateReviewContentInputSchema = z.object({
   productName: z.string().optional(),
   productInfo: z.string().optional(),
   salesPageDescription: z.string().optional(),
   officialProductUrl: z.string().optional(),
+  targetUrl: z.string().optional(),
   dnaContext: z.string().optional(),
   targetLanguage: z.string(),
   templateType: z.enum(['Lançamento', 'Robusta', 'Review', 'Cookie', 'Lista (Top 3/5)']),
@@ -101,7 +115,7 @@ O ano actual e 2026. Use SEMPRE 2026 nas headlines, datas e titulos. NUNCA use 2
 15. SCAM ALERT: Inclui bloco de alerta de falsificacao direcionando para site oficial.
 16. RATING: Rating editorial entre 4.6 e 4.9. Review count entre 8.000 e 15.000.
 17. COMPARISON: Tabela simples comparando produto vs "generic supplements".
-18. PRICING: Usa os precos exactos fornecidos em productInfo. Se nao houver, deixa os campos de preco como strings vazias. O campo supply_days deve SEMPRE incluir "Day Supply" (ex: "30 Day Supply", "90 Day Supply"). O campo bottles deve SEMPRE incluir "Bottle" ou "Bottles" (ex: "1 Bottle", "6 Bottles").
+18. PRICING: Usa os precos exactos fornecidos em productInfo ou DNA. Se nao houver, deixa os campos de preco como strings vazias. O campo supply_days deve SEMPRE incluir "Day Supply" (ex: "30 Day Supply", "90 Day Supply"). O campo bottles deve SEMPRE incluir "Bottle" ou "Bottles" (ex: "1 Bottle", "6 Bottles").
 20. BONUSES: REGRA CRÍTICA — Se o productInfo NAO mencionar explicitamente "bonus", "brinde", "free gift" ou similar, o campo bonuses NAO EXISTE no JSON. Simplesmente omite o campo bonuses completamente do JSON. Se o productInfo MENCIONAR bonuses, inclui o campo bonuses com a seguinte estrutura: {"headline":"","items":[{"title":"","description":""}]}. Gera entre 2 a 5 itens. Cada item DEVE ter title (nome do bonus, ex: "The Fat-Burning Blueprint") e description (1-2 frases descrevendo o conteúdo do bonus).
 21. NICHE: O campo meta.niche deve ser gerado SEMPRE EM INGLÊS, independente do idioma do conteúdo. Ex: "Cardiovascular Health", "Weight Loss", "Joint Support".
 22. INGREDIENTES SEM IMAGEM: O campo image_url dos ingredientes deve ser SEMPRE string vazia "". As imagens sao fornecidas pelo afiliado separadamente.
@@ -142,6 +156,39 @@ function parseGeminiJSON(raw: string): any {
   }
 }
 
+function formatDNAContext(dna: any): string {
+  if (!dna) return '';
+  const prices = dna.prices || {};
+  const b1 = prices.bundle_1 || {};
+  const b3 = prices.bundle_3 || {};
+  const b6 = prices.bundle_6 || {};
+  return `
+=== DNA VERIFICADO DA PÁGINA OFICIAL (Agent 1 — extracção directa) ===
+Produto: ${dna.product_name || ''}
+Tagline: ${dna.tagline || ''}
+Headline Hero: ${dna.hero_headline || ''}
+Subheadline Hero: ${dna.hero_subheadline || ''}
+CTA: ${dna.cta_text || ''}
+
+=== PREÇOS VERIFICADOS (usar EXACTAMENTE estes valores) ===
+1 Frasco: ${b1.per_bottle || ''} por frasco | Total: ${b1.total || ''}
+3 Frascos: ${b3.per_bottle || ''} por frasco | Total: ${b3.total || ''}
+6 Frascos: ${b6.per_bottle || ''} por frasco | Total: ${b6.total || ''}
+Garantia: ${dna.guarantee_days || ''} dias
+Frete Grátis: ${dna.free_shipping ? 'Sim' : 'Não'}
+
+=== INGREDIENTES VERIFICADOS ===
+${(dna.ingredients || []).join(', ') || 'não detectados'}
+
+=== BÓNUS VERIFICADOS ===
+${(dna.bonuses || []).join(', ') || 'não detectados'}
+
+=== TRUST BADGES ===
+${(dna.trust_badges || []).join(', ') || 'não detectados'}
+===================================
+`;
+}
+
 export async function generateReviewContent(
   input: GenerateReviewContentInput
 ): Promise<GenerateReviewContentOutput> {
@@ -149,16 +196,27 @@ export async function generateReviewContent(
     const rawSeed = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
     const variations = selectVariations(rawSeed);
 
-    let dnaContext = '';
-    let dnaData = null;
+    // ── Agent 1: URL extractor (temperature 0, urlContext) ───────────────────
+    let productDNA: any = null;
 
-    if (input.officialProductUrl && input.officialProductUrl.startsWith('http')) {
-      dnaData = await fetchProductDNA(input.officialProductUrl);
-      if (dnaData.success) {
-        dnaContext = await formatDNAForPrompt(dnaData);
+    if (input.targetUrl && input.targetUrl.startsWith('http')) {
+      try {
+        console.log('[Review] Agent 1 — extracting from:', input.targetUrl);
+        const { text: extractorRaw } = await ai.generate({
+          model: 'googleai/gemini-2.5-flash',
+          prompt: `${EXTRACTOR_PROMPT}\n\nURL to extract from: ${input.targetUrl}`,
+          config: { temperature: 0, maxOutputTokens: 2000, urlContext: true } as any,
+        });
+        if (extractorRaw) {
+          productDNA = parseGeminiJSON(extractorRaw);
+          console.log('[Review] Agent 1 — DNA ok:', JSON.stringify(productDNA).substring(0, 300));
+        }
+      } catch (e: any) {
+        console.warn('[Review] Agent 1 failed (continuing without DNA):', e.message);
       }
     }
 
+    // ── Build variation + DNA context for Agent 2 ────────────────────────────
     const variationBlock = `
 === SEED DE VARIACAO CONSISTENTE ===
 Seed: ${rawSeed}
@@ -169,8 +227,9 @@ NIVEL 4 — CURIOSIDADE: "${variations.curiosity.prefix}"
 ======================================
 `;
 
-    dnaContext = variationBlock + dnaContext;
+    const dnaContext = variationBlock + (productDNA ? formatDNAContext(productDNA) : '');
 
+    // ── Agent 2: Generator (temperature 0.7) ─────────────────────────────────
     const { text } = await prompt({
       ...input,
       dnaContext,
@@ -247,14 +306,9 @@ NIVEL 4 — CURIOSIDADE: "${variations.curiosity.prefix}"
       parsed.footer.copyright_text = `© ${today.getFullYear()} HealthReviewHub. All rights reserved.`;
     }
 
-    // 6. PRIMARY COLOR DO DNA
-    if (dnaData?.success && dnaData.primary_color && dnaData.primary_color !== '#E85D26') {
-      if (parsed.meta) parsed.meta.primary_color = dnaData.primary_color;
-    }
-
     parsed._seed = rawSeed;
     parsed._variations = variations;
-    parsed._dna = dnaData;
+    parsed._dna = productDNA;
     parsed._patched_at = new Date().toISOString();
 
     return parsed;
