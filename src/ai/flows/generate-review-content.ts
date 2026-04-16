@@ -4,17 +4,18 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { jsonrepair } from 'jsonrepair';
 
-// ── Agent 1: Strict extractor (temperature 0, urlContext) ────────────────────
-const EXTRACTOR_PROMPT = `You are a strict product page data extractor. Read the URL provided and extract ONLY data that is EXPLICITLY STATED on the page. NEVER invent, infer or hallucinate any value.
+// ── Agent 1: Strict extractor (temperature 0, googleSearch grounding) ────────
+const EXTRACTOR_PROMPT = `You are a strict product page data extractor. Use Google Search to find the official product page for the URL/product provided, then extract ONLY data that is EXPLICITLY STATED on that page. NEVER invent, infer or hallucinate any value.
 
 Return ONLY a compact single-line JSON with no markdown and no backticks:
 {"product_name":"","tagline":"","prices":{"bundle_1":{"per_bottle":"","total":"","bottles":1},"bundle_3":{"per_bottle":"","total":"","bottles":3},"bundle_6":{"per_bottle":"","total":"","bottles":6}},"guarantee_days":"","free_shipping":false,"hero_headline":"","hero_subheadline":"","cta_text":"","ingredients":[],"bonuses":[],"trust_badges":[],"quality_seals":[]}
 
 RULES:
+- Search for the product URL and read the official sales page
 - Extract ONLY data explicitly present on the page
 - Leave fields as empty string ("") if not found
-- ingredients: array of ingredient name strings only
-- bonuses: array of bonus name strings only
+- ingredients: array of exact ingredient name strings as written on the page
+- bonuses: array of exact bonus title strings as written on the page
 - trust_badges: certifications like "GMP Certified", "Non-GMO", "Made in USA"
 - Return ONLY the JSON, zero other text`;
 
@@ -201,11 +202,11 @@ export async function generateReviewContent(
 
     if (input.targetUrl && input.targetUrl.startsWith('http')) {
       try {
-        console.log('[Review] Agent 1 — extracting from:', input.targetUrl);
+        console.log('[Review] Agent 1 — searching+extracting from:', input.targetUrl);
         const { text: extractorRaw } = await ai.generate({
           model: 'googleai/gemini-2.5-flash',
-          prompt: `${EXTRACTOR_PROMPT}\n\nURL to extract from: ${input.targetUrl}`,
-          config: { temperature: 0, maxOutputTokens: 2000, urlContext: true } as any,
+          prompt: `${EXTRACTOR_PROMPT}\n\nProduct URL to search and extract: ${input.targetUrl}`,
+          config: { temperature: 0, maxOutputTokens: 2000, googleSearchRetrieval: true } as any,
         });
         if (extractorRaw) {
           productDNA = parseGeminiJSON(extractorRaw);
