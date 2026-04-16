@@ -254,6 +254,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
   ]);
   const [guaranteeDays, setGuaranteeDays] = useState('');
   const [heroHeadline, setHeroHeadline] = useState('');
+  const [visibleIngredients, setVisibleIngredients] = useState(3);
 
   const form = useForm<PresellFormValues>({
     resolver: zodResolver(formSchema),
@@ -411,21 +412,13 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                     )} />
                   </div>
 
-                  {/* Hero headline + guarantee */}
+                  {/* Hero headline */}
                   <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '14px' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px', gap: '10px', marginBottom: '12px' }}>
-                      <div>
-                        <FieldLabel optional>Hero Headline</FieldLabel>
-                        <input value={heroHeadline} onChange={e => setHeroHeadline(e.target.value)}
-                          placeholder="Ex: Restore Your Hearing Naturally"
-                          style={inputStyle} onFocus={focusIn} onBlur={focusOut} />
-                      </div>
-                      <div>
-                        <FieldLabel optional>Garantia (dias)</FieldLabel>
-                        <input type="number" value={guaranteeDays} onChange={e => setGuaranteeDays(e.target.value)}
-                          placeholder="60"
-                          style={{ ...inputStyle, textAlign: 'center' as const }} onFocus={focusIn} onBlur={focusOut} />
-                      </div>
+                    <div style={{ marginBottom: '12px' }}>
+                      <FieldLabel optional>Hero Headline</FieldLabel>
+                      <input value={heroHeadline} onChange={e => setHeroHeadline(e.target.value)}
+                        placeholder="Ex: Restore Your Hearing Naturally"
+                        style={inputStyle} onFocus={focusIn} onBlur={focusOut} />
                     </div>
 
                     {/* Extra info */}
@@ -583,52 +576,77 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                     ))}
                   </div>
 
-                  {/* Kit images + Pricing table side by side */}
-                  <SectionLabel>Kit + Preços</SectionLabel>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', alignItems: 'start' }}>
-                    {/* Kit images */}
-                    <div>
-                      <div style={{ fontSize: '10px', fontWeight: 600, color: '#9CA3AF', marginBottom: '8px', textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>Imagens</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                        {KIT_SLOTS.map(s => (
-                          <SlotCard key={s.index} slot={s} imageUrl={getImg(s.index)}
-                            onUpload={f => handleSlot(s.index, f)} onRemove={() => removeImg(s.index)} />
-                        ))}
-                      </div>
-                    </div>
-                    {/* Pricing table */}
-                    <div>
-                      <div style={{ fontSize: '10px', fontWeight: 600, color: '#9CA3AF', marginBottom: '8px', textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>Preços <span style={{ fontWeight: 400, color: '#CBD5E1' }}>(opcional)</span></div>
-                      <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', overflow: 'hidden' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '76px 1fr 1fr', background: '#F8FAFC', padding: '5px 8px', borderBottom: '1px solid #E5E7EB' }}>
-                          <span style={{ fontSize: '10px', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase' as const }}>Kit</span>
-                          <span style={{ fontSize: '10px', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase' as const, paddingLeft: '4px' }}>/ Frasco</span>
-                          <span style={{ fontSize: '10px', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase' as const, paddingLeft: '4px' }}>Total</span>
-                        </div>
-                        {pricingRows.map((row, i) => (
-                          <div key={i} style={{ display: 'grid', gridTemplateColumns: '76px 1fr 1fr', alignItems: 'center', padding: '4px 8px', gap: '6px', borderBottom: i < 2 ? '1px solid #F1F5F9' : 'none' }}>
-                            <span style={{ fontSize: '11px', fontWeight: 500, color: '#374151' }}>{row.label}</span>
-                            <input placeholder="$49" value={row.per_bottle}
-                              onChange={e => setPricingRows(p => p.map((r, j) => j === i ? { ...r, per_bottle: e.target.value } : r))}
-                              style={{ ...inputStyle, height: '26px', fontSize: '11px' }} onFocus={focusIn} onBlur={focusOut} />
-                            <input placeholder="$294" value={row.total}
-                              onChange={e => setPricingRows(p => p.map((r, j) => j === i ? { ...r, total: e.target.value } : r))}
-                              style={{ ...inputStyle, height: '26px', fontSize: '11px' }} onFocus={focusIn} onBlur={focusOut} />
+                  {/* Pricing table — card rows with inline kit image slots */}
+                  <SectionLabel>Kit + Preços <span style={{ fontWeight: 400, color: '#CBD5E1', fontSize: '9px', textTransform: 'none' as const, letterSpacing: 0 }}>(opcional)</span></SectionLabel>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {pricingRows.map((row, i) => {
+                      const kitSlot = KIT_SLOTS[i];
+                      const isPopular = i === 1;
+                      return (
+                        <div key={i} style={{
+                          display: 'grid',
+                          gridTemplateColumns: '68px 1fr 92px 92px',
+                          alignItems: 'center',
+                          gap: '10px',
+                          padding: '10px 14px',
+                          background: isPopular ? '#EFF6FF' : '#FAFAFA',
+                          border: `1.5px solid ${isPopular ? '#BFDBFE' : '#F1F5F9'}`,
+                          borderRadius: '10px',
+                          position: 'relative' as const,
+                        }}>
+                          {isPopular && (
+                            <div style={{ position: 'absolute' as const, top: '-8px', right: '12px', background: '#2563EB', color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 9px', borderRadius: '10px', letterSpacing: '0.07em', textTransform: 'uppercase' as const }}>
+                              Popular
+                            </div>
+                          )}
+                          {/* Kit image upload */}
+                          <SmallSlotCard
+                            slot={kitSlot}
+                            imageUrl={getImg(kitSlot.index)}
+                            onUpload={f => handleSlot(kitSlot.index, f)}
+                            onRemove={() => removeImg(kitSlot.index)}
+                          />
+                          {/* Kit label */}
+                          <div>
+                            <div style={{ fontSize: '13px', fontWeight: 600, color: isPopular ? '#1E40AF' : '#0F172A', lineHeight: 1.2, letterSpacing: '-0.01em' }}>{row.label}</div>
+                            {isPopular && <div style={{ fontSize: '10px', color: '#3B82F6', fontWeight: 500, marginTop: '2px' }}>Mais popular</div>}
                           </div>
-                        ))}
-                      </div>
-                    </div>
+                          {/* Per bottle */}
+                          <div>
+                            <div style={{ fontSize: '9px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: '4px' }}>/ frasco</div>
+                            <input
+                              placeholder="$49.00"
+                              value={row.per_bottle}
+                              onChange={e => setPricingRows(p => p.map((r, j) => j === i ? { ...r, per_bottle: e.target.value } : r))}
+                              style={{ ...inputStyle, height: '28px', fontSize: '12px', fontFamily: 'ui-monospace,monospace' }}
+                              onFocus={focusIn} onBlur={focusOut}
+                            />
+                          </div>
+                          {/* Total */}
+                          <div>
+                            <div style={{ fontSize: '9px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: '4px' }}>Total</div>
+                            <input
+                              placeholder="$294.00"
+                              value={row.total}
+                              onChange={e => setPricingRows(p => p.map((r, j) => j === i ? { ...r, total: e.target.value } : r))}
+                              style={{ ...inputStyle, height: '28px', fontSize: '12px', fontFamily: 'ui-monospace,monospace' }}
+                              onFocus={focusIn} onBlur={focusOut}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
 
-                  {/* Ingredients: paired rows of slot + name + benefit */}
+                  {/* Ingredients: paired rows of slot + name + benefit, progressive disclosure */}
                   <SectionLabel>Ingredientes <span style={{ fontWeight: 400, color: '#CBD5E1', fontSize: '9px', textTransform: 'none' as const, letterSpacing: 0 }}>(opcional)</span></SectionLabel>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                    {INGREDIENT_SLOTS.map((slot, i) => (
+                    {INGREDIENT_SLOTS.slice(0, visibleIngredients).map((slot, i) => (
                       <div key={slot.index} style={{ display: 'grid', gridTemplateColumns: '68px 1fr 1fr', gap: '6px', alignItems: 'center' }}>
                         <SmallSlotCard slot={slot} imageUrl={getImg(slot.index)}
                           onUpload={f => handleSlot(slot.index, f)} onRemove={() => removeImg(slot.index)} />
                         <input
-                          placeholder={`Nome — ${slot.label}${slot.optional ? ' (opcional)' : ''}`}
+                          placeholder={`Nome — Ingrediente ${i + 1}`}
                           value={ingredients[i]?.name ?? ''}
                           onChange={e => setIngredients(p => p.map((r, j) => j === i ? { ...r, name: e.target.value } : r))}
                           style={{ ...inputStyle, height: '30px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut}
@@ -642,6 +660,15 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                       </div>
                     ))}
                   </div>
+                  {visibleIngredients < INGREDIENT_SLOTS.length && (
+                    <button
+                      type="button"
+                      onClick={() => setVisibleIngredients(v => Math.min(v + 1, INGREDIENT_SLOTS.length))}
+                      style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', fontSize: '11px', fontWeight: 500, color: '#2563EB', background: 'none', border: '1px dashed #BFDBFE', borderRadius: '8px', padding: '7px 14px', cursor: 'pointer', width: '100%' }}
+                    >
+                      <Plus style={{ width: '11px', height: '11px' }} /> Adicionar ingrediente
+                    </button>
+                  )}
 
                   {/* Bonuses: paired rows of slot + title + description */}
                   <SectionLabel>Bónus <span style={{ fontWeight: 400, color: '#CBD5E1', fontSize: '9px', textTransform: 'none' as const, letterSpacing: 0 }}>(opcional)</span></SectionLabel>
@@ -693,13 +720,28 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                     ))}
                   </div>
 
-                  {/* Badge + payment icons */}
-                  <SectionLabel>Extras</SectionLabel>
-                  <div style={slotGrid}>
-                    {BADGE_SLOTS.map(s => (
-                      <SlotCard key={s.index} slot={s} imageUrl={getImg(s.index)}
-                        onUpload={f => handleSlot(s.index, f)} onRemove={() => removeImg(s.index)} />
-                    ))}
+                  {/* Badge garantia + days + payment icons */}
+                  <SectionLabel>Garantia + Pagamento</SectionLabel>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', alignItems: 'start' }}>
+                    {/* Badge slot + days input stacked */}
+                    <div>
+                      <SlotCard slot={BADGE_SLOTS[0]} imageUrl={getImg(BADGE_SLOTS[0].index)}
+                        onUpload={f => handleSlot(BADGE_SLOTS[0].index, f)} onRemove={() => removeImg(BADGE_SLOTS[0].index)} />
+                      <div style={{ marginTop: '8px' }}>
+                        <FieldLabel optional>Dias de garantia</FieldLabel>
+                        <input
+                          type="number"
+                          value={guaranteeDays}
+                          onChange={e => setGuaranteeDays(e.target.value)}
+                          placeholder="60"
+                          style={{ ...inputStyle, textAlign: 'center' as const }}
+                          onFocus={focusIn} onBlur={focusOut}
+                        />
+                      </div>
+                    </div>
+                    {/* Payment icons */}
+                    <SlotCard slot={BADGE_SLOTS[1]} imageUrl={getImg(BADGE_SLOTS[1].index)}
+                      onUpload={f => handleSlot(BADGE_SLOTS[1].index, f)} onRemove={() => removeImg(BADGE_SLOTS[1].index)} />
                   </div>
 
                   {/* Review-only special slots */}
