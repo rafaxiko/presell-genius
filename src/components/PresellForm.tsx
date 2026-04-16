@@ -25,6 +25,7 @@ const formSchema = z.object({
   trackingLink: z.string().optional().or(z.literal('')),
   clarityScript: z.string().optional().or(z.literal('')),
   popupEnabled: z.boolean().optional(),
+  siteName: z.string().optional().or(z.literal('')),
   testi1Name: z.string().optional().or(z.literal('')),
   testi1Location: z.string().optional().or(z.literal('')),
   testi2Name: z.string().optional().or(z.literal('')),
@@ -37,12 +38,15 @@ export type PresellFormValues = z.infer<typeof formSchema>;
 
 interface ImageSlot { index: number; label: string; hint?: string; optional?: boolean; }
 
-const PRODUCT_SLOTS: ImageSlot[] = [
+// Slot constants — kept for reference by the generator
+const HERO_MECH_SLOTS: ImageSlot[] = [
   { index: 0, label: 'Hero / frasco principal', hint: 'Imagem principal' },
+  { index: 5, label: 'Mecanismo', hint: 'Médico / infográfico' },
+];
+const KIT_SLOTS: ImageSlot[] = [
   { index: 1, label: 'Kit 1 frasco' },
   { index: 3, label: 'Kit 3 frascos' },
   { index: 4, label: 'Kit 6 frascos' },
-  { index: 5, label: 'Mecanismo', hint: 'Médico / infográfico' },
 ];
 const INGREDIENT_SLOTS: ImageSlot[] = [
   { index: 6,  label: 'Ingrediente 1' }, { index: 7,  label: 'Ingrediente 2' },
@@ -58,15 +62,20 @@ const BONUS_SLOTS: ImageSlot[] = [
   { index: 19, label: 'Bónus 4', optional: true },
   { index: 20, label: 'Bónus 5', optional: true },
 ];
-const EXTRA_SLOTS: ImageSlot[] = [
-  { index: 14, label: 'Depoimento 1' }, { index: 15, label: 'Depoimento 2' },
-  { index: 16, label: 'Depoimento 3' }, { index: 17, label: 'Badge garantia' },
+const TESTI_SLOTS: ImageSlot[] = [
+  { index: 14, label: 'Depoimento 1', optional: true },
+  { index: 15, label: 'Depoimento 2', optional: true },
+  { index: 16, label: 'Depoimento 3', optional: true },
+];
+const BADGE_SLOTS: ImageSlot[] = [
+  { index: 17, label: 'Badge garantia' },
   { index: 21, label: 'Ícones pagamento' },
 ];
 const REVIEW_EXTRA_SLOTS: ImageSlot[] = [
   { index: 25, label: 'Scam Warning',     hint: 'Screenshot Amazon/eBay com alerta', optional: true },
   { index: 26, label: 'Foto Pros & Cons', hint: 'Frasco com ratings visuais',        optional: true },
 ];
+const LOGO_SLOT: ImageSlot = { index: 27, label: 'Logo', optional: true };
 
 const COUNTRIES = [
   "Estados Unidos","Brasil","Reino Unido","Canadá","Austrália","Portugal",
@@ -102,10 +111,13 @@ const focusOut = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) =
   e.target.style.boxShadow = 'none';
 };
 
-function FieldLabel({ children, optional }: { children: React.ReactNode; optional?: boolean }) {
+function FieldLabel({
+  children, optional, required,
+}: { children: React.ReactNode; optional?: boolean; required?: boolean }) {
   return (
-    <div style={{ fontSize: '11px', fontWeight: 600, color: '#374151', marginBottom: '5px' }}>
+    <div style={{ fontSize: '11px', fontWeight: 600, color: '#374151', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '2px' }}>
       {children}
+      {required && <span style={{ color: '#EF4444', fontSize: '11px', marginLeft: '1px' }}>*</span>}
       {optional && <span style={{ fontWeight: 400, color: '#CBD5E1', marginLeft: '4px' }}>(opcional)</span>}
     </div>
   );
@@ -119,6 +131,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** Full-size slot card (used for product hero, mechanism, kit, badge, extras) */
 function SlotCard({ slot, imageUrl, onUpload, onRemove }: {
   slot: ImageSlot; imageUrl: string; onUpload: (f: File) => void; onRemove: () => void;
 }) {
@@ -149,6 +162,36 @@ function SlotCard({ slot, imageUrl, onUpload, onRemove }: {
         {slot.optional && <span style={{ display: 'block', fontSize: '9px', color: '#D1D5DB' }}>opcional</span>}
       </span>
       {slot.hint && !has && <span style={{ fontSize: '9px', color: '#CBD5E1', textAlign: 'center', lineHeight: 1.2 }}>{slot.hint}</span>}
+      <input ref={ref} type="file" accept="image/*" style={{ display: 'none' }}
+        onChange={e => { const f = e.target.files?.[0]; if (f) onUpload(f); if (ref.current) ref.current.value = ''; }} />
+    </div>
+  );
+}
+
+/** Compact slot card used inline in ingredient / bonus / testimonial rows */
+function SmallSlotCard({ slot, imageUrl, onUpload, onRemove }: {
+  slot: ImageSlot; imageUrl: string; onUpload: (f: File) => void; onRemove: () => void;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  const has = !!(imageUrl && imageUrl !== '');
+  return (
+    <div onClick={() => !has && ref.current?.click()}
+      style={{ border: has ? '1.5px solid #BFDBFE' : '1.5px dashed #E5E7EB', borderRadius: '8px', background: has ? '#EFF6FF' : '#FAFAFA', height: '58px', width: '68px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: has ? 'default' : 'pointer', position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
+      {has ? (
+        <>
+          <img src={imageUrl} alt={slot.label} style={{ maxHeight: '42px', maxWidth: '60px', objectFit: 'contain' }} />
+          <button type="button" onClick={e => { e.stopPropagation(); onRemove(); }}
+            style={{ position: 'absolute', top: '2px', right: '2px', width: '15px', height: '15px', borderRadius: '50%', background: '#fff', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}>
+            <X style={{ width: '8px', height: '8px', color: '#6B7280' }} />
+          </button>
+          <button type="button" onClick={e => { e.stopPropagation(); ref.current?.click(); }}
+            style={{ position: 'absolute', bottom: '2px', right: '2px', width: '15px', height: '15px', borderRadius: '50%', background: '#2563EB', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}>
+            <Upload style={{ width: '7px', height: '7px', color: '#fff' }} />
+          </button>
+        </>
+      ) : (
+        <Plus style={{ width: '12px', height: '12px', color: '#D1D5DB' }} />
+      )}
       <input ref={ref} type="file" accept="image/*" style={{ display: 'none' }}
         onChange={e => { const f = e.target.files?.[0]; if (f) onUpload(f); if (ref.current) ref.current.value = ''; }} />
     </div>
@@ -194,11 +237,16 @@ function Toggle({ checked, onChange, label, sublabel }: { checked: boolean; onCh
 export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls, onUpdateImages, onPreview }: PresellFormProps) {
   const { toast } = useToast();
   const bulkRef = useRef<HTMLInputElement>(null);
+  const logoRef = useRef<HTMLInputElement>(null);
   const [optOpen, setOptOpen] = useState(false);
 
-  // ── Structured product data state ───────────────────────────────────────────
-  const [ingredients, setIngredients] = useState([{ name: '', benefit: '' }]);
-  const [bonuses, setBonuses] = useState([{ title: '', description: '' }]);
+  // Fixed-length arrays aligned 1:1 with image slot arrays
+  const [ingredients, setIngredients] = useState(
+    INGREDIENT_SLOTS.map(() => ({ name: '', benefit: '' }))
+  );
+  const [bonuses, setBonuses] = useState(
+    BONUS_SLOTS.map(() => ({ title: '', description: '' }))
+  );
   const [pricingRows, setPricingRows] = useState([
     { label: '1 Bottle',  per_bottle: '', total: '' },
     { label: '3 Bottles', per_bottle: '', total: '' },
@@ -215,12 +263,12 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
       templateType: 'Robusta', copyStyle: 'White Hat (Conservador)',
       buttonColor: '#2563EB', targetUrl: 'https://seulink.com',
       trackingLink: '', clarityScript: '',
-      popupEnabled: false, // ← padrão OFF
+      popupEnabled: false,
+      siteName: '',
     },
   });
 
   const templateType = form.watch('templateType');
-  const popupEnabled  = form.watch('popupEnabled');
   const isReview = templateType === 'Review';
 
   const getImg = (i: number) => productImageUrls[i] ?? '';
@@ -237,7 +285,6 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
   };
   const removeImg = (i: number) => { const arr = [...productImageUrls]; arr[i] = ''; onUpdateImages(arr); };
 
-  // ── Serialize structured fields → productInfo JSON ───────────────────────────
   const handleFormSubmit = (values: PresellFormValues) => {
     const structured: Record<string, any> = {};
     const validIngr = ingredients.filter(i => i.name.trim());
@@ -274,14 +321,6 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
 
   const filledCount = productImageUrls.filter(u => u && u !== '').length;
   const slotGrid: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(86px, 1fr))', gap: '10px' };
-  const renderSlots = (slots: ImageSlot[]) => (
-    <div style={slotGrid}>
-      {slots.map(s => (
-        <SlotCard key={s.index} slot={s} imageUrl={getImg(s.index)}
-          onUpload={f => handleSlot(s.index, f)} onRemove={() => removeImg(s.index)} />
-      ))}
-    </div>
-  );
 
   return (
     <div style={{ fontFamily: "'Inter',system-ui,sans-serif", background: '#F8FAFC', minHeight: '100vh' }}>
@@ -317,17 +356,19 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
               <PgCard>
                 <PgCardHeader icon={<Package style={{ width: '14px', height: '14px' }} />} title="Produto" subtitle="Dados do produto que vai promover" />
                 <div style={{ padding: '18px 20px' }}>
+
+                  {/* Nome + URL oficial */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                     <FormField control={form.control} name="productName" render={({ field }) => (
                       <FormItem>
-                        <FieldLabel>Nome do produto</FieldLabel>
+                        <FieldLabel required>Nome do produto</FieldLabel>
                         <FormControl><input placeholder="Ex: CitrusBurn™" {...field} style={inputStyle} onFocus={focusIn} onBlur={focusOut} /></FormControl>
                         <FormMessage style={{ fontSize: '11px' }} />
                       </FormItem>
                     )} />
                     <FormField control={form.control} name="officialProductUrl" render={({ field }) => (
                       <FormItem>
-                        <FieldLabel>URL da página oficial</FieldLabel>
+                        <FieldLabel required>URL da página oficial</FieldLabel>
                         <FormControl>
                           <div style={{ position: 'relative' }}>
                             <LinkIcon style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', width: '12px', height: '12px', color: '#D1D5DB' }} />
@@ -338,23 +379,41 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                       </FormItem>
                     )} />
                   </div>
-                  <FormField control={form.control} name="targetUrl" render={({ field }) => (
-                    <FormItem>
-                      <FieldLabel>Link de afiliado</FieldLabel>
-                      <FormControl>
-                        <div style={{ position: 'relative' }}>
-                          <LinkIcon style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', width: '12px', height: '12px', color: '#D1D5DB' }} />
-                          <input placeholder="https://hop.clickbank.net/?affiliate=..." {...field} style={{ ...inputStyle, paddingLeft: '27px' }} onFocus={focusIn} onBlur={focusOut} />
-                        </div>
-                      </FormControl>
-                      <FormMessage style={{ fontSize: '11px' }} />
-                    </FormItem>
-                  )} />
-                  {/* ── Structured product data ─────────────────────────────── */}
-                  <div style={{ marginTop: '14px', borderTop: '1px solid #F1F5F9', paddingTop: '14px' }}>
 
-                    {/* Hero headline + guarantee */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px', gap: '10px', marginBottom: '10px' }}>
+                  {/* Link afiliado */}
+                  <div style={{ marginBottom: '10px' }}>
+                    <FormField control={form.control} name="targetUrl" render={({ field }) => (
+                      <FormItem>
+                        <FieldLabel required>Link de afiliado</FieldLabel>
+                        <FormControl>
+                          <div style={{ position: 'relative' }}>
+                            <LinkIcon style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', width: '12px', height: '12px', color: '#D1D5DB' }} />
+                            <input placeholder="https://hop.clickbank.net/?affiliate=..." {...field} style={{ ...inputStyle, paddingLeft: '27px' }} onFocus={focusIn} onBlur={focusOut} />
+                          </div>
+                        </FormControl>
+                        <FormMessage style={{ fontSize: '11px' }} />
+                      </FormItem>
+                    )} />
+                  </div>
+
+                  {/* Link de rastreamento — moved here from Otimização */}
+                  <div style={{ marginBottom: '14px' }}>
+                    <FormField control={form.control} name="trackingLink" render={({ field }) => (
+                      <FormItem>
+                        <FieldLabel optional>Link de rastreamento</FieldLabel>
+                        <FormControl>
+                          <div style={{ position: 'relative' }}>
+                            <LinkIcon style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', width: '12px', height: '12px', color: '#D1D5DB' }} />
+                            <input placeholder="https://..." {...field} style={{ ...inputStyle, paddingLeft: '27px' }} onFocus={focusIn} onBlur={focusOut} />
+                          </div>
+                        </FormControl>
+                      </FormItem>
+                    )} />
+                  </div>
+
+                  {/* Hero headline + guarantee */}
+                  <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '14px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px', gap: '10px', marginBottom: '12px' }}>
                       <div>
                         <FieldLabel optional>Hero Headline</FieldLabel>
                         <input value={heroHeadline} onChange={e => setHeroHeadline(e.target.value)}
@@ -362,91 +421,14 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                           style={inputStyle} onFocus={focusIn} onBlur={focusOut} />
                       </div>
                       <div>
-                        <FieldLabel>Garantia (dias)</FieldLabel>
+                        <FieldLabel optional>Garantia (dias)</FieldLabel>
                         <input type="number" value={guaranteeDays} onChange={e => setGuaranteeDays(e.target.value)}
                           placeholder="60"
                           style={{ ...inputStyle, textAlign: 'center' as const }} onFocus={focusIn} onBlur={focusOut} />
                       </div>
                     </div>
 
-                    {/* Pricing table */}
-                    <div style={{ marginBottom: '10px' }}>
-                      <FieldLabel>Preços</FieldLabel>
-                      <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', overflow: 'hidden' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '90px 1fr 1fr', background: '#F8FAFC', padding: '5px 10px', borderBottom: '1px solid #E5E7EB' }}>
-                          <span style={{ fontSize: '10px', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase' as const }}>Kit</span>
-                          <span style={{ fontSize: '10px', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase' as const, paddingLeft: '4px' }}>Por Frasco</span>
-                          <span style={{ fontSize: '10px', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase' as const, paddingLeft: '4px' }}>Total</span>
-                        </div>
-                        {pricingRows.map((row, i) => (
-                          <div key={i} style={{ display: 'grid', gridTemplateColumns: '90px 1fr 1fr', alignItems: 'center', padding: '5px 10px', gap: '8px', borderBottom: i < 2 ? '1px solid #F1F5F9' : 'none' }}>
-                            <span style={{ fontSize: '12px', fontWeight: 500, color: '#374151' }}>{row.label}</span>
-                            <input placeholder="$49.00" value={row.per_bottle}
-                              onChange={e => setPricingRows(p => p.map((r, j) => j === i ? { ...r, per_bottle: e.target.value } : r))}
-                              style={{ ...inputStyle, height: '28px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut} />
-                            <input placeholder="$294.00" value={row.total}
-                              onChange={e => setPricingRows(p => p.map((r, j) => j === i ? { ...r, total: e.target.value } : r))}
-                              style={{ ...inputStyle, height: '28px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut} />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Ingredients */}
-                    <div style={{ marginBottom: '10px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '5px' }}>
-                        <FieldLabel>Ingredientes</FieldLabel>
-                        <button type="button" onClick={() => setIngredients(p => [...p, { name: '', benefit: '' }])}
-                          style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: '#2563EB', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}>
-                          <Plus style={{ width: '11px', height: '11px' }} /> Adicionar
-                        </button>
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                        {ingredients.map((ing, i) => (
-                          <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 26px', gap: '5px', alignItems: 'center' }}>
-                            <input placeholder="Nome do ingrediente" value={ing.name}
-                              onChange={e => setIngredients(p => p.map((r, j) => j === i ? { ...r, name: e.target.value } : r))}
-                              style={{ ...inputStyle, height: '30px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut} />
-                            <input placeholder="Benefício" value={ing.benefit}
-                              onChange={e => setIngredients(p => p.map((r, j) => j === i ? { ...r, benefit: e.target.value } : r))}
-                              style={{ ...inputStyle, height: '30px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut} />
-                            <button type="button" onClick={() => setIngredients(p => p.filter((_, j) => j !== i))}
-                              style={{ width: '26px', height: '30px', borderRadius: '6px', border: '1px solid #E5E7EB', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>
-                              <X style={{ width: '10px', height: '10px', color: '#9CA3AF' }} />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Bonuses */}
-                    <div style={{ marginBottom: '12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '5px' }}>
-                        <FieldLabel>Bónus</FieldLabel>
-                        <button type="button" onClick={() => setBonuses(p => [...p, { title: '', description: '' }])}
-                          style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: '#2563EB', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}>
-                          <Plus style={{ width: '11px', height: '11px' }} /> Adicionar
-                        </button>
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                        {bonuses.map((bonus, i) => (
-                          <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 26px', gap: '5px', alignItems: 'center' }}>
-                            <input placeholder="Título do bónus" value={bonus.title}
-                              onChange={e => setBonuses(p => p.map((r, j) => j === i ? { ...r, title: e.target.value } : r))}
-                              style={{ ...inputStyle, height: '30px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut} />
-                            <input placeholder="Descrição breve" value={bonus.description}
-                              onChange={e => setBonuses(p => p.map((r, j) => j === i ? { ...r, description: e.target.value } : r))}
-                              style={{ ...inputStyle, height: '30px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut} />
-                            <button type="button" onClick={() => setBonuses(p => p.filter((_, j) => j !== i))}
-                              style={{ width: '26px', height: '30px', borderRadius: '6px', border: '1px solid #E5E7EB', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>
-                              <X style={{ width: '10px', height: '10px', color: '#9CA3AF' }} />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Extra info (old productInfo — optional) */}
+                    {/* Extra info */}
                     <FormField control={form.control} name="productInfo" render={({ field }) => (
                       <FormItem>
                         <FieldLabel optional>Informação extra</FieldLabel>
@@ -465,10 +447,49 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
               <PgCard>
                 <PgCardHeader icon={<Globe style={{ width: '14px', height: '14px' }} />} title="Configuração" subtitle="Mercado alvo, modelo e cor" />
                 <div style={{ padding: '18px 20px' }}>
+
+                  {/* Nome do site / Logo — above model selector */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '68px 1fr', gap: '10px', marginBottom: '14px', alignItems: 'end' }}>
+                    <div>
+                      <FieldLabel optional>Logo</FieldLabel>
+                      {/* Logo slot — index 27 */}
+                      {(() => {
+                        const has = !!(getImg(LOGO_SLOT.index) && getImg(LOGO_SLOT.index) !== '');
+                        return (
+                          <div onClick={() => !has && logoRef.current?.click()}
+                            style={{ border: has ? '1.5px solid #BFDBFE' : '1.5px dashed #E5E7EB', borderRadius: '8px', background: has ? '#EFF6FF' : '#FAFAFA', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: has ? 'default' : 'pointer', position: 'relative', overflow: 'hidden' }}>
+                            {has ? (
+                              <>
+                                <img src={getImg(LOGO_SLOT.index)} alt="Logo" style={{ maxHeight: '28px', maxWidth: '60px', objectFit: 'contain' }} />
+                                <button type="button" onClick={e => { e.stopPropagation(); removeImg(LOGO_SLOT.index); }}
+                                  style={{ position: 'absolute', top: '2px', right: '2px', width: '14px', height: '14px', borderRadius: '50%', background: '#fff', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}>
+                                  <X style={{ width: '7px', height: '7px', color: '#6B7280' }} />
+                                </button>
+                              </>
+                            ) : (
+                              <Upload style={{ width: '10px', height: '10px', color: '#D1D5DB' }} />
+                            )}
+                            <input ref={logoRef} type="file" accept="image/*" style={{ display: 'none' }}
+                              onChange={e => { const f = e.target.files?.[0]; if (f) handleSlot(LOGO_SLOT.index, f); if (logoRef.current) logoRef.current.value = ''; }} />
+                          </div>
+                        );
+                      })()}
+                    </div>
+                    <FormField control={form.control} name="siteName" render={({ field }) => (
+                      <FormItem>
+                        <FieldLabel optional>Nome do site</FieldLabel>
+                        <FormControl>
+                          <input placeholder="Ex: HealthReviewHub" {...field} style={inputStyle} onFocus={focusIn} onBlur={focusOut} />
+                        </FormControl>
+                      </FormItem>
+                    )} />
+                  </div>
+
+                  {/* País + Modelo + Cor */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 110px', gap: '12px' }}>
                     <FormField control={form.control} name="targetLanguage" render={({ field }) => (
                       <FormItem>
-                        <FieldLabel>País de destino</FieldLabel>
+                        <FieldLabel required>País de destino</FieldLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl><SelectTrigger style={{ height: '36px', fontSize: '13px', borderRadius: '8px', border: '1px solid #E5E7EB' }}><SelectValue /></SelectTrigger></FormControl>
                           <SelectContent>{COUNTRIES.map(c => <SelectItem key={c} value={c} style={{ fontSize: '13px' }}>{c}</SelectItem>)}</SelectContent>
@@ -477,7 +498,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                     )} />
                     <FormField control={form.control} name="templateType" render={({ field }) => (
                       <FormItem>
-                        <FieldLabel>Modelo</FieldLabel>
+                        <FieldLabel required>Modelo</FieldLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl><SelectTrigger style={{ height: '36px', fontSize: '13px', borderRadius: '8px', border: '1px solid #E5E7EB' }}><SelectValue /></SelectTrigger></FormControl>
                           <SelectContent>
@@ -492,7 +513,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                     )} />
                     <FormField control={form.control} name="buttonColor" render={({ field }) => (
                       <FormItem>
-                        <FieldLabel>Cor</FieldLabel>
+                        <FieldLabel optional>Cor</FieldLabel>
                         <FormControl>
                           <div style={{ display: 'flex', gap: '6px' }}>
                             <input type="color" value={field.value} onChange={field.onChange}
@@ -511,7 +532,6 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
               {/* ── 3. CARD REVIEW (dinâmico — só aparece quando Review) ── */}
               {isReview && (
                 <PgCard style={{ border: '1.5px solid #FCD34D' }}>
-                  {/* Header âmbar */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px 20px', borderBottom: '1px solid #FEF3C7', background: 'linear-gradient(135deg,#FFFBEB 0%,#fff 100%)' }}>
                     <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <AlertTriangle style={{ width: '14px', height: '14px', color: '#D97706' }} />
@@ -523,9 +543,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                       </div>
                     </div>
                   </div>
-
                   <div style={{ padding: '18px 20px' }}>
-                    {/* Separador + toggle popup */}
                     <div style={{ borderTop: '1px solid #FEF3C7', paddingTop: '14px' }}>
                       <FormField control={form.control} name="popupEnabled" render={({ field }) => (
                         <Toggle
@@ -555,14 +573,136 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                 />
                 <div style={{ padding: '18px 20px' }}>
                   <input ref={bulkRef} type="file" multiple accept="image/*" style={{ display: 'none' }} onChange={handleBulk} />
+
+                  {/* Produto principal: hero + mechanism */}
                   <SectionLabel>Produto principal</SectionLabel>
-                  {renderSlots(PRODUCT_SLOTS)}
-                  <SectionLabel>Ingredientes</SectionLabel>
-                  {renderSlots(INGREDIENT_SLOTS)}
-                  <SectionLabel>Bónus</SectionLabel>
-                  {renderSlots(BONUS_SLOTS)}
+                  <div style={slotGrid}>
+                    {HERO_MECH_SLOTS.map(s => (
+                      <SlotCard key={s.index} slot={s} imageUrl={getImg(s.index)}
+                        onUpload={f => handleSlot(s.index, f)} onRemove={() => removeImg(s.index)} />
+                    ))}
+                  </div>
+
+                  {/* Kit images + Pricing table side by side */}
+                  <SectionLabel>Kit + Preços</SectionLabel>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', alignItems: 'start' }}>
+                    {/* Kit images */}
+                    <div>
+                      <div style={{ fontSize: '10px', fontWeight: 600, color: '#9CA3AF', marginBottom: '8px', textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>Imagens</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                        {KIT_SLOTS.map(s => (
+                          <SlotCard key={s.index} slot={s} imageUrl={getImg(s.index)}
+                            onUpload={f => handleSlot(s.index, f)} onRemove={() => removeImg(s.index)} />
+                        ))}
+                      </div>
+                    </div>
+                    {/* Pricing table */}
+                    <div>
+                      <div style={{ fontSize: '10px', fontWeight: 600, color: '#9CA3AF', marginBottom: '8px', textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>Preços <span style={{ fontWeight: 400, color: '#CBD5E1' }}>(opcional)</span></div>
+                      <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', overflow: 'hidden' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '76px 1fr 1fr', background: '#F8FAFC', padding: '5px 8px', borderBottom: '1px solid #E5E7EB' }}>
+                          <span style={{ fontSize: '10px', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase' as const }}>Kit</span>
+                          <span style={{ fontSize: '10px', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase' as const, paddingLeft: '4px' }}>/ Frasco</span>
+                          <span style={{ fontSize: '10px', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase' as const, paddingLeft: '4px' }}>Total</span>
+                        </div>
+                        {pricingRows.map((row, i) => (
+                          <div key={i} style={{ display: 'grid', gridTemplateColumns: '76px 1fr 1fr', alignItems: 'center', padding: '4px 8px', gap: '6px', borderBottom: i < 2 ? '1px solid #F1F5F9' : 'none' }}>
+                            <span style={{ fontSize: '11px', fontWeight: 500, color: '#374151' }}>{row.label}</span>
+                            <input placeholder="$49" value={row.per_bottle}
+                              onChange={e => setPricingRows(p => p.map((r, j) => j === i ? { ...r, per_bottle: e.target.value } : r))}
+                              style={{ ...inputStyle, height: '26px', fontSize: '11px' }} onFocus={focusIn} onBlur={focusOut} />
+                            <input placeholder="$294" value={row.total}
+                              onChange={e => setPricingRows(p => p.map((r, j) => j === i ? { ...r, total: e.target.value } : r))}
+                              style={{ ...inputStyle, height: '26px', fontSize: '11px' }} onFocus={focusIn} onBlur={focusOut} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Ingredients: paired rows of slot + name + benefit */}
+                  <SectionLabel>Ingredientes <span style={{ fontWeight: 400, color: '#CBD5E1', fontSize: '9px', textTransform: 'none' as const, letterSpacing: 0 }}>(opcional)</span></SectionLabel>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    {INGREDIENT_SLOTS.map((slot, i) => (
+                      <div key={slot.index} style={{ display: 'grid', gridTemplateColumns: '68px 1fr 1fr', gap: '6px', alignItems: 'center' }}>
+                        <SmallSlotCard slot={slot} imageUrl={getImg(slot.index)}
+                          onUpload={f => handleSlot(slot.index, f)} onRemove={() => removeImg(slot.index)} />
+                        <input
+                          placeholder={`Nome — ${slot.label}${slot.optional ? ' (opcional)' : ''}`}
+                          value={ingredients[i]?.name ?? ''}
+                          onChange={e => setIngredients(p => p.map((r, j) => j === i ? { ...r, name: e.target.value } : r))}
+                          style={{ ...inputStyle, height: '30px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut}
+                        />
+                        <input
+                          placeholder="Benefício"
+                          value={ingredients[i]?.benefit ?? ''}
+                          onChange={e => setIngredients(p => p.map((r, j) => j === i ? { ...r, benefit: e.target.value } : r))}
+                          style={{ ...inputStyle, height: '30px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut}
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Bonuses: paired rows of slot + title + description */}
+                  <SectionLabel>Bónus <span style={{ fontWeight: 400, color: '#CBD5E1', fontSize: '9px', textTransform: 'none' as const, letterSpacing: 0 }}>(opcional)</span></SectionLabel>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    {BONUS_SLOTS.map((slot, i) => (
+                      <div key={slot.index} style={{ display: 'grid', gridTemplateColumns: '68px 1fr 1.4fr', gap: '6px', alignItems: 'center' }}>
+                        <SmallSlotCard slot={slot} imageUrl={getImg(slot.index)}
+                          onUpload={f => handleSlot(slot.index, f)} onRemove={() => removeImg(slot.index)} />
+                        <input
+                          placeholder={`${slot.label}${slot.optional ? ' (opcional)' : ''}`}
+                          value={bonuses[i]?.title ?? ''}
+                          onChange={e => setBonuses(p => p.map((r, j) => j === i ? { ...r, title: e.target.value } : r))}
+                          style={{ ...inputStyle, height: '30px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut}
+                        />
+                        <input
+                          placeholder="Descrição breve"
+                          value={bonuses[i]?.description ?? ''}
+                          onChange={e => setBonuses(p => p.map((r, j) => j === i ? { ...r, description: e.target.value } : r))}
+                          style={{ ...inputStyle, height: '30px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut}
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Testimonials: paired with name/location — always visible */}
+                  <SectionLabel>Depoimentos <span style={{ fontWeight: 400, color: '#CBD5E1', fontSize: '9px', textTransform: 'none' as const, letterSpacing: 0 }}>(opcional)</span></SectionLabel>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    {([0, 1, 2] as const).map(i => (
+                      <div key={i} style={{ display: 'grid', gridTemplateColumns: '68px 1fr 1fr', gap: '6px', alignItems: 'center' }}>
+                        <SmallSlotCard slot={TESTI_SLOTS[i]} imageUrl={getImg(TESTI_SLOTS[i].index)}
+                          onUpload={f => handleSlot(TESTI_SLOTS[i].index, f)} onRemove={() => removeImg(TESTI_SLOTS[i].index)} />
+                        <FormField control={form.control} name={`testi${i + 1}Name` as any} render={({ field }) => (
+                          <FormItem style={{ margin: 0 }}>
+                            <FormControl>
+                              <input placeholder={`Depoimento ${i + 1} — nome`} {...field}
+                                style={{ ...inputStyle, height: '30px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut} />
+                            </FormControl>
+                          </FormItem>
+                        )} />
+                        <FormField control={form.control} name={`testi${i + 1}Location` as any} render={({ field }) => (
+                          <FormItem style={{ margin: 0 }}>
+                            <FormControl>
+                              <input placeholder="Localização (Ex: Austin, TX)" {...field}
+                                style={{ ...inputStyle, height: '30px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut} />
+                            </FormControl>
+                          </FormItem>
+                        )} />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Badge + payment icons */}
                   <SectionLabel>Extras</SectionLabel>
-                  {renderSlots(EXTRA_SLOTS)}
+                  <div style={slotGrid}>
+                    {BADGE_SLOTS.map(s => (
+                      <SlotCard key={s.index} slot={s} imageUrl={getImg(s.index)}
+                        onUpload={f => handleSlot(s.index, f)} onRemove={() => removeImg(s.index)} />
+                    ))}
+                  </div>
+
+                  {/* Review-only special slots */}
                   {isReview && (
                     <>
                       <SectionLabel>Review — secções especiais</SectionLabel>
@@ -571,24 +711,10 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                           Slots opcionais — se não carregar, a secção aparece só com texto
                         </div>
                       </div>
-                      {renderSlots(REVIEW_EXTRA_SLOTS)}
-                      <SectionLabel>Depoimentos — nomes reais (opcional)</SectionLabel>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {([1,2,3] as const).map(n => (
-                          <div key={n} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                            <FormField control={form.control} name={`testi${n}Name` as any} render={({ field }) => (
-                              <FormItem>
-                                <FieldLabel optional>Depoimento {n} — nome</FieldLabel>
-                                <FormControl><input placeholder={`Ex: Sarah M.`} {...field} style={inputStyle} onFocus={focusIn} onBlur={focusOut} /></FormControl>
-                              </FormItem>
-                            )} />
-                            <FormField control={form.control} name={`testi${n}Location` as any} render={({ field }) => (
-                              <FormItem>
-                                <FieldLabel optional>Localização</FieldLabel>
-                                <FormControl><input placeholder={`Ex: Austin, TX`} {...field} style={inputStyle} onFocus={focusIn} onBlur={focusOut} /></FormControl>
-                              </FormItem>
-                            )} />
-                          </div>
+                      <div style={slotGrid}>
+                        {REVIEW_EXTRA_SLOTS.map(s => (
+                          <SlotCard key={s.index} slot={s} imageUrl={getImg(s.index)}
+                            onUpload={f => handleSlot(s.index, f)} onRemove={() => removeImg(s.index)} />
                         ))}
                       </div>
                     </>
@@ -614,18 +740,18 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                       <FormField control={form.control} name="salesPageDescription" render={({ field }) => (
                         <FormItem>
-                          <FieldLabel>Ângulo específico</FieldLabel>
+                          <FieldLabel optional>Ângulo específico</FieldLabel>
                           <FormControl><input placeholder="Ex: Focar em mulheres 40+ com energia baixa" {...field} style={inputStyle} onFocus={focusIn} onBlur={focusOut} /></FormControl>
                         </FormItem>
                       )} />
                       <div>
-                        <FieldLabel>Persona</FieldLabel>
+                        <FieldLabel optional>Persona</FieldLabel>
                         <input placeholder="Ex: Mãe, 45 anos, trabalha fora" style={inputStyle} onFocus={focusIn} onBlur={focusOut} />
                       </div>
                     </div>
                     <FormField control={form.control} name="clarityScript" render={({ field }) => (
                       <FormItem>
-                        <FieldLabel>Clarity insights</FieldLabel>
+                        <FieldLabel optional>Clarity insights</FieldLabel>
                         <FormControl>
                           <textarea placeholder={`Ex: usuários não estão clicando no botão CTA\nvisitantes não chegam à seção de preço`} rows={3} {...field}
                             style={{ width: '100%', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', color: '#0F172A', padding: '8px 10px', outline: 'none', background: '#fff', boxSizing: 'border-box' as const, resize: 'vertical' as const, fontFamily: 'inherit' }}
@@ -633,14 +759,6 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                         </FormControl>
                       </FormItem>
                     )} />
-                    <div style={{ marginTop: '12px' }}>
-                      <FormField control={form.control} name="trackingLink" render={({ field }) => (
-                        <FormItem>
-                          <FieldLabel optional>Link de rastreio</FieldLabel>
-                          <FormControl><input placeholder="https://..." {...field} style={inputStyle} onFocus={focusIn} onBlur={focusOut} /></FormControl>
-                        </FormItem>
-                      )} />
-                    </div>
                   </div>
                 )}
               </PgCard>
