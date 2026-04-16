@@ -196,6 +196,17 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
   const bulkRef = useRef<HTMLInputElement>(null);
   const [optOpen, setOptOpen] = useState(false);
 
+  // ── Structured product data state ───────────────────────────────────────────
+  const [ingredients, setIngredients] = useState([{ name: '', benefit: '' }]);
+  const [bonuses, setBonuses] = useState([{ title: '', description: '' }]);
+  const [pricingRows, setPricingRows] = useState([
+    { label: '1 Bottle',  per_bottle: '', total: '' },
+    { label: '3 Bottles', per_bottle: '', total: '' },
+    { label: '6 Bottles', per_bottle: '', total: '' },
+  ]);
+  const [guaranteeDays, setGuaranteeDays] = useState('');
+  const [heroHeadline, setHeroHeadline] = useState('');
+
   const form = useForm<PresellFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -225,6 +236,28 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
     r.readAsDataURL(file);
   };
   const removeImg = (i: number) => { const arr = [...productImageUrls]; arr[i] = ''; onUpdateImages(arr); };
+
+  // ── Serialize structured fields → productInfo JSON ───────────────────────────
+  const handleFormSubmit = (values: PresellFormValues) => {
+    const structured: Record<string, any> = {};
+    const validIngr = ingredients.filter(i => i.name.trim());
+    if (validIngr.length) structured.ingredients = validIngr;
+    const validBonus = bonuses.filter(b => b.title.trim());
+    if (validBonus.length) structured.bonuses = validBonus;
+    const hasPricing = pricingRows.some(r => r.per_bottle.trim() || r.total.trim());
+    if (hasPricing) structured.pricing = {
+      bundle_1: pricingRows[0],
+      bundle_3: pricingRows[1],
+      bundle_6: pricingRows[2],
+    };
+    if (guaranteeDays.trim()) structured.guarantee_days = guaranteeDays;
+    if (heroHeadline.trim()) structured.hero_headline = heroHeadline;
+    const parts: string[] = [];
+    if (Object.keys(structured).length) parts.push(JSON.stringify(structured));
+    if (values.productInfo?.trim()) parts.push(values.productInfo.trim());
+    onSubmit({ ...values, productInfo: parts.join('\n\n') });
+  };
+
   const handleBulk = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     let loaded = 0; const results: string[] = [];
@@ -271,7 +304,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(handleFormSubmit)}>
           <div style={{ maxWidth: '720px', margin: '0 auto', padding: '28px 20px 80px' }}>
             <div style={{ marginBottom: '24px' }}>
               <h1 style={{ fontSize: '20px', fontWeight: 700, color: '#0F172A', margin: 0, letterSpacing: '-0.025em' }}>Criar Pressel</h1>
@@ -317,30 +350,114 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                       <FormMessage style={{ fontSize: '11px' }} />
                     </FormItem>
                   )} />
-                  {/* Campo info produto — anti-alucinação — TODOS os templates */}
-                  <FormField control={form.control} name="productInfo" render={({ field }) => (
-                    <FormItem style={{ marginTop: '12px' }}>
-                      <FieldLabel>
-                        Informações do produto
-                        <span style={{ fontWeight: 400, color: '#D97706', marginLeft: '6px' }}>— cole dados da página oficial (anti-alucinação)</span>
-                      </FieldLabel>
-                      <FormControl>
-                        <textarea
-                          placeholder={
-                            'Ex: Quietum Plus — suplemento auditivo com 18 ingredientes naturais.\n' +
-                            'Preços: 1 frasco $69 + frete | 3 frascos $59/un frete grátis | 6 frascos $49/un frete grátis\n' +
-                            'Garantia: 60 dias devolução total\n' +
-                            'Ingredientes: Maca Root, Ashwagandha, Muira Puama, Tribulus Terrestris...\n' +
-                            'Benefícios: suporte auditivo, redução de zumbido, clareza mental'
-                          }
-                          rows={4} {...field}
-                          style={{ width: '100%', borderRadius: '8px', border: '1.5px solid #FCD34D', fontSize: '12px', color: '#0F172A', padding: '10px 12px', outline: 'none', background: '#FFFBEB', boxSizing: 'border-box' as const, resize: 'vertical' as const, fontFamily: 'inherit', lineHeight: 1.6 }}
-                          onFocus={e => { e.target.style.borderColor = '#D97706'; e.target.style.boxShadow = '0 0 0 3px rgba(217,119,6,0.10)'; }}
-                          onBlur={e =>  { e.target.style.borderColor = '#FCD34D'; e.target.style.boxShadow = 'none'; }}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )} />
+                  {/* ── Structured product data ─────────────────────────────── */}
+                  <div style={{ marginTop: '14px', borderTop: '1px solid #F1F5F9', paddingTop: '14px' }}>
+
+                    {/* Hero headline + guarantee */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px', gap: '10px', marginBottom: '10px' }}>
+                      <div>
+                        <FieldLabel optional>Hero Headline</FieldLabel>
+                        <input value={heroHeadline} onChange={e => setHeroHeadline(e.target.value)}
+                          placeholder="Ex: Restore Your Hearing Naturally"
+                          style={inputStyle} onFocus={focusIn} onBlur={focusOut} />
+                      </div>
+                      <div>
+                        <FieldLabel>Garantia (dias)</FieldLabel>
+                        <input type="number" value={guaranteeDays} onChange={e => setGuaranteeDays(e.target.value)}
+                          placeholder="60"
+                          style={{ ...inputStyle, textAlign: 'center' as const }} onFocus={focusIn} onBlur={focusOut} />
+                      </div>
+                    </div>
+
+                    {/* Pricing table */}
+                    <div style={{ marginBottom: '10px' }}>
+                      <FieldLabel>Preços</FieldLabel>
+                      <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', overflow: 'hidden' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '90px 1fr 1fr', background: '#F8FAFC', padding: '5px 10px', borderBottom: '1px solid #E5E7EB' }}>
+                          <span style={{ fontSize: '10px', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase' as const }}>Kit</span>
+                          <span style={{ fontSize: '10px', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase' as const, paddingLeft: '4px' }}>Por Frasco</span>
+                          <span style={{ fontSize: '10px', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase' as const, paddingLeft: '4px' }}>Total</span>
+                        </div>
+                        {pricingRows.map((row, i) => (
+                          <div key={i} style={{ display: 'grid', gridTemplateColumns: '90px 1fr 1fr', alignItems: 'center', padding: '5px 10px', gap: '8px', borderBottom: i < 2 ? '1px solid #F1F5F9' : 'none' }}>
+                            <span style={{ fontSize: '12px', fontWeight: 500, color: '#374151' }}>{row.label}</span>
+                            <input placeholder="$49.00" value={row.per_bottle}
+                              onChange={e => setPricingRows(p => p.map((r, j) => j === i ? { ...r, per_bottle: e.target.value } : r))}
+                              style={{ ...inputStyle, height: '28px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut} />
+                            <input placeholder="$294.00" value={row.total}
+                              onChange={e => setPricingRows(p => p.map((r, j) => j === i ? { ...r, total: e.target.value } : r))}
+                              style={{ ...inputStyle, height: '28px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Ingredients */}
+                    <div style={{ marginBottom: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '5px' }}>
+                        <FieldLabel>Ingredientes</FieldLabel>
+                        <button type="button" onClick={() => setIngredients(p => [...p, { name: '', benefit: '' }])}
+                          style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: '#2563EB', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}>
+                          <Plus style={{ width: '11px', height: '11px' }} /> Adicionar
+                        </button>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                        {ingredients.map((ing, i) => (
+                          <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 26px', gap: '5px', alignItems: 'center' }}>
+                            <input placeholder="Nome do ingrediente" value={ing.name}
+                              onChange={e => setIngredients(p => p.map((r, j) => j === i ? { ...r, name: e.target.value } : r))}
+                              style={{ ...inputStyle, height: '30px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut} />
+                            <input placeholder="Benefício" value={ing.benefit}
+                              onChange={e => setIngredients(p => p.map((r, j) => j === i ? { ...r, benefit: e.target.value } : r))}
+                              style={{ ...inputStyle, height: '30px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut} />
+                            <button type="button" onClick={() => setIngredients(p => p.filter((_, j) => j !== i))}
+                              style={{ width: '26px', height: '30px', borderRadius: '6px', border: '1px solid #E5E7EB', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>
+                              <X style={{ width: '10px', height: '10px', color: '#9CA3AF' }} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Bonuses */}
+                    <div style={{ marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '5px' }}>
+                        <FieldLabel>Bónus</FieldLabel>
+                        <button type="button" onClick={() => setBonuses(p => [...p, { title: '', description: '' }])}
+                          style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: '#2563EB', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}>
+                          <Plus style={{ width: '11px', height: '11px' }} /> Adicionar
+                        </button>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                        {bonuses.map((bonus, i) => (
+                          <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 26px', gap: '5px', alignItems: 'center' }}>
+                            <input placeholder="Título do bónus" value={bonus.title}
+                              onChange={e => setBonuses(p => p.map((r, j) => j === i ? { ...r, title: e.target.value } : r))}
+                              style={{ ...inputStyle, height: '30px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut} />
+                            <input placeholder="Descrição breve" value={bonus.description}
+                              onChange={e => setBonuses(p => p.map((r, j) => j === i ? { ...r, description: e.target.value } : r))}
+                              style={{ ...inputStyle, height: '30px', fontSize: '12px' }} onFocus={focusIn} onBlur={focusOut} />
+                            <button type="button" onClick={() => setBonuses(p => p.filter((_, j) => j !== i))}
+                              style={{ width: '26px', height: '30px', borderRadius: '6px', border: '1px solid #E5E7EB', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>
+                              <X style={{ width: '10px', height: '10px', color: '#9CA3AF' }} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Extra info (old productInfo — optional) */}
+                    <FormField control={form.control} name="productInfo" render={({ field }) => (
+                      <FormItem>
+                        <FieldLabel optional>Informação extra</FieldLabel>
+                        <FormControl>
+                          <textarea placeholder="Qualquer informação adicional sobre o produto..." rows={2} {...field}
+                            style={{ width: '100%', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '12px', color: '#0F172A', padding: '8px 10px', outline: 'none', background: '#fff', boxSizing: 'border-box' as const, resize: 'vertical' as const, fontFamily: 'inherit', lineHeight: 1.6 }}
+                            onFocus={focusIn} onBlur={focusOut} />
+                        </FormControl>
+                      </FormItem>
+                    )} />
+                  </div>
                 </div>
               </PgCard>
 
