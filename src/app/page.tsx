@@ -7,7 +7,7 @@ import { generatePresellContent, GeneratePresellContentOutput } from '@/ai/flows
 import { generateReviewContent } from '@/ai/flows/generate-review-content';
 import { generatePresellHTML } from '@/lib/presell-template';
 import { generateReviewHTML } from '@/lib/review-template';
-import { Zap, Globe, Eye } from 'lucide-react';
+import { Zap, Globe, Eye, Sparkles, Lock, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Toaster } from '@/components/ui/toaster';
 
@@ -65,8 +65,16 @@ const COUNTRY_TO_LANGUAGE: Record<string, string> = {
   "Japão": "日本語",
 };
 
+const STORAGE_KEY = 'pg_access';
+const CORRECT_PASSWORD = process.env.NEXT_PUBLIC_BETA_PASSWORD ?? 'GENIUS2026';
+
 export default function PresellGeniusApp() {
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // ── Password gate ─────────────────────────────────────────────────────────
+  const [isAuthed, setIsAuthed] = useState(false);
+  const [pwInput, setPwInput] = useState('');
+  const [pwError, setPwError] = useState(false);
   const [generatedData, setGeneratedData] = useState<GeneratePresellContentOutput | null>(null);
   const [generatedHTML, setGeneratedHTML] = useState<string | null>(null);
   const [targetUrl, setTargetUrl] = useState<string>('');
@@ -79,7 +87,27 @@ export default function PresellGeniusApp() {
 
   useEffect(() => {
     setIsMounted(true);
+    if (typeof window !== 'undefined' && localStorage.getItem(STORAGE_KEY) === '1') {
+      setIsAuthed(true);
+    }
   }, []);
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pwInput === CORRECT_PASSWORD) {
+      localStorage.setItem(STORAGE_KEY, '1');
+      setIsAuthed(true);
+      setPwError(false);
+    } else {
+      setPwError(true);
+      setPwInput('');
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    window.location.reload();
+  };
 
   const handleGenerate = async (values: PresellFormValues) => {
     setIsGenerating(true);
@@ -250,6 +278,78 @@ export default function PresellGeniusApp() {
 
   if (!isMounted) return null;
 
+  // ── Gate screen ───────────────────────────────────────────────────────────
+  if (!isAuthed) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Inter',system-ui,sans-serif", padding: '24px' }}>
+        <Toaster />
+        <div style={{ width: '100%', maxWidth: '380px' }}>
+          {/* Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '32px' }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}>
+              <Sparkles style={{ width: '16px', height: '16px', color: '#fff' }} />
+            </div>
+            <div>
+              <div style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', letterSpacing: '-0.025em', lineHeight: 1.1 }}>Presell Genius</div>
+              <div style={{ fontSize: '9px', color: '#94A3B8', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>AI Presell Builder</div>
+            </div>
+          </div>
+
+          {/* Card */}
+          <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: '16px', padding: '28px 28px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <Lock style={{ width: '14px', height: '14px', color: '#2563EB', flexShrink: 0 }} />
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#0F172A' }}>Acesso Restrito</span>
+            </div>
+            <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 20px', lineHeight: 1.5 }}>
+              Introduz a senha de acesso para continuar.
+            </p>
+
+            <form onSubmit={handlePasswordSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <input
+                type="password"
+                value={pwInput}
+                onChange={e => { setPwInput(e.target.value); setPwError(false); }}
+                placeholder="Senha"
+                autoFocus
+                style={{
+                  width: '100%', height: '40px', borderRadius: '8px',
+                  border: `1.5px solid ${pwError ? '#EF4444' : '#E5E7EB'}`,
+                  fontSize: '14px', color: '#0F172A', padding: '0 12px',
+                  outline: 'none', background: pwError ? '#FEF2F2' : '#fff',
+                  boxSizing: 'border-box' as const, fontFamily: 'inherit',
+                  letterSpacing: '0.1em',
+                  transition: 'border-color 0.15s',
+                }}
+                onFocus={e => { if (!pwError) e.target.style.borderColor = '#2563EB'; }}
+                onBlur={e => { if (!pwError) e.target.style.borderColor = '#E5E7EB'; }}
+              />
+              {pwError && (
+                <div style={{ fontSize: '11px', color: '#EF4444', fontWeight: 500, marginTop: '-4px' }}>
+                  Senha incorrecta
+                </div>
+              )}
+              <button
+                type="submit"
+                style={{
+                  height: '40px', background: '#2563EB', color: '#fff', border: 'none',
+                  borderRadius: '8px', fontSize: '13px', fontWeight: 600,
+                  cursor: 'pointer', letterSpacing: '-0.01em',
+                  boxShadow: '0 1px 3px rgba(37,99,235,0.3)',
+                  transition: 'background 0.15s',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#1D4ED8'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#2563EB'; }}
+              >
+                Entrar
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen bg-white flex flex-col overflow-hidden">
       <Toaster />
@@ -268,7 +368,7 @@ export default function PresellGeniusApp() {
             V2 ENGINE
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {/* Botão Visualizar — aparece quando há HTML gerado */}
           {generatedHTML && (
             <button
@@ -279,6 +379,15 @@ export default function PresellGeniusApp() {
               Visualizar
             </button>
           )}
+          {/* Sair */}
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-slate-600 transition-colors"
+            title="Terminar sessão"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Sair</span>
+          </button>
         </div>
       </header>
 
