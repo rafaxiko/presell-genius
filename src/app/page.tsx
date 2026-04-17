@@ -166,9 +166,11 @@ export default function PresellGeniusApp() {
         );
       } else {
         // ── ROBUSTA WHITE + demais templates ─────────────────────────
+        console.log('[presell] before AI call');
         result = await generatePresellContent({
           ...commonFields,
         });
+        console.log('[presell] AI result:', JSON.stringify(result).slice(0, 200));
 
         if (result?.meta) {
           result.meta.primary_color       = values.buttonColor;
