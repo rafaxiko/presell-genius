@@ -7,7 +7,7 @@ import { generatePresellContent, GeneratePresellContentOutput } from '@/ai/flows
 import { generateReviewContent } from '@/ai/flows/generate-review-content';
 import { generatePresellHTML } from '@/lib/presell-template';
 import { generateReviewHTML } from '@/lib/review-template';
-import { Zap, Eye, Sparkles, Lock, LogOut } from 'lucide-react';
+import { Eye, Lock, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Toaster } from '@/components/ui/toaster';
 
