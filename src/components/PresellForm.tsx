@@ -498,11 +498,15 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                         <FieldLabel optional>Cor</FieldLabel>
                         <FormControl>
                           <div style={{ display: 'flex', gap: '6px' }}>
-                            <input type="color" value={field.value} onChange={field.onChange}
+                            <input type="color" value={/^#[0-9a-fA-F]{6}$/.test(field.value) ? field.value : '#541213'} onChange={field.onChange}
                               style={{ width: '36px', height: '36px', borderRadius: '8px', border: '1px solid #E5E7EB', padding: '3px', cursor: 'pointer', background: '#fff' }} />
                             <input type="text" value={field.value} onChange={field.onChange}
                               style={{ flex: 1, height: '36px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '11px', color: '#0F172A', padding: '0 6px', outline: 'none', fontFamily: 'monospace', textTransform: 'uppercase' as const, boxSizing: 'border-box' as const }}
-                              onFocus={e => { e.target.style.borderColor = '#2563EB'; }} onBlur={e => { e.target.style.borderColor = '#E5E7EB'; }} />
+                              onFocus={e => { e.target.style.borderColor = '#2563EB'; }}
+                              onBlur={e => {
+                                e.target.style.borderColor = '#E5E7EB';
+                                if (!/^#[0-9a-fA-F]{6}$/.test(field.value)) field.onChange('#541213');
+                              }} />
                           </div>
                         </FormControl>
                       </FormItem>
