@@ -62,7 +62,7 @@ export function generatePresellHTML(
   const footer = r.footer || {};
   const popup = r.popup || {};
   const labels = r.labels || {};
-  const primaryColor = (meta.primary_color || '#541213').replace(/[^#0-9a-fA-F]/g, '') || '#541213';
+  const primaryColor = (meta.primary_color && /^#[0-9a-fA-F]{6}$/.test(meta.primary_color)) ? meta.primary_color : '#541213';
 
   // Popup names e cities com fallback
   const popupNames = (popup.names || ['Michael','James','Sarah','Robert','Anna'])

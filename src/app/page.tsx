@@ -175,6 +175,7 @@ export default function PresellGeniusApp() {
           result.meta.primary_color_dark  = darkenColor(values.buttonColor, 0.25);
         }
 
+        console.log('primaryColor:', values.buttonColor, 'sanitized:', (values.buttonColor || '#541213'));
         html = generatePresellHTML(
           result,
           values.targetUrl,

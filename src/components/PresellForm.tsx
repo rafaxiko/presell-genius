@@ -498,7 +498,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                         <FieldLabel optional>Cor</FieldLabel>
                         <FormControl>
                           <div style={{ display: 'flex', gap: '6px' }}>
-                            <input type="color" value={/^#[0-9a-fA-F]{6}$/.test(field.value) ? field.value : '#541213'} onChange={field.onChange}
+                            <input type="color" defaultValue="#541213" value={/^#[0-9a-fA-F]{6}$/.test(field.value) ? field.value : '#541213'} onChange={field.onChange}
                               style={{ width: '36px', height: '36px', borderRadius: '8px', border: '1px solid #E5E7EB', padding: '3px', cursor: 'pointer', background: '#fff' }} />
                             <input type="text" value={field.value} onChange={field.onChange}
                               style={{ flex: 1, height: '36px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '11px', color: '#0F172A', padding: '0 6px', outline: 'none', fontFamily: 'monospace', textTransform: 'uppercase' as const, boxSizing: 'border-box' as const }}
@@ -574,7 +574,6 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     {pricingRows.map((row, i) => {
                       const kitSlot = KIT_SLOTS[i];
-                      const isPopular = i === 1;
                       return (
                         <div key={i} style={{
                           display: 'grid',
@@ -582,16 +581,11 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                           alignItems: 'center',
                           gap: '10px',
                           padding: '10px 14px',
-                          background: isPopular ? '#EFF6FF' : '#FAFAFA',
-                          border: `1.5px solid ${isPopular ? '#BFDBFE' : '#F1F5F9'}`,
+                          background: '#FAFAFA',
+                          border: '1.5px solid #F1F5F9',
                           borderRadius: '10px',
                           position: 'relative' as const,
                         }}>
-                          {isPopular && (
-                            <div style={{ position: 'absolute' as const, top: '-8px', right: '12px', background: '#2563EB', color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 9px', borderRadius: '10px', letterSpacing: '0.07em', textTransform: 'uppercase' as const }}>
-                              Popular
-                            </div>
-                          )}
                           {/* Kit image upload */}
                           <SmallSlotCard
                             slot={kitSlot}
@@ -601,8 +595,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
                           />
                           {/* Kit label */}
                           <div>
-                            <div style={{ fontSize: '13px', fontWeight: 600, color: isPopular ? '#1E40AF' : '#0F172A', lineHeight: 1.2, letterSpacing: '-0.01em' }}>{row.label}</div>
-                            {isPopular && <div style={{ fontSize: '10px', color: '#3B82F6', fontWeight: 500, marginTop: '2px' }}>Mais popular</div>}
+                            <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F172A', lineHeight: 1.2, letterSpacing: '-0.01em' }}>{row.label}</div>
                           </div>
                           {/* Per bottle */}
                           <div>
