@@ -329,13 +329,7 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
       {/* HEADER */}
       <div style={{ background: '#fff', borderBottom: '1px solid #F1F5F9', padding: '14px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Sparkles style={{ width: '13px', height: '13px', color: '#fff' }} />
-          </div>
-          <div>
-            <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Presell Genius</div>
-            <div style={{ fontSize: '9px', color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>AI Presell Builder</div>
-          </div>
+          <img src="/Logo Presell Genius.jpg" style={{ height: '32px', width: 'auto' }} alt="Presell Genius" />
         </div>
         <button type="button" onClick={() => { form.reset(); onClear(); }}
           style={{ fontSize: '12px', color: '#94A3B8', background: 'none', border: '1px solid #F1F5F9', borderRadius: '7px', cursor: 'pointer', padding: '5px 12px' }}>

@@ -351,7 +351,7 @@ export default function PresellGeniusApp() {
       {/* HEADER */}
       <header className="bg-white border-b h-14 shrink-0 px-6 flex items-center justify-between z-50">
         <div className="flex items-center gap-2">
-          <img src="/Logo Presell Genius.jpg" style={{ height: '32px', width: 'auto' }} alt="Presell Genius" />
+          <img src="/Logo Presell Genius.jpg" style={{ height: '44px', width: 'auto' }} alt="Presell Genius" />
           <div className="ml-4 hidden sm:flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 border border-slate-200">
             <Globe className="h-3 w-3 text-primary" />
             V2 ENGINE
