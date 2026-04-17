@@ -243,7 +243,7 @@ export function generateReviewHTML(
     TESTI_3_PHOTO_HTML: getImg(16) ? `<img src="${getImg(16)}" class="testi-photo" alt="${testimonials.items?.[2]?.name||''}">` : '',
     TESTI_1_INITIAL: (testimonials.items?.[0]?.name||testimonials.items?.[0]?.author||'ER').trim().split(' ').filter(Boolean).map((w:string)=>w[0]).join('').slice(0,2).toUpperCase()||'ER',
     TESTI_2_INITIAL: (testimonials.items?.[1]?.name||testimonials.items?.[1]?.author||'MS').trim().split(' ').filter(Boolean).map((w:string)=>w[0]).join('').slice(0,2).toUpperCase()||'MS',
-    TESTI_3_INITIAL: (testimonials.items?.[2]?.name||testimonials.items?.[2]?.author||'SL').trim().split(' ').filter(Boolean).map((w:string)=>w[0]).join('').slice(0,2).toUpperCase()||'SL',
+  TESTI_3_INITIAL: (testimonials.items?.[2]?.name||testimonials.items?.[2]?.author||'SL').trim().split(' ').filter(Boolean).map((w:string)=>w[0]).join('').slice(0,2).toUpperCase()||'SL',
     TESTI_1_BG: ['#2563EB','#7C3AED','#059669','#DC2626','#D97706'][(testimonials.items?.[0]?.name||'A').charCodeAt(0)%5],
     TESTI_2_BG: ['#2563EB','#7C3AED','#059669','#DC2626','#D97706'][(testimonials.items?.[1]?.name||'B').charCodeAt(0)%5],
     TESTI_3_BG: ['#2563EB','#7C3AED','#059669','#DC2626','#D97706'][(testimonials.items?.[2]?.name||'C').charCodeAt(0)%5],
