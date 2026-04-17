@@ -186,6 +186,7 @@ export default function PresellGeniusApp() {
             productImageUrls,
             values.targetLanguage
           );
+          console.log('[presell] html length:', html?.length, 'first 300:', html?.slice(0, 300));
         } catch (e) {
           console.error('generatePresellHTML error:', e);
           throw e;

@@ -38,6 +38,8 @@ export function generatePresellHTML(
   images: string[],
   country: string = 'Brasil'
 ): string {
+  console.log('[template] called, result keys:', Object.keys(result || {}));
+  console.log('[template] meta:', JSON.stringify((result as any)?.meta || {}).slice(0, 200));
   const getImg = (index: number): string => images[index] ?? '';
   const aggressive = isAggressive(country);
 
