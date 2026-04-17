@@ -7,7 +7,7 @@ import { generatePresellContent, GeneratePresellContentOutput } from '@/ai/flows
 import { generateReviewContent } from '@/ai/flows/generate-review-content';
 import { generatePresellHTML } from '@/lib/presell-template';
 import { generateReviewHTML } from '@/lib/review-template';
-import { Zap, Globe, Eye, Sparkles, Lock, LogOut } from 'lucide-react';
+import { Zap, Eye, Sparkles, Lock, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Toaster } from '@/components/ui/toaster';
 
@@ -286,7 +286,7 @@ export default function PresellGeniusApp() {
         <div style={{ width: '100%', maxWidth: '380px' }}>
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px' }}>
-            <img src="/Logo Presell Genius.jpg" style={{ height: '56px', width: 'auto', marginBottom: '32px' }} alt="Presell Genius" />
+            <img src="/Logo Presell Genius.jpg" style={{ height: '80px', width: 'auto', marginBottom: '32px' }} alt="Presell Genius" />
           </div>
 
           {/* Card */}
@@ -352,10 +352,6 @@ export default function PresellGeniusApp() {
       <header className="bg-white border-b h-14 shrink-0 px-6 flex items-center justify-between z-50">
         <div className="flex items-center gap-2">
           <img src="/Logo Presell Genius.jpg" style={{ height: '44px', width: 'auto' }} alt="Presell Genius" />
-          <div className="ml-4 hidden sm:flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 border border-slate-200">
-            <Globe className="h-3 w-3 text-primary" />
-            V2 ENGINE
-          </div>
         </div>
         <div className="flex items-center gap-3">
           {/* Botão Visualizar — aparece quando há HTML gerado */}

@@ -340,11 +340,6 @@ export function PresellForm({ onSubmit, onClear, isGenerating, productImageUrls,
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleFormSubmit)}>
           <div style={{ maxWidth: '720px', margin: '0 auto', padding: '28px 20px 80px' }}>
-            <div style={{ marginBottom: '24px' }}>
-              <h1 style={{ fontSize: '20px', fontWeight: 700, color: '#0F172A', margin: 0, letterSpacing: '-0.025em' }}>Criar Presell</h1>
-              <p style={{ fontSize: '13px', color: '#94A3B8', margin: '4px 0 0' }}>Gere páginas profissionais de pré-venda em poucos minutos</p>
-            </div>
-
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
               {/* ── 1. PRODUTO ──────────────────────────────────────────── */}
