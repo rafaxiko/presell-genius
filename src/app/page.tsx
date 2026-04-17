@@ -285,14 +285,8 @@ export default function PresellGeniusApp() {
         <Toaster />
         <div style={{ width: '100%', maxWidth: '380px' }}>
           {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '32px' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}>
-              <Sparkles style={{ width: '16px', height: '16px', color: '#fff' }} />
-            </div>
-            <div>
-              <div style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', letterSpacing: '-0.025em', lineHeight: 1.1 }}>Presell Genius</div>
-              <div style={{ fontSize: '9px', color: '#94A3B8', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>AI Presell Builder</div>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px' }}>
+            <img src="/Logo Presell Genius.jpg" style={{ height: '56px', width: 'auto', marginBottom: '32px' }} alt="Presell Genius" />
           </div>
 
           {/* Card */}
@@ -357,12 +351,7 @@ export default function PresellGeniusApp() {
       {/* HEADER */}
       <header className="bg-white border-b h-14 shrink-0 px-6 flex items-center justify-between z-50">
         <div className="flex items-center gap-2">
-          <div className="bg-primary rounded-lg p-1.5 shadow-sm">
-            <Zap className="h-4 w-4 text-white fill-white" />
-          </div>
-          <span className="text-lg font-bold tracking-tight">
-            Presell <span className="text-primary">Genius</span>
-          </span>
+          <img src="/Logo Presell Genius.jpg" style={{ height: '32px', width: 'auto' }} alt="Presell Genius" />
           <div className="ml-4 hidden sm:flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 border border-slate-200">
             <Globe className="h-3 w-3 text-primary" />
             V2 ENGINE
