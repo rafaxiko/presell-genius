@@ -110,6 +110,7 @@ export default function PresellGeniusApp() {
   };
 
   const handleGenerate = async (values: PresellFormValues) => {
+    console.log('handleGenerate called, model:', values.templateType);
     setIsGenerating(true);
     setTargetUrl(values.targetUrl);
     setPrimaryColor(values.buttonColor);
@@ -176,12 +177,17 @@ export default function PresellGeniusApp() {
         }
 
         console.log('primaryColor:', values.buttonColor, 'sanitized:', (values.buttonColor || '#541213'));
-        html = generatePresellHTML(
-          result,
-          values.targetUrl,
-          productImageUrls,
-          values.targetLanguage
-        );
+        try {
+          html = generatePresellHTML(
+            result,
+            values.targetUrl,
+            productImageUrls,
+            values.targetLanguage
+          );
+        } catch (e) {
+          console.error('generatePresellHTML error:', e);
+          throw e;
+        }
       }
 
       setGeneratedData(result);
