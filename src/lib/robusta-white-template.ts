@@ -763,6 +763,7 @@ export function generatePresellHTML(
   images: string[],
   country: string = 'Brasil'
 ): string {
+  console.log('[FULL RESULT]', JSON.stringify(result, null, 2));
   console.log('[robusta] result:', JSON.stringify(result).slice(0, 500));
   console.log('[robusta-white] called, result keys:', Object.keys(result || {}));
   console.log('[robusta-white] meta:', JSON.stringify((result as any)?.meta || {}).slice(0, 200));
