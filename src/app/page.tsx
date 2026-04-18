@@ -5,7 +5,7 @@ import { PresellForm, PresellFormValues } from '@/components/PresellForm';
 import { PresellPreview } from '@/components/PresellPreview';
 import { generatePresellContent, GeneratePresellContentOutput } from '@/ai/flows/generate-presell-content';
 import { generateReviewContent } from '@/ai/flows/generate-review-content';
-import { generatePresellHTML } from '@/lib/presell-template';
+import { generatePresellHTML } from '@/lib/robusta-white-template';
 import { generateReviewHTML } from '@/lib/review-template';
 import { Eye, Lock, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
