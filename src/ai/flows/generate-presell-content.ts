@@ -12,6 +12,7 @@ const GeneratePresellContentInputSchema = z.object({
   officialProductUrl:   z.string().optional(),
   dnaContext:           z.string().optional(),
   targetLanguage:       z.string(),
+  targetCountry:        z.string().optional(),
   templateType:         z.enum(['Lançamento', 'Robusta', 'Review', 'Cookie', 'Lista (Top 3/5)']),
   copyStyle:            z.enum(['White Hat (Conservador)', 'Black Hat (Agressivo)']),
 });
@@ -54,6 +55,7 @@ REGRAS DE OURO (ESTRITO):
 6. PRECOS REAIS: Se o DNA ou productInfo contem precos, use esses valores EXACTOS. Nao invente precos.
 7. ANO ACTUAL: Use sempre 2026 nas datas e copyright. NUNCA use 2024 ou 2025.
 8. IDIOMA: Todo o conteudo em {{{targetLanguage}}}. Incluindo labels, navbar e countdown.
+8b. PAIS / COPY INTENSITY: Country: {{{targetCountry}}} — adapta a intensidade do copy: USA/Canada/Australia=agressivo e direto; Europa=sober e editorial; LATAM=emocional e urgente; Asia=prova social e colectiva.
 9. RATING: Sempre preencha rating (ex: "4.9") e review_count (ex: "10,847"). NUNCA deixe vazios.
 10. POPUP: Sempre preencha popup.names e popup.cities com 5 nomes/cidades reais do pais alvo.
 11. NAVBAR: Os campos nav_link_1, nav_link_2, nav_link_3 e nav_cta no idioma de {{{targetLanguage}}}.

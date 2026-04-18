@@ -128,6 +128,7 @@ export default function PresellGeniusApp() {
         officialProductUrl:   values.officialProductUrl,
         targetUrl:            values.targetUrl,
         targetLanguage:       targetLanguage,
+        targetCountry:        values.targetLanguage,
         templateType:         values.templateType as any,
         copyStyle:            values.copyStyle,
       };
