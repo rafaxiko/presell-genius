@@ -304,7 +304,7 @@ ul{list-style:none;}
 .final-cta-original{font-size:.9rem;opacity:.7;text-decoration:line-through;}
 .final-cta-perday{font-size:.88rem;opacity:.8;margin-top:4px;}
 .final-cta-trust{font-size:.82rem;opacity:.7;margin-top:8px;}
-.final-cta-btn{font-size:1.2rem;padding:20px 52px;margin-bottom:12px;}
+.final-cta-btn{font-size:1.2rem;font-weight:800;padding:20px 48px;margin-bottom:12px;box-shadow:0 8px 24px rgba(0,0,0,.3);border:3px solid rgba(255,255,255,.4);}
 .final-cta-sub-btn{font-size:.82rem;opacity:.7;}
 
 /* FOOTER */
@@ -511,47 +511,47 @@ ul{list-style:none;}
     <p class="ingredients-sub">{{INGREDIENTS_SUBHEADLINE}}</p>
     <div class="ingredients-grid">
       <div class="ingredient-card {{ING_1_HIDDEN}}">
-        <img class="ingredient-img" src="{{ING_1_IMAGE}}" alt="{{ING_1_NAME}}">
+        <img class="ingredient-img" src="{{ING_1_IMAGE}}" alt="{{ING_1_NAME}}" {{ING_1_IMG_HIDDEN}}>
         <div class="ingredient-name">{{ING_1_NAME}}</div>
         <div class="ingredient-benefit">{{ING_1_BENEFIT}}</div>
       </div>
       <div class="ingredient-card {{ING_2_HIDDEN}}">
-        <img class="ingredient-img" src="{{ING_2_IMAGE}}" alt="{{ING_2_NAME}}">
+        <img class="ingredient-img" src="{{ING_2_IMAGE}}" alt="{{ING_2_NAME}}" {{ING_2_IMG_HIDDEN}}>
         <div class="ingredient-name">{{ING_2_NAME}}</div>
         <div class="ingredient-benefit">{{ING_2_BENEFIT}}</div>
       </div>
       <div class="ingredient-card {{ING_3_HIDDEN}}">
-        <img class="ingredient-img" src="{{ING_3_IMAGE}}" alt="{{ING_3_NAME}}">
+        <img class="ingredient-img" src="{{ING_3_IMAGE}}" alt="{{ING_3_NAME}}" {{ING_3_IMG_HIDDEN}}>
         <div class="ingredient-name">{{ING_3_NAME}}</div>
         <div class="ingredient-benefit">{{ING_3_BENEFIT}}</div>
       </div>
       <div class="ingredient-card {{ING_4_HIDDEN}}">
-        <img class="ingredient-img" src="{{ING_4_IMAGE}}" alt="{{ING_4_NAME}}">
+        <img class="ingredient-img" src="{{ING_4_IMAGE}}" alt="{{ING_4_NAME}}" {{ING_4_IMG_HIDDEN}}>
         <div class="ingredient-name">{{ING_4_NAME}}</div>
         <div class="ingredient-benefit">{{ING_4_BENEFIT}}</div>
       </div>
       <div class="ingredient-card {{ING_5_HIDDEN}}">
-        <img class="ingredient-img" src="{{ING_5_IMAGE}}" alt="{{ING_5_NAME}}">
+        <img class="ingredient-img" src="{{ING_5_IMAGE}}" alt="{{ING_5_NAME}}" {{ING_5_IMG_HIDDEN}}>
         <div class="ingredient-name">{{ING_5_NAME}}</div>
         <div class="ingredient-benefit">{{ING_5_BENEFIT}}</div>
       </div>
       <div class="ingredient-card {{ING_6_HIDDEN}}">
-        <img class="ingredient-img" src="{{ING_6_IMAGE}}" alt="{{ING_6_NAME}}">
+        <img class="ingredient-img" src="{{ING_6_IMAGE}}" alt="{{ING_6_NAME}}" {{ING_6_IMG_HIDDEN}}>
         <div class="ingredient-name">{{ING_6_NAME}}</div>
         <div class="ingredient-benefit">{{ING_6_BENEFIT}}</div>
       </div>
       <div class="ingredient-card {{ING_7_HIDDEN}}">
-        <img class="ingredient-img" src="{{ING_7_IMAGE}}" alt="{{ING_7_NAME}}">
+        <img class="ingredient-img" src="{{ING_7_IMAGE}}" alt="{{ING_7_NAME}}" {{ING_7_IMG_HIDDEN}}>
         <div class="ingredient-name">{{ING_7_NAME}}</div>
         <div class="ingredient-benefit">{{ING_7_BENEFIT}}</div>
       </div>
       <div class="ingredient-card {{ING_8_HIDDEN}}">
-        <img class="ingredient-img" src="{{ING_8_IMAGE}}" alt="{{ING_8_NAME}}">
+        <img class="ingredient-img" src="{{ING_8_IMAGE}}" alt="{{ING_8_NAME}}" {{ING_8_IMG_HIDDEN}}>
         <div class="ingredient-name">{{ING_8_NAME}}</div>
         <div class="ingredient-benefit">{{ING_8_BENEFIT}}</div>
       </div>
       <div class="ingredient-card {{ING_9_HIDDEN}}">
-        <img class="ingredient-img" src="{{ING_9_IMAGE}}" alt="{{ING_9_NAME}}">
+        <img class="ingredient-img" src="{{ING_9_IMAGE}}" alt="{{ING_9_NAME}}" {{ING_9_IMG_HIDDEN}}>
         <div class="ingredient-name">{{ING_9_NAME}}</div>
         <div class="ingredient-benefit">{{ING_9_BENEFIT}}</div>
       </div>
@@ -634,7 +634,7 @@ ul{list-style:none;}
     <div class="testis-grid">
       <div class="testi-card">
         <div class="testi-header">
-          <img class="testi-photo" src="{{TESTI_1_PHOTO}}" alt="{{TESTI_1_NAME}}">
+          <div {{TESTI_1_PHOTO_HIDDEN}}><img class="testi-photo" src="{{TESTI_1_PHOTO}}" alt="{{TESTI_1_NAME}}"></div>
           <div class="testi-meta">
             <div class="testi-name">{{TESTI_1_NAME}}</div>
             <div class="testi-location">{{TESTI_1_LOCATION}}</div>
@@ -647,7 +647,7 @@ ul{list-style:none;}
       </div>
       <div class="testi-card">
         <div class="testi-header">
-          <img class="testi-photo" src="{{TESTI_2_PHOTO}}" alt="{{TESTI_2_NAME}}">
+          <div {{TESTI_2_PHOTO_HIDDEN}}><img class="testi-photo" src="{{TESTI_2_PHOTO}}" alt="{{TESTI_2_NAME}}"></div>
           <div class="testi-meta">
             <div class="testi-name">{{TESTI_2_NAME}}</div>
             <div class="testi-location">{{TESTI_2_LOCATION}}</div>
@@ -660,7 +660,7 @@ ul{list-style:none;}
       </div>
       <div class="testi-card">
         <div class="testi-header">
-          <img class="testi-photo" src="{{TESTI_3_PHOTO}}" alt="{{TESTI_3_NAME}}">
+          <div {{TESTI_3_PHOTO_HIDDEN}}><img class="testi-photo" src="{{TESTI_3_PHOTO}}" alt="{{TESTI_3_NAME}}"></div>
           <div class="testi-meta">
             <div class="testi-name">{{TESTI_3_NAME}}</div>
             <div class="testi-location">{{TESTI_3_LOCATION}}</div>
@@ -819,10 +819,6 @@ export function generatePresellHTML(
   const hero = r.hero || {};
   const pricing = r.pricing || {};
 
-  // Issue 1: log raw bundles to diagnose where the AI places pricing data
-  console.log('[pricing] r.bundles:', JSON.stringify(r.bundles));
-  console.log('[pricing] pricing.bundles:', JSON.stringify(pricing.bundles));
-
   // Fallback: some AI outputs place bundles at root or under pricing_rows
   const bundles = pricing.bundles || r.bundles || r.pricing_rows || [];
   const b1 = bundles[0] || {};
@@ -843,9 +839,6 @@ export function generatePresellHTML(
   const primaryColor = (meta.primary_color && /^#[0-9a-fA-F]{6}$/.test(meta.primary_color))
     ? meta.primary_color
     : '#541213';
-
-  // Issue 3: log first testimonial to diagnose field names
-  console.log('[testimonials] item[0]:', JSON.stringify(testimonials.items?.[0]));
 
   // Issue 5: popup only active when form provided names and a country is selected
   const hasPopupData = !!(country && popup.names?.length > 0);
@@ -972,7 +965,7 @@ export function generatePresellHTML(
     MECHANISM_P2: mechanism.body_paragraphs?.[1] ?? '',
     MECHANISM_P3: mechanism.body_paragraphs?.[2] ?? '',
     MECHANISM_QUOTE: mechanism.highlight_quote ?? '',
-    MECHANISM_IMAGE: getImg(4),
+    MECHANISM_IMAGE: getImg(5),
 
     // Overview
     OVERVIEW_HEADLINE: overview.headline ?? '',
@@ -986,38 +979,47 @@ export function generatePresellHTML(
     ING_1_IMAGE: getImg(5),
     ING_1_BENEFIT: ingredients.items?.[0]?.benefit ?? '',
     ING_1_HIDDEN: ingredients.items?.[0]?.name ? '' : 'ingredient-hidden',
+    ING_1_IMG_HIDDEN: (!getImg(5) && !ingredients.items?.[0]?.image_url) ? 'style="display:none"' : '',
     ING_2_NAME: ingredients.items?.[1]?.name ?? '',
     ING_2_IMAGE: getImg(6),
     ING_2_BENEFIT: ingredients.items?.[1]?.benefit ?? '',
     ING_2_HIDDEN: ingredients.items?.[1]?.name ? '' : 'ingredient-hidden',
+    ING_2_IMG_HIDDEN: (!getImg(6) && !ingredients.items?.[1]?.image_url) ? 'style="display:none"' : '',
     ING_3_NAME: ingredients.items?.[2]?.name ?? '',
     ING_3_IMAGE: getImg(7),
     ING_3_BENEFIT: ingredients.items?.[2]?.benefit ?? '',
     ING_3_HIDDEN: ingredients.items?.[2]?.name ? '' : 'ingredient-hidden',
+    ING_3_IMG_HIDDEN: (!getImg(7) && !ingredients.items?.[2]?.image_url) ? 'style="display:none"' : '',
     ING_4_NAME: ingredients.items?.[3]?.name ?? '',
     ING_4_IMAGE: getImg(8),
     ING_4_BENEFIT: ingredients.items?.[3]?.benefit ?? '',
     ING_4_HIDDEN: ingredients.items?.[3]?.name ? '' : 'ingredient-hidden',
+    ING_4_IMG_HIDDEN: (!getImg(8) && !ingredients.items?.[3]?.image_url) ? 'style="display:none"' : '',
     ING_5_NAME: ingredients.items?.[4]?.name ?? '',
     ING_5_IMAGE: getImg(9),
     ING_5_BENEFIT: ingredients.items?.[4]?.benefit ?? '',
     ING_5_HIDDEN: ingredients.items?.[4]?.name ? '' : 'ingredient-hidden',
+    ING_5_IMG_HIDDEN: (!getImg(9) && !ingredients.items?.[4]?.image_url) ? 'style="display:none"' : '',
     ING_6_NAME: ingredients.items?.[5]?.name ?? '',
     ING_6_IMAGE: getImg(10),
     ING_6_BENEFIT: ingredients.items?.[5]?.benefit ?? '',
     ING_6_HIDDEN: ingredients.items?.[5]?.name ? '' : 'ingredient-hidden',
+    ING_6_IMG_HIDDEN: (!getImg(10) && !ingredients.items?.[5]?.image_url) ? 'style="display:none"' : '',
     ING_7_NAME: ingredients.items?.[6]?.name ?? '',
     ING_7_IMAGE: getImg(22),
     ING_7_BENEFIT: ingredients.items?.[6]?.benefit ?? '',
     ING_7_HIDDEN: ingredients.items?.[6]?.name ? '' : 'ingredient-hidden',
+    ING_7_IMG_HIDDEN: (!getImg(22) && !ingredients.items?.[6]?.image_url) ? 'style="display:none"' : '',
     ING_8_NAME: ingredients.items?.[7]?.name ?? '',
     ING_8_IMAGE: getImg(23),
     ING_8_BENEFIT: ingredients.items?.[7]?.benefit ?? '',
     ING_8_HIDDEN: ingredients.items?.[7]?.name ? '' : 'ingredient-hidden',
+    ING_8_IMG_HIDDEN: (!getImg(23) && !ingredients.items?.[7]?.image_url) ? 'style="display:none"' : '',
     ING_9_NAME: ingredients.items?.[8]?.name ?? '',
     ING_9_IMAGE: getImg(24),
     ING_9_BENEFIT: ingredients.items?.[8]?.benefit ?? '',
     ING_9_HIDDEN: ingredients.items?.[8]?.name ? '' : 'ingredient-hidden',
+    ING_9_IMG_HIDDEN: (!getImg(24) && !ingredients.items?.[8]?.image_url) ? 'style="display:none"' : '',
 
     // Bonuses
     BONUSES_HEADLINE: bonuses.headline ?? '',
@@ -1053,17 +1055,20 @@ export function generatePresellHTML(
     TESTI_HEADLINE: testimonials.headline ?? '',
     TEST_SUBHEADLINE: testimonials.subheadline ?? '',
     VERIFIED_PURCHASE_LABEL: labels.verified_purchase ?? 'Verified Purchase',
-    TESTI_1_PHOTO: getImg(13),
+    TESTI_1_PHOTO: getImg(13) || testimonials.items?.[0]?.photo_url || '',
+    TESTI_1_PHOTO_HIDDEN: (!getImg(13) && !testimonials.items?.[0]?.photo_url) ? 'style="display:none"' : '',
     TESTI_1_NAME: testimonials.items?.[0]?.name ?? testimonials.items?.[0]?.reviewer_name ?? '',
     TESTI_1_LOCATION: testimonials.items?.[0]?.location ?? testimonials.items?.[0]?.city ?? '',
     TESTI_1_TITLE: testimonials.items?.[0]?.quote_title ?? testimonials.items?.[0]?.title ?? testimonials.items?.[0]?.review_title ?? '',
     TESTI_1_BODY: testimonials.items?.[0]?.quote_body ?? testimonials.items?.[0]?.body ?? testimonials.items?.[0]?.text ?? testimonials.items?.[0]?.review ?? '',
-    TESTI_2_PHOTO: getImg(14),
+    TESTI_2_PHOTO: getImg(14) || testimonials.items?.[1]?.photo_url || '',
+    TESTI_2_PHOTO_HIDDEN: (!getImg(14) && !testimonials.items?.[1]?.photo_url) ? 'style="display:none"' : '',
     TESTI_2_NAME: testimonials.items?.[1]?.name ?? testimonials.items?.[1]?.reviewer_name ?? '',
     TESTI_2_LOCATION: testimonials.items?.[1]?.location ?? testimonials.items?.[1]?.city ?? '',
     TESTI_2_TITLE: testimonials.items?.[1]?.quote_title ?? testimonials.items?.[1]?.title ?? testimonials.items?.[1]?.review_title ?? '',
     TESTI_2_BODY: testimonials.items?.[1]?.quote_body ?? testimonials.items?.[1]?.body ?? testimonials.items?.[1]?.text ?? testimonials.items?.[1]?.review ?? '',
-    TESTI_3_PHOTO: getImg(15),
+    TESTI_3_PHOTO: getImg(15) || testimonials.items?.[2]?.photo_url || '',
+    TESTI_3_PHOTO_HIDDEN: (!getImg(15) && !testimonials.items?.[2]?.photo_url) ? 'style="display:none"' : '',
     TESTI_3_NAME: testimonials.items?.[2]?.name ?? testimonials.items?.[2]?.reviewer_name ?? '',
     TESTI_3_LOCATION: testimonials.items?.[2]?.location ?? testimonials.items?.[2]?.city ?? '',
     TESTI_3_TITLE: testimonials.items?.[2]?.quote_title ?? testimonials.items?.[2]?.title ?? testimonials.items?.[2]?.review_title ?? '',
