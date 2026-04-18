@@ -763,6 +763,7 @@ export function generatePresellHTML(
   images: string[],
   country: string = 'Brasil'
 ): string {
+  console.log('[robusta] result:', JSON.stringify(result).slice(0, 500));
   console.log('[robusta-white] called, result keys:', Object.keys(result || {}));
   console.log('[robusta-white] meta:', JSON.stringify((result as any)?.meta || {}).slice(0, 200));
   const getImg = (index: number): string => images[index] ?? '';
@@ -788,6 +789,7 @@ export function generatePresellHTML(
   const footer = r.footer || {};
   const popup = r.popup || {};
   const labels = r.labels || {};
+  const schemaSeo = r.schema_seo || {};
   const primaryColor = (meta.primary_color && /^#[0-9a-fA-F]{6}$/.test(meta.primary_color))
     ? meta.primary_color
     : '#541213';
@@ -803,15 +805,15 @@ export function generatePresellHTML(
 
   const replacements: Record<string, string> = {
     // Meta
-    TARGET_LANGUAGE: meta.language ?? 'pt-BR',
+    TARGET_LANGUAGE: meta.target_language ?? 'pt-BR',
     PRODUCT_NAME: meta.product_name ?? '',
     SITE_TITLE_SUFFIX: labels.site_title_suffix ?? 'Official Review',
-    SEO_DESCRIPTION: meta.seo_description ?? '',
-    MANUFACTURER: meta.manufacturer ?? '',
+    SEO_DESCRIPTION: schemaSeo.product_description ?? '',
+    MANUFACTURER: schemaSeo.manufacturer ?? '',
     PUBLISH_DATE_YEAR: new Date().getFullYear().toString(),
     RATING: meta.rating ?? '4.9',
     REVIEW_COUNT: meta.review_count ?? '10,847',
-    CURRENCY: meta.currency ?? 'USD',
+    CURRENCY: schemaSeo.currency ?? 'USD',
     PRIMARY_COLOR: primaryColor,
     PRIMARY_COLOR_LIGHT: lightenColor(primaryColor, 0.85),
     PRIMARY_COLOR_DARK: darkenColor(primaryColor, 0.2),
@@ -893,7 +895,7 @@ export function generatePresellHTML(
     // Mechanism
     MECHANISM_TAG: mechanism.tag ?? '',
     MECHANISM_HEADLINE: mechanism.headline ?? '',
-    MECHANISM_SUBHEADLINE: mechanism.unique_mechanism_name ?? '',
+    MECHANISM_SUBHEADLINE: mechanism.subheadline ?? '',
     MECHANISM_P1: mechanism.body_paragraphs?.[0] ?? '',
     MECHANISM_P2: mechanism.body_paragraphs?.[1] ?? '',
     MECHANISM_P3: mechanism.body_paragraphs?.[2] ?? '',
