@@ -30,6 +30,36 @@ function darkenColor(hex: string, factor: number): string {
   return '#' + [r,g,b].map(v=>Math.round(v*(1-factor)).toString(16).padStart(2,'0')).join('');
 }
 
+const COUNTRY_CITIES: Record<string, string[]> = {
+  'Brasil': ['São Paulo, SP','Rio de Janeiro, RJ','Belo Horizonte, MG','Curitiba, PR','Porto Alegre, RS','Salvador, BA','Fortaleza, CE','Recife, PE','Manaus, AM','Brasília, DF'],
+  'Estados Unidos': ['New York, NY','Los Angeles, CA','Chicago, IL','Houston, TX','Phoenix, AZ','Philadelphia, PA','San Antonio, TX','Dallas, TX','Austin, TX','Miami, FL'],
+  'México': ['Ciudad de México, CDMX','Guadalajara, JAL','Monterrey, NL','Puebla, PUE','Tijuana, BC','León, GTO','Juárez, CHIH','Zapopan, JAL','Mérida, YUC','Cancún, QROO'],
+  'Argentina': ['Buenos Aires, BA','Córdoba, CBA','Rosario, SFE','Mendoza, MDZ','Tucumán, TUC','Mar del Plata, BA','La Plata, BA','Salta, SAL','Santa Fe, SFE','San Juan, SJN'],
+  'Colômbia': ['Bogotá, CUN','Medellín, ANT','Cali, VAC','Barranquilla, ATL','Cartagena, BOL','Cúcuta, NSA','Soledad, ATL','Ibagué, TOL','Bucaramanga, SAN','Pereira, RIS'],
+  'Peru': ['Lima, LIM','Arequipa, AQP','Trujillo, LAL','Chiclayo, LAM','Piura, PIU','Iquitos, LOR','Cusco, CUS','Huancayo, JUN','Tacna, TAC','Pucallpa, UCY'],
+  'Chile': ['Santiago, RM','Antofagasta, ANT','Viña del Mar, VLP','Valparaíso, VLP','Talca, MAU','Temuco, ARA','Iquique, TAR','Concepción, BIO','Rancagua, OHI','Arica, ARI'],
+  'Venezuela': ['Caracas, DTF','Maracaibo, ZUL','Valencia, CAR','Barquisimeto, LAR','Maracay, ARA','Ciudad Guayana, BOL','Barcelona, ANZ','Maturín, MON','San Cristóbal, TAC','Cumaná, SUC'],
+  'Equador': ['Guayaquil, G','Quito, P','Cuenca, A','Santo Domingo, SD','Machala, O','Manta, M','Ambato, T','Duran, G','Esmeraldas, E','Riobamba, H'],
+  'Bolívia': ['Santa Cruz, SCZ','La Paz, LP','Cochabamba, CB','Sucre, CH','Oruro, OR','Potosí, PT','Tarija, TJ','Beni, BE','Pando, PD','Chuquisaca, CH'],
+  'Paraguai': ['Asunción, ASU','Ciudad del Este, AS','Luque, CE','San Lorenzo, CE','Capiatá, CE','Lambaré, CE','Fernando de la Mora, CE','Limpio, CE','Ñemby, CE','Mariano Roque Alonso, CE'],
+  'Uruguai': ['Montevideo, MVD','Salto, SA','Ciudad de la Costa, CA','Paysandú, PA','Las Piedras, CA','Rivera, RV','Maldonado, MA','Tacuarembó, TA','Melo, CE','Mercedes, SO'],
+  'Guatemala': ['Ciudad de Guatemala, GT','Mixco, GT','Villa Nueva, GT','Quetzaltenango, QZ','Escuintla, ES','San Juan Sacatepéquez, GT','Villa Canales, GT','Chinautla, GT','Petapa, GT','Amatitlán, GT'],
+  'Honduras': ['Tegucigalpa, FM','San Pedro Sula, CO','Choloma, CO','La Ceiba, AT','El Progreso, YO','Choluteca, CH','Comayagua, CM','Puerto Cortés, CO','Danlí, EL','La Lima, CO'],
+  'Costa Rica': ['San José, SJ','Alajuela, AL','Desamparados, SJ','Pérez Zeledón, SJ','San Carlos, AL','Liberia, GU','Paraíso, CA','Heredia, HE','Puntarenas, PU','Santa Ana, SJ'],
+  'Panamá': ['Ciudad de Panamá, PA','San Miguelito, PA','Tocumen, PA','Las Cumbres, PA','Arraiján, PO','La Chorrera, PO','Colón, CO','David, CH','Penonomé, CC','Santiago, VR'],
+  'Nicarágua': ['Managua, MN','León, LE','Masaya, MS','Chinandega, CI','Matagalpa, MT','Estelí, ES','Granada, GR','Ciudad Sandino, MN','Tipitapa, MN','Jinotega, JI'],
+  'Porto Rico': ['San Juan, PR','Bayamón, PR','Carolina, PR','Ponce, PR','Caguas, PR','Guaynabo, PR','Arecibo, PR','Toa Baja, PR','Mayagüez, PR','Trujillo Alto, PR'],
+  'Canadá': ['Toronto, ON','Montreal, QC','Vancouver, BC','Calgary, AB','Edmonton, AB','Ottawa, ON','Winnipeg, MB','Quebec City, QC','Hamilton, ON','Brampton, ON'],
+  'Austrália': ['Sydney, NSW','Melbourne, VIC','Brisbane, QLD','Perth, WA','Adelaide, SA','Gold Coast, QLD','Canberra, ACT','Hobart, TAS','Geelong, VIC','Darwin, NT'],
+  'Nova Zelândia': ['Auckland, AKL','Wellington, WGN','Christchurch, CAN','Hamilton, WKO','Tauranga, BOP','Napier, HKB','Dunedin, OTA','Palmerston North, MWT','Rotorua, BOP','New Plymouth, TKI'],
+  'Índia': ['Mumbai, MH','Delhi, DL','Bangalore, KA','Hyderabad, TS','Chennai, TN','Kolkata, WB','Pune, MH','Ahmedabad, GJ','Jaipur, RJ','Surat, GJ'],
+  'Filipinas': ['Manila, NCR','Quezon City, NCR','Davao, DAV','Cebu City, CEB','Zamboanga, ZBZ','Taguig, NCR','Antipolo, CAL','Pasig, NCR','Cagayan de Oro, CGY','Parañaque, NCR'],
+  'Indonésia': ['Jakarta, DKI','Surabaya, JT','Bandung, JB','Bekasi, JB','Medan, SU','Tangerang, BT','Depok, JB','Semarang, JT','Palembang, SS','Makassar, SN'],
+  'Tailândia': ['Bangkok, BKK','Nonthaburi, NBI','Chiang Mai, CNX','Hat Yai, HDY','Pattaya, PYX','Udon Thani, UTH','Khon Kaen, KKN','Nakhon Ratchasima, NAK','Ubon Ratchathani, UBP','Surat Thani, URT'],
+  'Vietnã': ['Ho Chi Minh City, HCM','Hanoi, HAN','Da Nang, DAN','Haiphong, HPH','Can Tho, CT','Bien Hoa, BH','Vung Tau, VT','Hue, TTH','Nha Trang, KH','Buon Ma Thuot, BMV'],
+  'Singapura': ['Jurong West','Tampines','Woodlands','Sengkang','Hougang','Yishun','Bukit Batok','Choa Chu Kang','Punggol','Bedok'],
+};
+
 const PRESELL_TEMPLATE = `<!DOCTYPE html>
 <html lang="{{TARGET_LANGUAGE}}">
 <head>
@@ -421,7 +451,7 @@ ul{list-style:none;}
 <section class="guarantee">
   <div class="container">
     <div class="inner">
-      <div class="guarantee-badge">
+      <div class="guarantee-badge" {{GUARANTEE_BADGE_HIDDEN}}>
         <img src="{{GUARANTEE_BADGE_URL}}" alt="{{GUARANTEE_DAYS}}-Day Guarantee">
       </div>
       <div>
@@ -530,7 +560,7 @@ ul{list-style:none;}
 </section>
 
 <!-- BONUSES -->
-<section class="bonuses">
+<section class="bonuses" {{BONUSES_SECTION_HIDDEN}}>
   <div class="container">
     <div class="section-tag">Exclusive Bonuses</div>
     <h2>{{BONUSES_HEADLINE}}</h2>
@@ -788,7 +818,13 @@ export function generatePresellHTML(
   const meta = r.meta || {};
   const hero = r.hero || {};
   const pricing = r.pricing || {};
-  const bundles = pricing.bundles || [];
+
+  // Issue 1: log raw bundles to diagnose where the AI places pricing data
+  console.log('[pricing] r.bundles:', JSON.stringify(r.bundles));
+  console.log('[pricing] pricing.bundles:', JSON.stringify(pricing.bundles));
+
+  // Fallback: some AI outputs place bundles at root or under pricing_rows
+  const bundles = pricing.bundles || r.bundles || r.pricing_rows || [];
   const b1 = bundles[0] || {};
   const b2 = bundles[1] || {};
   const b3 = bundles[2] || {};
@@ -808,11 +844,22 @@ export function generatePresellHTML(
     ? meta.primary_color
     : '#541213';
 
-  const popupNames = (popup.names || ['Michael','James','Sarah','Robert','Anna'])
-    .filter((n: string) => n && n.trim())
-    .map((n: string) => `"${n}"`)
-    .join(',');
-  const popupCities = (popup.cities || ['New York, NY','Los Angeles, CA','London, UK','Toronto, CA','Sydney, AU'])
+  // Issue 3: log first testimonial to diagnose field names
+  console.log('[testimonials] item[0]:', JSON.stringify(testimonials.items?.[0]));
+
+  // Issue 5: popup only active when form provided names and a country is selected
+  const hasPopupData = !!(country && popup.names?.length > 0);
+  const countryCities: string[] = COUNTRY_CITIES[country] || COUNTRY_CITIES['Estados Unidos'];
+  // Prefer explicit popup cities from AI; fall back to country-based list
+  const resolvedPopupCities: string[] = (popup.cities?.length > 0 ? popup.cities : countryCities);
+
+  const popupNames = hasPopupData
+    ? (popup.names as string[])
+        .filter((n: string) => n && n.trim())
+        .map((n: string) => `"${n}"`)
+        .join(',')
+    : '';
+  const popupCities = resolvedPopupCities
     .filter((c: string) => c && c.trim())
     .map((c: string) => `"${c}"`)
     .join(',');
@@ -865,6 +912,8 @@ export function generatePresellHTML(
     BUNDLE_BONUS_TEXT: labels.bundle_bonus_text ?? '✓ Bonuses Included',
     BUNDLE_BONUS_HIDDEN: (bonuses.items?.length > 0) ? '' : 'style="display:none"',
     BUNDLE_FREE_SHIPPING_TEXT: labels.bundle_free_shipping ?? '✓ Free Shipping',
+    // Issue 4: hide entire bonuses section when disabled or no items
+    BONUSES_SECTION_HIDDEN: (bonuses.enabled === false || !(bonuses.items?.length > 0)) ? 'style="display:none"' : '',
 
     // Bundle 1
     BUNDLE_1_LABEL: b1.label ?? 'Starter',
@@ -909,6 +958,8 @@ export function generatePresellHTML(
 
     // Guarantee
     GUARANTEE_BADGE_URL: getImg(16) || guarantee.badge_url || '',
+    // Issue 2: hide badge container when no image URL to avoid broken-image display
+    GUARANTEE_BADGE_HIDDEN: (getImg(16) || guarantee.badge_url) ? '' : 'style="display:none"',
     GUARANTEE_DAYS: guarantee.days ?? '60',
     GUARANTEE_HEADLINE: guarantee.headline ?? '',
     GUARANTEE_TEXT: guarantee.text ?? '',
@@ -998,25 +1049,25 @@ export function generatePresellHTML(
     BONUS_5_DESC: bonuses.items?.[4]?.description ?? '',
     BONUS_5_HIDDEN: bonuses.items?.[4]?.title ? '' : 'bonus-hidden',
 
-    // Testimonials
+    // Testimonials — Issue 3: field names vary across AI outputs; try all known aliases
     TESTI_HEADLINE: testimonials.headline ?? '',
     TEST_SUBHEADLINE: testimonials.subheadline ?? '',
     VERIFIED_PURCHASE_LABEL: labels.verified_purchase ?? 'Verified Purchase',
     TESTI_1_PHOTO: getImg(13),
-    TESTI_1_NAME: testimonials.items?.[0]?.name ?? '',
-    TESTI_1_LOCATION: testimonials.items?.[0]?.location ?? '',
-    TESTI_1_TITLE: testimonials.items?.[0]?.quote_title ?? '',
-    TESTI_1_BODY: testimonials.items?.[0]?.quote_body ?? '',
+    TESTI_1_NAME: testimonials.items?.[0]?.name ?? testimonials.items?.[0]?.reviewer_name ?? '',
+    TESTI_1_LOCATION: testimonials.items?.[0]?.location ?? testimonials.items?.[0]?.city ?? '',
+    TESTI_1_TITLE: testimonials.items?.[0]?.quote_title ?? testimonials.items?.[0]?.title ?? testimonials.items?.[0]?.review_title ?? '',
+    TESTI_1_BODY: testimonials.items?.[0]?.quote_body ?? testimonials.items?.[0]?.body ?? testimonials.items?.[0]?.text ?? testimonials.items?.[0]?.review ?? '',
     TESTI_2_PHOTO: getImg(14),
-    TESTI_2_NAME: testimonials.items?.[1]?.name ?? '',
-    TESTI_2_LOCATION: testimonials.items?.[1]?.location ?? '',
-    TESTI_2_TITLE: testimonials.items?.[1]?.quote_title ?? '',
-    TESTI_2_BODY: testimonials.items?.[1]?.quote_body ?? '',
+    TESTI_2_NAME: testimonials.items?.[1]?.name ?? testimonials.items?.[1]?.reviewer_name ?? '',
+    TESTI_2_LOCATION: testimonials.items?.[1]?.location ?? testimonials.items?.[1]?.city ?? '',
+    TESTI_2_TITLE: testimonials.items?.[1]?.quote_title ?? testimonials.items?.[1]?.title ?? testimonials.items?.[1]?.review_title ?? '',
+    TESTI_2_BODY: testimonials.items?.[1]?.quote_body ?? testimonials.items?.[1]?.body ?? testimonials.items?.[1]?.text ?? testimonials.items?.[1]?.review ?? '',
     TESTI_3_PHOTO: getImg(15),
-    TESTI_3_NAME: testimonials.items?.[2]?.name ?? '',
-    TESTI_3_LOCATION: testimonials.items?.[2]?.location ?? '',
-    TESTI_3_TITLE: testimonials.items?.[2]?.quote_title ?? '',
-    TESTI_3_BODY: testimonials.items?.[2]?.quote_body ?? '',
+    TESTI_3_NAME: testimonials.items?.[2]?.name ?? testimonials.items?.[2]?.reviewer_name ?? '',
+    TESTI_3_LOCATION: testimonials.items?.[2]?.location ?? testimonials.items?.[2]?.city ?? '',
+    TESTI_3_TITLE: testimonials.items?.[2]?.quote_title ?? testimonials.items?.[2]?.title ?? testimonials.items?.[2]?.review_title ?? '',
+    TESTI_3_BODY: testimonials.items?.[2]?.quote_body ?? testimonials.items?.[2]?.body ?? testimonials.items?.[2]?.text ?? testimonials.items?.[2]?.review ?? '',
 
     // FAQ
     FAQ_HEADLINE: faq.headline ?? '',
@@ -1034,10 +1085,10 @@ export function generatePresellHTML(
     FAQ_Q6: faq.items?.[5]?.question ?? '',
     FAQ_A6: faq.items?.[5]?.answer ?? '',
 
-    // Final CTA
+    // Final CTA — Issue 6: use 6-bottle image (index 4) matching best-value bundle
     FINAL_CTA_HEADLINE: finalCta.headline ?? '',
     FINAL_CTA_SUBHEADLINE: finalCta.subheadline ?? '',
-    FINAL_CTA_IMAGE: getImg(2) || getImg(0),
+    FINAL_CTA_IMAGE: getImg(4) || getImg(2) || getImg(0),
     FINAL_CTA_BUNDLE_LABEL: finalCta.bundle_label ?? '',
     FINAL_CTA_PRICE: finalCta.price_per_bottle ?? '',
     FINAL_CTA_ORIGINAL: finalCta.price_original ?? '',
@@ -1056,12 +1107,12 @@ export function generatePresellHTML(
     TERMS_LABEL: labels.terms_label ?? 'Terms',
     COPYRIGHT_TEXT: footer.copyright_text ?? ('© ' + new Date().getFullYear() + ' ' + (meta.product_name ?? '')),
 
-    // Popup
+    // Popup — Issue 5: only activate when form has popup names and country is set
     POPUP_IMAGE: getImg(0),
-    POPUP_NAMES_JSON: '[' + popupNames + ']',
+    POPUP_NAMES_JSON: hasPopupData ? '[' + popupNames + ']' : '[]',
     POPUP_CITIES_JSON: '[' + popupCities + ']',
-    POPUP_NAME_1: popup.names?.[0] ?? 'Michael',
-    POPUP_CITY_1: popup.cities?.[0] ?? 'New York, NY',
+    POPUP_NAME_1: (hasPopupData ? popup.names?.[0] : null) ?? '',
+    POPUP_CITY_1: resolvedPopupCities[0] ?? '',
     POPUP_ACTION_TEXT: hero.popup_action_text ?? 'just claimed a discount on',
 
     // Affiliate
