@@ -350,8 +350,8 @@ ul{list-style:none;}
         <div class="bundle-bottles">{{BUNDLE_1_BOTTLES}}</div>
         <div class="bundle-supply">{{BUNDLE_1_SUPPLY}}</div>
         <img class="bundle-img" src="{{BUNDLE_1_IMAGE}}" alt="{{BUNDLE_1_LABEL}}">
-        <div class="bundle-price-per">{{BUNDLE_1_PRICE_PER}}<small> {{PER_BOTTLE_LABEL}}</small></div>
-        <div class="bundle-original">{{REGULAR_PRICE_LABEL}} {{BUNDLE_1_ORIGINAL}}</div>
+        <div class="bundle-price-per" {{BUNDLE_1_PRICE_HIDDEN}}>{{BUNDLE_1_PRICE_PER}}<small> {{PER_BOTTLE_LABEL}}</small></div>
+        <div class="bundle-original" {{BUNDLE_1_ORIGINAL_HIDDEN}}>{{REGULAR_PRICE_LABEL}} {{BUNDLE_1_ORIGINAL}}</div>
         <div class="bundle-savings">{{BUNDLE_1_SAVINGS}}</div>
         <div class="bundle-perks"></div>
         <div class="bundle-shipping">{{BUNDLE_1_SHIPPING}}</div>
@@ -365,11 +365,11 @@ ul{list-style:none;}
         <div class="bundle-bottles">{{BUNDLE_2_BOTTLES}}</div>
         <div class="bundle-supply">{{BUNDLE_2_SUPPLY}}</div>
         <img class="bundle-img" src="{{BUNDLE_2_IMAGE}}" alt="{{BUNDLE_2_LABEL}}">
-        <div class="bundle-price-per">{{BUNDLE_2_PRICE_PER}}<small> {{PER_BOTTLE_LABEL}}</small></div>
-        <div class="bundle-original">{{REGULAR_PRICE_LABEL}} {{BUNDLE_2_ORIGINAL}}</div>
+        <div class="bundle-price-per" {{BUNDLE_2_PRICE_HIDDEN}}>{{BUNDLE_2_PRICE_PER}}<small> {{PER_BOTTLE_LABEL}}</small></div>
+        <div class="bundle-original" {{BUNDLE_2_ORIGINAL_HIDDEN}}>{{REGULAR_PRICE_LABEL}} {{BUNDLE_2_ORIGINAL}}</div>
         <div class="bundle-savings">{{BUNDLE_2_SAVINGS}}</div>
         <div class="bundle-perks">
-          <div class="bundle-perk">{{BUNDLE_BONUS_TEXT}}</div>
+          <div class="bundle-perk" {{BUNDLE_BONUS_HIDDEN}}>{{BUNDLE_BONUS_TEXT}}</div>
           <div class="bundle-perk">{{BUNDLE_FREE_SHIPPING_TEXT}}</div>
         </div>
         <div class="bundle-shipping">{{BUNDLE_2_SHIPPING}}</div>
@@ -383,11 +383,11 @@ ul{list-style:none;}
         <div class="bundle-bottles">{{BUNDLE_3_BOTTLES}}</div>
         <div class="bundle-supply">{{BUNDLE_3_SUPPLY}}</div>
         <img class="bundle-img" src="{{BUNDLE_3_IMAGE}}" alt="{{BUNDLE_3_LABEL}}">
-        <div class="bundle-price-per">{{BUNDLE_3_PRICE_PER}}<small> {{PER_BOTTLE_LABEL}}</small></div>
-        <div class="bundle-original">{{REGULAR_PRICE_LABEL}} {{BUNDLE_3_ORIGINAL}}</div>
+        <div class="bundle-price-per" {{BUNDLE_3_PRICE_HIDDEN}}>{{BUNDLE_3_PRICE_PER}}<small> {{PER_BOTTLE_LABEL}}</small></div>
+        <div class="bundle-original" {{BUNDLE_3_ORIGINAL_HIDDEN}}>{{REGULAR_PRICE_LABEL}} {{BUNDLE_3_ORIGINAL}}</div>
         <div class="bundle-savings">{{BUNDLE_3_SAVINGS}}</div>
         <div class="bundle-perks">
-          <div class="bundle-perk">{{BUNDLE_BONUS_TEXT}}</div>
+          <div class="bundle-perk" {{BUNDLE_BONUS_HIDDEN}}>{{BUNDLE_BONUS_TEXT}}</div>
           <div class="bundle-perk">{{BUNDLE_FREE_SHIPPING_TEXT}}</div>
         </div>
         <div class="bundle-shipping">{{BUNDLE_3_SHIPPING}}</div>
@@ -849,6 +849,7 @@ export function generatePresellHTML(
     ONLY_LABEL: labels.only ?? 'Only',
     PAYMENT_ICONS_URL: getImg(17) || pricing.payment_icons_url || '',
     BUNDLE_BONUS_TEXT: labels.bundle_bonus_text ?? '✓ Bonuses Included',
+    BUNDLE_BONUS_HIDDEN: (bonuses.items?.length > 0) ? '' : 'style="display:none"',
     BUNDLE_FREE_SHIPPING_TEXT: labels.bundle_free_shipping ?? '✓ Free Shipping',
 
     // Bundle 1
@@ -857,21 +858,25 @@ export function generatePresellHTML(
     BUNDLE_1_SUPPLY: b1.supply_days ?? '30 Day Supply',
     BUNDLE_1_IMAGE: getImg(1),
     BUNDLE_1_PRICE_PER: b1.price_per_bottle ?? '',
+    BUNDLE_1_PRICE_HIDDEN: b1.price_per_bottle ? '' : 'style="display:none"',
     BUNDLE_1_SAVINGS: b1.savings ? ('Save ' + b1.savings) : '',
     BUNDLE_1_SHIPPING: b1.shipping ?? '+ Shipping',
     BUNDLE_1_ORIGINAL: b1.price_total_original ?? '',
+    BUNDLE_1_ORIGINAL_HIDDEN: b1.price_total_original ? '' : 'style="display:none"',
     BUNDLE_1_CTA: b1.cta_text ?? 'Buy Now',
 
     // Bundle 2
     BUNDLE_2_LABEL: b2.label ?? 'Best Value',
     BUNDLE_2_BOTTLES: b2.bottles ?? '6',
     BUNDLE_2_SUPPLY: b2.supply_days ?? '180 Day Supply',
-    BUNDLE_2_IMAGE: getImg(2),
+    BUNDLE_2_IMAGE: getImg(4),
     BUNDLE_2_RIBBON: b2.ribbon ?? 'BEST VALUE',
     BUNDLE_2_PRICE_PER: b2.price_per_bottle ?? '',
+    BUNDLE_2_PRICE_HIDDEN: b2.price_per_bottle ? '' : 'style="display:none"',
     BUNDLE_2_SAVINGS: b2.savings ? ('Save ' + b2.savings) : '',
-    BUNDLE_2_SHIPPING: b2.shipping ?? 'Free Shipping',
+    BUNDLE_2_SHIPPING: b2.free_shipping ? '' : (b2.shipping ?? ''),
     BUNDLE_2_ORIGINAL: b2.price_total_original ?? '',
+    BUNDLE_2_ORIGINAL_HIDDEN: b2.price_total_original ? '' : 'style="display:none"',
     BUNDLE_2_CTA: b2.cta_text ?? 'Claim Discount',
 
     // Bundle 3
@@ -881,9 +886,11 @@ export function generatePresellHTML(
     BUNDLE_3_IMAGE: getImg(3),
     BUNDLE_3_RIBBON: b3.ribbon ?? 'MOST POPULAR',
     BUNDLE_3_PRICE_PER: b3.price_per_bottle ?? '',
+    BUNDLE_3_PRICE_HIDDEN: b3.price_per_bottle ? '' : 'style="display:none"',
     BUNDLE_3_SAVINGS: b3.savings ? ('Save ' + b3.savings) : '',
-    BUNDLE_3_SHIPPING: b3.shipping ?? 'Free Shipping',
+    BUNDLE_3_SHIPPING: b3.free_shipping ? '' : (b3.shipping ?? ''),
     BUNDLE_3_ORIGINAL: b3.price_total_original ?? '',
+    BUNDLE_3_ORIGINAL_HIDDEN: b3.price_total_original ? '' : 'style="display:none"',
     BUNDLE_3_CTA: b3.cta_text ?? 'Buy Now',
 
     // Guarantee
