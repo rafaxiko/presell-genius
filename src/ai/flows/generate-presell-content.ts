@@ -63,6 +63,36 @@ REGRAS DE OURO (ESTRITO):
     - terms_label: texto para termos (ex: "Terms", "Termos")
 13. UNICIDADE OBRIGATORIA: Esta presell DEVE ser unica. Usa o seed de variacao fornecido no contexto.
 
+=== CAMPOS ABSOLUTAMENTE OBRIGATORIOS — NUNCA OMITIR ===
+
+14. INGREDIENTS (OBRIGATORIO): O objecto "ingredients" DEVE ter "items" com EXACTAMENTE 6 entradas.
+    Cada entrada DEVE ter "name" (string nao vazia) e "benefit" (string nao vazia, minimo 1 frase).
+    NUNCA retorne ingredients.items vazio ou com menos de 6 itens. Se os dados nao especificam
+    ingredientes, use ingredientes tipicos do nicho do produto.
+
+15. TESTIMONIALS (OBRIGATORIO): O objecto "testimonials" DEVE ter "items" com EXACTAMENTE 3 entradas.
+    Cada entrada DEVE ter: "name" (string), "location" (cidade, estado/pais), "quote_title" (titulo
+    curto da opiniao), "quote_body" (texto completo, minimo 2 frases). NUNCA omita ou deixe vazios.
+
+16. FAQ (OBRIGATORIO): O objecto "faq" DEVE ter "items" com EXACTAMENTE 6 entradas.
+    Cada entrada DEVE ter "question" (string nao vazia) e "answer" (string nao vazia, minimo 2 frases).
+    NUNCA retorne faq.items vazio ou com menos de 6 itens.
+
+17. MECHANISM (OBRIGATORIO): O objecto "mechanism" DEVE ter:
+    - "headline": string nao vazia
+    - "subheadline": string nao vazia
+    - "body_paragraphs": array com EXACTAMENTE 3 strings nao vazias (cada uma minimo 2 frases)
+    - "highlight_quote": string nao vazia
+    NUNCA omita o mechanism nem deixe campos vazios.
+
+VERIFICACAO FINAL OBRIGATORIA antes de responder:
+- ingredients.items tem exactamente 6 itens com name e benefit preenchidos? SIM/NAO
+- testimonials.items tem exactamente 3 itens com name, location, quote_title, quote_body preenchidos? SIM/NAO
+- faq.items tem exactamente 6 itens com question e answer preenchidos? SIM/NAO
+- mechanism tem headline, subheadline, body_paragraphs (3 itens) e highlight_quote preenchidos? SIM/NAO
+Se qualquer resposta for NAO, corrija antes de enviar.
+=======================================================
+
 {{{dnaContext}}}
 
 CONTEUDO ADICIONAL FORNECIDO PELO UTILIZADOR:
@@ -200,10 +230,10 @@ Estrutura JSON esperada:
   },
   "mechanism": {
     "tag": "",
-    "headline": "",
-    "subheadline": "",
-    "body_paragraphs": ["", "", ""],
-    "highlight_quote": "",
+    "headline": "REQUIRED: non-empty headline",
+    "subheadline": "REQUIRED: non-empty subheadline",
+    "body_paragraphs": ["REQUIRED: paragraph 1 (min 2 sentences)", "REQUIRED: paragraph 2 (min 2 sentences)", "REQUIRED: paragraph 3 (min 2 sentences)"],
+    "highlight_quote": "REQUIRED: non-empty quote",
     "image_url": ""
   },
   "product_overview": {
@@ -216,7 +246,14 @@ Estrutura JSON esperada:
   "ingredients": {
     "headline": "",
     "subheadline": "",
-    "items": [{"name": "", "image_url": "", "benefit": ""}]
+    "items": [
+      {"name": "REQUIRED ingredient 1", "image_url": "", "benefit": "REQUIRED: non-empty benefit"},
+      {"name": "REQUIRED ingredient 2", "image_url": "", "benefit": "REQUIRED: non-empty benefit"},
+      {"name": "REQUIRED ingredient 3", "image_url": "", "benefit": "REQUIRED: non-empty benefit"},
+      {"name": "REQUIRED ingredient 4", "image_url": "", "benefit": "REQUIRED: non-empty benefit"},
+      {"name": "REQUIRED ingredient 5", "image_url": "", "benefit": "REQUIRED: non-empty benefit"},
+      {"name": "REQUIRED ingredient 6", "image_url": "", "benefit": "REQUIRED: non-empty benefit"}
+    ]
   },
   "bonuses": {
     "enabled": false,
@@ -232,7 +269,11 @@ Estrutura JSON esperada:
   "testimonials": {
     "headline": "",
     "subheadline": "",
-    "items": [{"photo_url": "", "name": "", "location": "", "quote_title": "", "quote_body": ""}]
+    "items": [
+      {"photo_url": "", "name": "REQUIRED name 1", "location": "REQUIRED: City, State", "quote_title": "REQUIRED: short title", "quote_body": "REQUIRED: min 2 sentences"},
+      {"photo_url": "", "name": "REQUIRED name 2", "location": "REQUIRED: City, State", "quote_title": "REQUIRED: short title", "quote_body": "REQUIRED: min 2 sentences"},
+      {"photo_url": "", "name": "REQUIRED name 3", "location": "REQUIRED: City, State", "quote_title": "REQUIRED: short title", "quote_body": "REQUIRED: min 2 sentences"}
+    ]
   },
   "where_to_buy": {
     "headline": "",
@@ -248,7 +289,14 @@ Estrutura JSON esperada:
   "faq": {
     "headline": "",
     "subheadline": "",
-    "items": [{"question": "", "answer": ""}]
+    "items": [
+      {"question": "REQUIRED question 1", "answer": "REQUIRED: min 2 sentences"},
+      {"question": "REQUIRED question 2", "answer": "REQUIRED: min 2 sentences"},
+      {"question": "REQUIRED question 3", "answer": "REQUIRED: min 2 sentences"},
+      {"question": "REQUIRED question 4", "answer": "REQUIRED: min 2 sentences"},
+      {"question": "REQUIRED question 5", "answer": "REQUIRED: min 2 sentences"},
+      {"question": "REQUIRED question 6", "answer": "REQUIRED: min 2 sentences"}
+    ]
   },
   "final_cta": {
     "headline": "",
@@ -372,14 +420,46 @@ Instrucao: Usa o angulo "${randomAngle}" como fio condutor de todo o copy.
       throw new Error('Falha ao processar resposta da IA: ' + (parseErr?.message ?? 'erro desconhecido'));
     }
 
-    // 6. Forçar cor do DNA se disponível
+    // 6. Enforce required fields — guard against Gemini omitting them
+    if (!parsed.mechanism || typeof parsed.mechanism !== 'object') parsed.mechanism = {};
+    if (!parsed.mechanism.headline)        parsed.mechanism.headline = '';
+    if (!parsed.mechanism.subheadline)     parsed.mechanism.subheadline = '';
+    if (!Array.isArray(parsed.mechanism.body_paragraphs) || parsed.mechanism.body_paragraphs.length < 3) {
+      const existing = Array.isArray(parsed.mechanism.body_paragraphs) ? parsed.mechanism.body_paragraphs : [];
+      while (existing.length < 3) existing.push('');
+      parsed.mechanism.body_paragraphs = existing;
+    }
+    if (!parsed.mechanism.highlight_quote) parsed.mechanism.highlight_quote = '';
+
+    if (!parsed.ingredients || typeof parsed.ingredients !== 'object') parsed.ingredients = {};
+    if (!Array.isArray(parsed.ingredients.items) || parsed.ingredients.items.length < 1) {
+      parsed.ingredients.items = [];
+    }
+
+    if (!parsed.testimonials || typeof parsed.testimonials !== 'object') parsed.testimonials = {};
+    if (!Array.isArray(parsed.testimonials.items) || parsed.testimonials.items.length < 1) {
+      parsed.testimonials.items = [];
+    }
+    while (parsed.testimonials.items.length < 3) {
+      parsed.testimonials.items.push({ name: '', location: '', quote_title: '', quote_body: '' });
+    }
+
+    if (!parsed.faq || typeof parsed.faq !== 'object') parsed.faq = {};
+    if (!Array.isArray(parsed.faq.items) || parsed.faq.items.length < 1) {
+      parsed.faq.items = [];
+    }
+    while (parsed.faq.items.length < 6) {
+      parsed.faq.items.push({ question: '', answer: '' });
+    }
+
+    // 8. Forçar cor do DNA se disponível
     if (dnaData?.success && parsed.meta) {
       if (dnaData.primary_color && dnaData.primary_color !== '#E85D26') {
         parsed.meta.primary_color = dnaData.primary_color;
       }
     }
 
-    // 7. Garantir ano 2026
+    // 9. Garantir ano 2026
     if (parsed.meta) {
       parsed.meta.publish_date_year = '2026';
     }
