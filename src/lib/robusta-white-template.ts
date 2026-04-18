@@ -763,10 +763,6 @@ export function generatePresellHTML(
   images: string[],
   country: string = 'Brasil'
 ): string {
-  console.log('[FULL RESULT]', JSON.stringify(result, null, 2));
-  console.log('[robusta] result:', JSON.stringify(result).slice(0, 500));
-  console.log('[robusta-white] called, result keys:', Object.keys(result || {}));
-  console.log('[robusta-white] meta:', JSON.stringify((result as any)?.meta || {}).slice(0, 200));
   const getImg = (index: number): string => images[index] ?? '';
   const aggressive = isAggressive(country);
   void aggressive;
@@ -806,7 +802,7 @@ export function generatePresellHTML(
 
   const replacements: Record<string, string> = {
     // Meta
-    TARGET_LANGUAGE: meta.target_language ?? 'pt-BR',
+    TARGET_LANGUAGE: meta.target_language ?? 'en-US',
     PRODUCT_NAME: meta.product_name ?? '',
     SITE_TITLE_SUFFIX: labels.site_title_suffix ?? 'Official Review',
     SEO_DESCRIPTION: schemaSeo.product_description ?? '',

@@ -110,7 +110,6 @@ export default function PresellGeniusApp() {
   };
 
   const handleGenerate = async (values: PresellFormValues) => {
-    console.log('handleGenerate called, model:', values.templateType);
     setIsGenerating(true);
     setTargetUrl(values.targetUrl);
     setPrimaryColor(values.buttonColor);
@@ -166,11 +165,9 @@ export default function PresellGeniusApp() {
         );
       } else {
         // ── ROBUSTA WHITE + demais templates ─────────────────────────
-        console.log('[presell] before AI call');
         result = await generatePresellContent({
           ...commonFields,
         });
-        console.log('[presell] AI result:', JSON.stringify(result).slice(0, 200));
 
         if (result?.meta) {
           result.meta.primary_color       = values.buttonColor;
@@ -178,7 +175,6 @@ export default function PresellGeniusApp() {
           result.meta.primary_color_dark  = darkenColor(values.buttonColor, 0.25);
         }
 
-        console.log('primaryColor:', values.buttonColor, 'sanitized:', (values.buttonColor || '#541213'));
         try {
           html = generatePresellHTML(
             result,
@@ -186,7 +182,6 @@ export default function PresellGeniusApp() {
             productImageUrls,
             values.targetLanguage
           );
-          console.log('[presell] html length:', html?.length, 'first 300:', html?.slice(0, 300));
         } catch (e) {
           console.error('generatePresellHTML error:', e);
           throw e;
