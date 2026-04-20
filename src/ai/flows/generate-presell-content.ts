@@ -65,35 +65,56 @@ REGRAS DE OURO (ESTRITO):
     - terms_label: texto para termos (ex: "Terms", "Termos")
 13. UNICIDADE OBRIGATORIA: Esta presell DEVE ser unica. Usa o seed de variacao fornecido no contexto.
 
-=== CAMPOS ABSOLUTAMENTE OBRIGATORIOS — NUNCA OMITIR ===
+=== CAMPOS ABSOLUTAMENTE OBRIGATORIOS — FALHA CRITICA SE OMITIDOS ===
 
-14. INGREDIENTS (OBRIGATORIO): O objecto "ingredients" DEVE ter "items" com EXACTAMENTE 6 entradas.
-    Cada entrada DEVE ter "name" (string nao vazia) e "benefit" (string nao vazia, minimo 1 frase).
-    NUNCA retorne ingredients.items vazio ou com menos de 6 itens. Se os dados nao especificam
-    ingredientes, use ingredientes tipicos do nicho do produto.
+ATENCAO: O sistema de validacao vai REJEITAR a resposta e mostrar ERRO ao utilizador se
+qualquer um dos campos abaixo estiver vazio, ausente ou com arrays vazios. NAO ha fallback.
 
-15. TESTIMONIALS (OBRIGATORIO): O objecto "testimonials" DEVE ter "items" com EXACTAMENTE 3 entradas.
-    Cada entrada DEVE ter: "name" (string), "location" (cidade, estado/pais), "quote_title" (titulo
-    curto da opiniao), "quote_body" (texto completo, minimo 2 frases). NUNCA omita ou deixe vazios.
+14. INGREDIENTS (CRITICO — OBRIGATORIO SEM EXCEPCAO):
+    O objecto "ingredients" DEVE conter a chave "items" com EXACTAMENTE 6 objectos.
+    Cada objecto DEVE ter:
+      - "name": string NAO VAZIA (ex: "Berberine HCl")
+      - "benefit": string NAO VAZIA com minimo 1 frase completa
+    SE o produto nao tem ingredientes conhecidos, INVENTA 6 ingredientes tipicos do nicho.
+    NUNCA retorne "items": [] ou "items" com menos de 6 entradas. NUNCA omita "items".
 
-16. FAQ (OBRIGATORIO): O objecto "faq" DEVE ter "items" com EXACTAMENTE 6 entradas.
-    Cada entrada DEVE ter "question" (string nao vazia) e "answer" (string nao vazia, minimo 2 frases).
-    NUNCA retorne faq.items vazio ou com menos de 6 itens.
+15. TESTIMONIALS (CRITICO — OBRIGATORIO SEM EXCEPCAO):
+    O objecto "testimonials" DEVE conter a chave "items" com EXACTAMENTE 3 objectos.
+    Cada objecto DEVE ter:
+      - "name": string NAO VAZIA
+      - "location": string NAO VAZIA (cidade + pais/estado)
+      - "quote_title": string NAO VAZIA (titulo curto)
+      - "quote_body": string NAO VAZIA com minimo 2 frases
+    NUNCA omita "items" nem retorne menos de 3 entradas.
 
-17. MECHANISM (OBRIGATORIO): O objecto "mechanism" DEVE ter:
-    - "headline": string nao vazia
-    - "subheadline": string nao vazia
-    - "body_paragraphs": array com EXACTAMENTE 3 strings nao vazias (cada uma minimo 2 frases)
-    - "highlight_quote": string nao vazia
+16. FAQ (CRITICO — OBRIGATORIO SEM EXCEPCAO):
+    O objecto "faq" DEVE conter a chave "items" com EXACTAMENTE 6 objectos.
+    Cada objecto DEVE ter:
+      - "question": string NAO VAZIA
+      - "answer": string NAO VAZIA com minimo 2 frases
+    NUNCA retorne "items": [] ou com menos de 6 entradas. NUNCA omita "items".
+
+17. MECHANISM (CRITICO — OBRIGATORIO SEM EXCEPCAO):
+    O objecto "mechanism" DEVE ter:
+      - "headline": string NAO VAZIA
+      - "subheadline": string NAO VAZIA
+      - "body_paragraphs": array com EXACTAMENTE 3 strings NAO VAZIAS (cada uma minimo 2 frases)
+      - "highlight_quote": string NAO VAZIA
     NUNCA omita o mechanism nem deixe campos vazios.
 
-VERIFICACAO FINAL OBRIGATORIA antes de responder:
-- ingredients.items tem exactamente 6 itens com name e benefit preenchidos? SIM/NAO
-- testimonials.items tem exactamente 3 itens com name, location, quote_title, quote_body preenchidos? SIM/NAO
-- faq.items tem exactamente 6 itens com question e answer preenchidos? SIM/NAO
-- mechanism tem headline, subheadline, body_paragraphs (3 itens) e highlight_quote preenchidos? SIM/NAO
-Se qualquer resposta for NAO, corrija antes de enviar.
-=======================================================
+18. BUNDLES (CRITICO — OBRIGATORIO SEM EXCEPCAO):
+    O objecto "pricing" DEVE conter a chave "bundles" com EXACTAMENTE 3 objectos.
+    Cada bundle DEVE ter "price_per_bottle" NAO VAZIO (ex: "$49.00").
+    NUNCA omita "bundles" nem retorne "price_per_bottle" vazio.
+
+VERIFICACAO FINAL OBRIGATORIA — responda internamente SIM/NAO antes de enviar:
+- ingredients.items tem exactamente 6 itens com name E benefit NAO VAZIOS? SIM/NAO
+- testimonials.items tem exactamente 3 itens com name, location, quote_title, quote_body NAO VAZIOS? SIM/NAO
+- faq.items tem exactamente 6 itens com question E answer NAO VAZIOS? SIM/NAO
+- mechanism tem headline, subheadline, body_paragraphs (3 itens) e highlight_quote NAO VAZIOS? SIM/NAO
+- pricing.bundles tem 3 itens com price_per_bottle NAO VAZIO? SIM/NAO
+Se qualquer resposta for NAO, CORRIJA AGORA antes de enviar. Nao e opcional.
+=======================================================================
 
 {{{dnaContext}}}
 
@@ -405,6 +426,7 @@ Instrucao: Usa o angulo "${randomAngle}" como fio condutor de todo o copy.
     let parsed: any;
     try {
       let raw = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+      console.log('[RAW GEMINI]', raw.slice(0, 500));
       const s0 = raw.indexOf('{'), e0 = raw.lastIndexOf('}');
       if (s0 !== -1 && e0 > s0) raw = raw.slice(s0, e0 + 1);
 
@@ -435,23 +457,29 @@ Instrucao: Usa o angulo "${randomAngle}" como fio condutor de todo o copy.
 
     if (!parsed.ingredients || typeof parsed.ingredients !== 'object') parsed.ingredients = {};
     if (!Array.isArray(parsed.ingredients.items) || parsed.ingredients.items.length < 1) {
-      parsed.ingredients.items = [];
+      throw new Error('[Gemini] ingredients.items está vazio ou ausente. Verifique o [RAW GEMINI] no log.');
+    }
+    const validIngredients = parsed.ingredients.items.filter((i: any) => i?.name);
+    if (validIngredients.length < 1) {
+      throw new Error('[Gemini] ingredients.items não tem nenhum item com "name" preenchido.');
     }
 
     if (!parsed.testimonials || typeof parsed.testimonials !== 'object') parsed.testimonials = {};
     if (!Array.isArray(parsed.testimonials.items) || parsed.testimonials.items.length < 1) {
-      parsed.testimonials.items = [];
+      throw new Error('[Gemini] testimonials.items está vazio ou ausente. Verifique o [RAW GEMINI] no log.');
     }
-    while (parsed.testimonials.items.length < 3) {
-      parsed.testimonials.items.push({ name: '', location: '', quote_title: '', quote_body: '' });
+    const validTestimonials = parsed.testimonials.items.filter((i: any) => i?.name);
+    if (validTestimonials.length < 1) {
+      throw new Error('[Gemini] testimonials.items não tem nenhum item com "name" preenchido.');
     }
 
     if (!parsed.faq || typeof parsed.faq !== 'object') parsed.faq = {};
     if (!Array.isArray(parsed.faq.items) || parsed.faq.items.length < 1) {
-      parsed.faq.items = [];
+      throw new Error('[Gemini] faq.items está vazio ou ausente. Verifique o [RAW GEMINI] no log.');
     }
-    while (parsed.faq.items.length < 6) {
-      parsed.faq.items.push({ question: '', answer: '' });
+    const validFaq = parsed.faq.items.filter((i: any) => i?.question);
+    if (validFaq.length < 1) {
+      throw new Error('[Gemini] faq.items não tem nenhum item com "question" preenchido.');
     }
 
     // 8. Forçar cor do DNA se disponível

@@ -176,13 +176,6 @@ export default function PresellGeniusApp() {
           result.meta.primary_color_dark  = darkenColor(values.buttonColor, 0.25);
         }
 
-        console.log('[DEBUG FULL]', JSON.stringify({
-          bundles: result?.pricing?.bundles,
-          ingredients: result?.ingredients?.items?.slice(0,1),
-          faq: result?.faq?.items?.slice(0,1),
-          testimonials: result?.testimonials?.items?.slice(0,1)
-        }, null, 2));
-
         try {
           html = generatePresellHTML(
             result,
