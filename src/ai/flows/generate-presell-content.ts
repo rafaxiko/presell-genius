@@ -426,7 +426,6 @@ Instrucao: Usa o angulo "${randomAngle}" como fio condutor de todo o copy.
     let parsed: any;
     try {
       let raw = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-      console.log('[RAW GEMINI]', raw.slice(0, 500));
       const s0 = raw.indexOf('{'), e0 = raw.lastIndexOf('}');
       if (s0 !== -1 && e0 > s0) raw = raw.slice(s0, e0 + 1);
 
