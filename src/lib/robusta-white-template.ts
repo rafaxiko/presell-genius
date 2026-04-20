@@ -494,8 +494,8 @@ ul{list-style:none;}
     <div>
       <h2>{{OVERVIEW_HEADLINE}}</h2>
       <p class="overview-desc">{{OVERVIEW_DESCRIPTION}}</p>
-      <div class="overview-bullets" id="overview-bullets"></div>
-      <div class="quality-tags" id="quality-tags"></div>
+      <div class="overview-bullets" id="overview-bullets">{{OVERVIEW_BULLETS_HTML}}</div>
+      <div class="quality-tags" id="quality-tags">{{QUALITY_TAGS_HTML}}</div>
     </div>
     <div class="overview-img">
       <img src="{{OVERVIEW_IMAGE}}" alt="{{PRODUCT_NAME}}">
@@ -971,6 +971,14 @@ export function generatePresellHTML(
     OVERVIEW_HEADLINE: overview.headline ?? '',
     OVERVIEW_DESCRIPTION: overview.description ?? '',
     OVERVIEW_IMAGE: getImg(0),
+    OVERVIEW_BULLETS_HTML: (overview.bullets || [])
+      .filter((b: any) => b?.text)
+      .map((b: any) => `<div class="overview-bullet"><div class="overview-bullet-icon">&#10003;</div><div class="overview-bullet-text">${b.text}</div></div>`)
+      .join(''),
+    QUALITY_TAGS_HTML: (overview.quality_tags || [])
+      .filter((t: any) => t && String(t).trim())
+      .map((t: any) => `<div class="quality-tag">${String(t)}</div>`)
+      .join(''),
 
     // Ingredients
     INGREDIENTS_HEADLINE: ingredients.headline ?? '',
