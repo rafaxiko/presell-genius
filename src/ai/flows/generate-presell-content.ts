@@ -27,7 +27,7 @@ const prompt = ai.definePrompt({
   output: {format: 'text'},
   config: {
     maxOutputTokens: 8192,
-    temperature: 0.7,
+    temperature: 0.3,
   },
   prompt: `Voce e um Copywriter e Especialista em Dados Nutra de elite.
 Sua tarefa e extrair informacoes e gerar conteudo para o template "Robusta White v2" de 16 secoes.
@@ -414,36 +414,67 @@ Instrucao: Usa o angulo "${randomAngle}" como fio condutor de todo o copy.
 `;
     dnaContext = uniquenessBlock + dnaContext;
 
-    // 4. Chamar Gemini
-    const { text } = await prompt({
-      ...input,
-      dnaContext,
-    } as any);
+    // 4. Chamar Gemini com retry (até 3 tentativas)
+    const MAX_ATTEMPTS = 3;
+    let parsed: any = null;
+    let lastError = '';
 
-    if (!text) throw new Error('Nenhum dado retornado pela IA.');
-
-    // 5. Parse com jsonrepair — biblioteca especializada em JSON de LLMs
-    let parsed: any;
-    try {
-      let raw = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-      const s0 = raw.indexOf('{'), e0 = raw.lastIndexOf('}');
-      if (s0 !== -1 && e0 > s0) raw = raw.slice(s0, e0 + 1);
-
-      // Tentativa 1: parse directo (mais rápido)
-      try {
-        parsed = JSON.parse(raw);
-      } catch {
-        // Tentativa 2: jsonrepair corrige aspas, vírgulas, emojis e outros problemas
-        console.log('[Presell] JSON directo falhou, a usar jsonrepair...');
-        const repaired = jsonrepair(raw);
-        parsed = JSON.parse(repaired);
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      let attemptDnaContext = dnaContext;
+      if (attempt > 1) {
+        console.warn(`[Presell] Retry ${attempt}/${MAX_ATTEMPTS} — motivo: ${lastError}`);
+        attemptDnaContext =
+          `\nCRITICAL: Your previous response was REJECTED because ${lastError}. ` +
+          `You MUST fill all items with real content. This is attempt ${attempt} of ${MAX_ATTEMPTS}.\n` +
+          dnaContext;
       }
-    } catch (parseErr: any) {
-      console.error('[Presell] jsonrepair também falhou:', parseErr?.message);
-      throw new Error('Falha ao processar resposta da IA: ' + (parseErr?.message ?? 'erro desconhecido'));
+
+      let text: string | undefined;
+      try {
+        ({ text } = await prompt({ ...input, dnaContext: attemptDnaContext } as any));
+      } catch (callErr: any) {
+        lastError = 'Gemini call failed: ' + (callErr?.message ?? 'unknown');
+        continue;
+      }
+
+      if (!text) { lastError = 'Nenhum dado retornado pela IA.'; continue; }
+
+      // 5. Parse com jsonrepair
+      let candidate: any;
+      try {
+        let raw = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+        const s0 = raw.indexOf('{'), e0 = raw.lastIndexOf('}');
+        if (s0 !== -1 && e0 > s0) raw = raw.slice(s0, e0 + 1);
+        try {
+          candidate = JSON.parse(raw);
+        } catch {
+          console.log('[Presell] JSON directo falhou, a usar jsonrepair...');
+          candidate = JSON.parse(jsonrepair(raw));
+        }
+      } catch (parseErr: any) {
+        lastError = 'JSON parse failed: ' + (parseErr?.message ?? 'unknown');
+        continue;
+      }
+
+      // 6. Validar campos obrigatórios
+      const ingOk  = Array.isArray(candidate.ingredients?.items)  && candidate.ingredients.items.filter((i: any) => i?.name).length > 0;
+      const testiOk = Array.isArray(candidate.testimonials?.items) && candidate.testimonials.items.filter((i: any) => i?.name).length > 0;
+      const faqOk  = Array.isArray(candidate.faq?.items)          && candidate.faq.items.filter((i: any) => i?.question).length > 0;
+
+      if (ingOk && testiOk && faqOk) {
+        parsed = candidate;
+        break;
+      }
+
+      const missing = [...(!ingOk ? ['ingredients'] : []), ...(!testiOk ? ['testimonials'] : []), ...(!faqOk ? ['faq'] : [])];
+      lastError = `ingredients/faq/testimonials were empty (missing: ${missing.join(', ')})`;
     }
 
-    // 6. Enforce required fields — guard against Gemini omitting them
+    if (!parsed) {
+      throw new Error(`[Gemini] Falhou após ${MAX_ATTEMPTS} tentativas. Último erro: ${lastError}`);
+    }
+
+    // 7. Enforce mechanism fields (non-critical — pad silently)
     if (!parsed.mechanism || typeof parsed.mechanism !== 'object') parsed.mechanism = {};
     if (!parsed.mechanism.headline)        parsed.mechanism.headline = '';
     if (!parsed.mechanism.subheadline)     parsed.mechanism.subheadline = '';
@@ -453,33 +484,6 @@ Instrucao: Usa o angulo "${randomAngle}" como fio condutor de todo o copy.
       parsed.mechanism.body_paragraphs = existing;
     }
     if (!parsed.mechanism.highlight_quote) parsed.mechanism.highlight_quote = '';
-
-    if (!parsed.ingredients || typeof parsed.ingredients !== 'object') parsed.ingredients = {};
-    if (!Array.isArray(parsed.ingredients.items) || parsed.ingredients.items.length < 1) {
-      throw new Error('[Gemini] ingredients.items está vazio ou ausente. Verifique o [RAW GEMINI] no log.');
-    }
-    const validIngredients = parsed.ingredients.items.filter((i: any) => i?.name);
-    if (validIngredients.length < 1) {
-      throw new Error('[Gemini] ingredients.items não tem nenhum item com "name" preenchido.');
-    }
-
-    if (!parsed.testimonials || typeof parsed.testimonials !== 'object') parsed.testimonials = {};
-    if (!Array.isArray(parsed.testimonials.items) || parsed.testimonials.items.length < 1) {
-      throw new Error('[Gemini] testimonials.items está vazio ou ausente. Verifique o [RAW GEMINI] no log.');
-    }
-    const validTestimonials = parsed.testimonials.items.filter((i: any) => i?.name);
-    if (validTestimonials.length < 1) {
-      throw new Error('[Gemini] testimonials.items não tem nenhum item com "name" preenchido.');
-    }
-
-    if (!parsed.faq || typeof parsed.faq !== 'object') parsed.faq = {};
-    if (!Array.isArray(parsed.faq.items) || parsed.faq.items.length < 1) {
-      throw new Error('[Gemini] faq.items está vazio ou ausente. Verifique o [RAW GEMINI] no log.');
-    }
-    const validFaq = parsed.faq.items.filter((i: any) => i?.question);
-    if (validFaq.length < 1) {
-      throw new Error('[Gemini] faq.items não tem nenhum item com "question" preenchido.');
-    }
 
     // 8. Forçar cor do DNA se disponível
     if (dnaData?.success && parsed.meta) {
