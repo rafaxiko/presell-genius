@@ -41,6 +41,12 @@ INSTRUCAO CRITICA ANTI-ALUCINACAO:
 - NUNCA invente nomes de produtos, precos, ingredientes ou garantias que nao estejam nos dados.
 - Se um campo nao tiver informacao suficiente, gera conteudo plausivel baseado no nicho.
 - Em caso de conflito entre productInfo e DNA, dar prioridade ao productInfo.
+
+CRITICAL: Use ONLY data explicitly provided by the user.
+If ingredients are provided, list ALL of them with exact names.
+If bonuses are provided, include ALL bonuses with exact names and prices.
+NEVER generate placeholder text like 'Natural Ingredient 1'.
+If a section has no data, omit it completely.
 =============================================================================
 
 REGRAS DE OURO (ESTRITO):

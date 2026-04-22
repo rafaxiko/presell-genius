@@ -566,61 +566,7 @@ ul{list-style:none;}
     <h2>{{BONUSES_HEADLINE}}</h2>
     <p class="bonuses-condition">{{BONUSER_CONDITION}}</p>
     <div class="bonuses-grid">
-      <div class="bonus-card {{BONUS_1_HIDDEN}}">
-        <div class="bonus-img-wrap">
-          <img src="{{BONUS_1_IMAGE}}" alt="{{BONUS_1_TITLE}}">
-          <span class="bonus-free-badge">{{BONUS_FREE_LABEL}}</span>
-        </div>
-        <div class="bonus-body">
-          <div class="bonus-title">{{BONUS_1_TITLE}}</div>
-          <div class="bonus-price">{{BONUS_1_PRICE}}</div>
-          <div class="bonus-desc">{{BONUS_1_DESC}}</div>
-        </div>
-      </div>
-      <div class="bonus-card {{BONUS_2_HIDDEN}}">
-        <div class="bonus-img-wrap">
-          <img src="{{BONUS_2_IMAGE}}" alt="{{BONUS_2_TITLE}}">
-          <span class="bonus-free-badge">{{BONUS_FREE_LABEL}}</span>
-        </div>
-        <div class="bonus-body">
-          <div class="bonus-title">{{BONUS_2_TITLE}}</div>
-          <div class="bonus-price">{{BONUS_2_PRICE}}</div>
-          <div class="bonus-desc">{{BONUS_2_DESC}}</div>
-        </div>
-      </div>
-      <div class="bonus-card {{BONUS_3_HIDDEN}}">
-        <div class="bonus-img-wrap">
-          <img src="{{BONUS_3_IMAGE}}" alt="{{BONUS_3_TITLE}}">
-          <span class="bonus-free-badge">{{BONUS_FREE_LABEL}}</span>
-        </div>
-        <div class="bonus-body">
-          <div class="bonus-title">{{BONUS_3_TITLE}}</div>
-          <div class="bonus-price">{{BONUS_3_PRICE}}</div>
-          <div class="bonus-desc">{{BONUS_3_DESC}}</div>
-        </div>
-      </div>
-      <div class="bonus-card {{BONUS_4_HIDDEN}}">
-        <div class="bonus-img-wrap">
-          <img src="{{BONUS_4_IMAGE}}" alt="{{BONUS_4_TITLE}}">
-          <span class="bonus-free-badge">{{BONUS_FREE_LABEL}}</span>
-        </div>
-        <div class="bonus-body">
-          <div class="bonus-title">{{BONUS_4_TITLE}}</div>
-          <div class="bonus-price">{{BONUS_4_PRICE}}</div>
-          <div class="bonus-desc">{{BONUS_4_DESC}}</div>
-        </div>
-      </div>
-      <div class="bonus-card {{BONUS_5_HIDDEN}}">
-        <div class="bonus-img-wrap">
-          <img src="{{BONUS_5_IMAGE}}" alt="{{BONUS_5_TITLE}}">
-          <span class="bonus-free-badge">{{BONUS_FREE_LABEL}}</span>
-        </div>
-        <div class="bonus-body">
-          <div class="bonus-title">{{BONUS_5_TITLE}}</div>
-          <div class="bonus-price">{{BONUS_5_PRICE}}</div>
-          <div class="bonus-desc">{{BONUS_5_DESC}}</div>
-        </div>
-      </div>
+      {{BONUSES_HTML}}
     </div>
   </div>
 </section>
@@ -1032,32 +978,31 @@ export function generatePresellHTML(
     // Bonuses
     BONUSES_HEADLINE: bonuses.headline ?? '',
     BONUSER_CONDITION: bonuses.condition_text ?? '',
-    BONUS_FREE_LABEL: labels.bonus_free_label ?? 'FREE',
-    BONUS_1_IMAGE: getImg(11),
-    BONUS_1_TITLE: bonuses.items?.[0]?.title ?? '',
-    BONUS_1_PRICE: bonuses.items?.[0]?.original_price ?? '',
-    BONUS_1_DESC: bonuses.items?.[0]?.description ?? '',
-    BONUS_1_HIDDEN: bonuses.items?.[0]?.title ? '' : 'bonus-hidden',
-    BONUS_2_IMAGE: getImg(12),
-    BONUS_2_TITLE: bonuses.items?.[1]?.title ?? '',
-    BONUS_2_PRICE: bonuses.items?.[1]?.original_price ?? '',
-    BONUS_2_DESC: bonuses.items?.[1]?.description ?? '',
-    BONUS_2_HIDDEN: bonuses.items?.[1]?.title ? '' : 'bonus-hidden',
-    BONUS_3_IMAGE: getImg(18),
-    BONUS_3_TITLE: bonuses.items?.[2]?.title ?? '',
-    BONUS_3_PRICE: bonuses.items?.[2]?.original_price ?? '',
-    BONUS_3_DESC: bonuses.items?.[2]?.description ?? '',
-    BONUS_3_HIDDEN: bonuses.items?.[2]?.title ? '' : 'bonus-hidden',
-    BONUS_4_IMAGE: getImg(19),
-    BONUS_4_TITLE: bonuses.items?.[3]?.title ?? '',
-    BONUS_4_PRICE: bonuses.items?.[3]?.original_price ?? '',
-    BONUS_4_DESC: bonuses.items?.[3]?.description ?? '',
-    BONUS_4_HIDDEN: bonuses.items?.[3]?.title ? '' : 'bonus-hidden',
-    BONUS_5_IMAGE: getImg(20),
-    BONUS_5_TITLE: bonuses.items?.[4]?.title ?? '',
-    BONUS_5_PRICE: bonuses.items?.[4]?.original_price ?? '',
-    BONUS_5_DESC: bonuses.items?.[4]?.description ?? '',
-    BONUS_5_HIDDEN: bonuses.items?.[4]?.title ? '' : 'bonus-hidden',
+    BONUSES_HTML: (() => {
+      const items: any[] = bonuses.items || [];
+      if (items.length === 0) return '';
+      const freeLabel = labels.bonus_free_label ?? 'FREE';
+      const imgSlots = [11, 12, 18, 19, 20];
+      return items
+        .filter((item: any) => item?.title)
+        .map((item: any, i: number) => {
+          const imgSrc = getImg(imgSlots[i] ?? -1) || item.image_url || '';
+          const imgHtml = imgSrc
+            ? `<img src="${imgSrc}" alt="${item.title}">`
+            : '';
+          return (
+            `<div class="bonus-card">` +
+              `<div class="bonus-img-wrap">${imgHtml}<span class="bonus-free-badge">${freeLabel}</span></div>` +
+              `<div class="bonus-body">` +
+                `<div class="bonus-title">${item.title}</div>` +
+                `<div class="bonus-price">${item.original_price ?? ''}</div>` +
+                `<div class="bonus-desc">${item.description ?? ''}</div>` +
+              `</div>` +
+            `</div>`
+          );
+        })
+        .join('');
+    })(),
 
     // Testimonials — Issue 3: field names vary across AI outputs; try all known aliases
     TESTI_HEADLINE: testimonials.headline ?? '',
