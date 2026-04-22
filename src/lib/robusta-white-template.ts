@@ -12,7 +12,7 @@ function isAggressive(country: string): boolean {
 }
 
 function lightenColor(hex: string, factor: number): string {
-  const clean = hex.replace('#','');
+  const clean = (hex ?? '#541213').replace('#','');
   const r = parseInt(clean.substring(0,2),16);
   const g = parseInt(clean.substring(2,4),16);
   const b = parseInt(clean.substring(4,6),16);
@@ -23,7 +23,7 @@ function lightenColor(hex: string, factor: number): string {
 }
 
 function darkenColor(hex: string, factor: number): string {
-  const clean = hex.replace('#','');
+  const clean = (hex ?? '#541213').replace('#','');
   const r = parseInt(clean.substring(0,2),16);
   const g = parseInt(clean.substring(2,4),16);
   const b = parseInt(clean.substring(4,6),16);
@@ -810,7 +810,7 @@ export function generatePresellHTML(
   images: string[],
   country: string = 'Brasil'
 ): string {
-  const getImg = (index: number): string => images[index] ?? '';
+  const getImg = (index: number): string => (images ?? [])[index] ?? '';
   const aggressive = isAggressive(country);
   void aggressive;
 

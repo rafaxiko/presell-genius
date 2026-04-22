@@ -183,8 +183,8 @@ export default function PresellGeniusApp() {
             productImageUrls,
             values.targetLanguage
           );
-        } catch (e) {
-          console.error('generatePresellHTML error:', e);
+        } catch (e: any) {
+          console.error('[generatePresellHTML ERROR]', e?.message, e?.stack?.slice(0, 500));
           throw e;
         }
       }
