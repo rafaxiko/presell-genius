@@ -4,6 +4,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { fetchProductDNA, formatDNAForPrompt } from '../../lib/fetch-product-dna';
 import { jsonrepair } from 'jsonrepair';
+import { setLastRawGeminiResponse } from '../../lib/debug-store';
 
 const GeneratePresellContentInputSchema = z.object({
   productName:          z.string().optional(),          // ← ANTI-ALUCINAÇÃO
@@ -425,6 +426,14 @@ Instrucao: Usa o angulo "${randomAngle}" como fio condutor de todo o copy.
 
     if (!text) throw new Error('Nenhum dado retornado pela IA.');
 
+    // DEBUG: capture and log raw Gemini response before any processing
+    setLastRawGeminiResponse(text);
+    console.log('[DEBUG] Full raw Gemini response length:', text.length);
+    console.log('[DEBUG] Raw Gemini response (first 2000 chars):', text.slice(0, 2000));
+    if (text.length > 2000) {
+      console.log('[DEBUG] Raw Gemini response (last 500 chars):', text.slice(-500));
+    }
+
     // 5. Parse com jsonrepair
     let parsed: any;
     try {
@@ -437,6 +446,26 @@ Instrucao: Usa o angulo "${randomAngle}" como fio condutor de todo o copy.
         console.log('[Presell] JSON directo falhou, a usar jsonrepair...');
         parsed = JSON.parse(jsonrepair(raw));
       }
+
+      // DEBUG: log parsed object structure (keys and value types only)
+      const structureMap: Record<string, string> = {};
+      for (const key of Object.keys(parsed)) {
+        const val = parsed[key];
+        structureMap[key] = Array.isArray(val) ? `array(${val.length})` : typeof val;
+      }
+      console.log('[DEBUG] Parsed top-level structure:', JSON.stringify(structureMap));
+
+      // DEBUG: bonuses-specific diagnostics
+      const bonuses = parsed.bonuses;
+      console.log('[DEBUG] typeof bonuses:', typeof bonuses);
+      console.log('[DEBUG] typeof bonuses.items:', typeof bonuses?.items);
+      console.log('[DEBUG] Array.isArray(bonuses.items):', Array.isArray(bonuses?.items));
+      console.log('[DEBUG] bonuses.items length:', Array.isArray(bonuses?.items) ? bonuses.items.length : 'N/A');
+      console.log('[DEBUG] bonuses.enabled:', bonuses?.enabled);
+      if (Array.isArray(bonuses?.items)) {
+        console.log('[DEBUG] bonuses.items[0] keys:', bonuses.items[0] ? Object.keys(bonuses.items[0]) : 'empty array');
+      }
+
     } catch (parseErr: any) {
       console.error('[Presell] jsonrepair também falhou:', parseErr?.message);
       throw new Error('Falha ao processar resposta da IA: ' + (parseErr?.message ?? 'erro desconhecido'));
