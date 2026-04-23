@@ -1,14 +1,26 @@
-// Temporary debug store — holds the last raw Gemini response in memory.
-// Shared between the server action and the debug API route within the same
-// Node.js process instance (warm lambda). Not persisted across cold starts.
-let _lastRawGeminiResponse: string | null = null;
-let _lastCapturedAt: string | null = null;
+import { writeFileSync, readFileSync, existsSync } from 'fs';
+
+// /tmp persists within a single warm Vercel lambda instance.
+// Calling GET /api/debug-last-generation on the same warm instance
+// that handled the generation will return the raw response.
+const TMP_PATH = '/tmp/last-gemini-response.json';
 
 export function setLastRawGeminiResponse(raw: string) {
-  _lastRawGeminiResponse = raw;
-  _lastCapturedAt = new Date().toISOString();
+  try {
+    writeFileSync(TMP_PATH, JSON.stringify({ raw, capturedAt: new Date().toISOString() }));
+  } catch (e) {
+    console.error('[debug-store] Failed to write to /tmp:', e);
+  }
 }
 
-export function getLastRawGeminiResponse() {
-  return { raw: _lastRawGeminiResponse, capturedAt: _lastCapturedAt };
+export function getLastRawGeminiResponse(): { raw: string | null; capturedAt: string | null } {
+  try {
+    if (existsSync(TMP_PATH)) {
+      const data = JSON.parse(readFileSync(TMP_PATH, 'utf8'));
+      return { raw: data.raw ?? null, capturedAt: data.capturedAt ?? null };
+    }
+  } catch (e) {
+    console.error('[debug-store] Failed to read from /tmp:', e);
+  }
+  return { raw: null, capturedAt: null };
 }

@@ -756,6 +756,7 @@ export function generatePresellHTML(
   images: string[],
   country: string = 'Brasil'
 ): string {
+  try {
   const getImg = (index: number): string => (images ?? [])[index] ?? '';
   const aggressive = isAggressive(country);
   void aggressive;
@@ -1095,5 +1096,12 @@ export function generatePresellHTML(
 
   html = html.replace(/\{\{BONUSES_HTML\}\}/g, () => bonusesHtml);
 
+  console.log('[Template] HTML length:', html.length, '| preview:', html.slice(0, 500));
   return html;
+
+  } catch (err: any) {
+    console.error('[Template] generatePresellHTML threw:', err?.message ?? err);
+    console.error('[Template] Stack:', err?.stack);
+    return '';
+  }
 }

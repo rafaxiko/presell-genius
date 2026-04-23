@@ -553,13 +553,8 @@ Instrucao: Usa o angulo "${randomAngle}" como fio condutor de todo o copy.
     parsed._seed  = uniqueSeed;
     parsed._angle = randomAngle;
 
-    // TASK 1: full stringify before template rendering — chunked so Vercel doesn't truncate
-    const fullJson = JSON.stringify(parsed);
-    const CHUNK = 3000;
-    const totalChunks = Math.ceil(fullJson.length / CHUNK);
-    for (let i = 0; i < totalChunks; i++) {
-      console.log(`[DEBUG:FULL_JSON] chunk ${i + 1}/${totalChunks}:`, fullJson.slice(i * CHUNK, (i + 1) * CHUNK));
-    }
+    // Full parsed object before template rendering
+    console.log('[GEMINI_PARSED_FULL]', JSON.stringify(parsed));
 
     console.log('[Presell] Parsed JSON key structure:', JSON.stringify({
       bonuses_enabled: parsed.bonuses?.enabled,
