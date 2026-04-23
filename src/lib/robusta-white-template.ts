@@ -978,31 +978,7 @@ export function generatePresellHTML(
     // Bonuses
     BONUSES_HEADLINE: bonuses.headline ?? '',
     BONUSER_CONDITION: bonuses.condition_text ?? '',
-    BONUSES_HTML: (() => {
-      const items: any[] = bonuses.items || [];
-      if (items.length === 0) return '';
-      const freeLabel = labels.bonus_free_label ?? 'FREE';
-      const imgSlots = [11, 12, 18, 19, 20];
-      return items
-        .filter((item: any) => item?.title)
-        .map((item: any, i: number) => {
-          const imgSrc = getImg(imgSlots[i] ?? -1) || item.image_url || '';
-          const imgHtml = imgSrc
-            ? `<img src="${imgSrc}" alt="${item.title}">`
-            : '';
-          return (
-            `<div class="bonus-card">` +
-              `<div class="bonus-img-wrap">${imgHtml}<span class="bonus-free-badge">${freeLabel}</span></div>` +
-              `<div class="bonus-body">` +
-                `<div class="bonus-title">${item.title}</div>` +
-                `<div class="bonus-price">${item.original_price ?? ''}</div>` +
-                `<div class="bonus-desc">${item.description ?? ''}</div>` +
-              `</div>` +
-            `</div>`
-          );
-        })
-        .join('');
-    })(),
+    // BONUSES_HTML is injected after the loop via a replacer function — see below.
 
     // Testimonials — Issue 3: field names vary across AI outputs; try all known aliases
     TESTI_HEADLINE: testimonials.headline ?? '',
@@ -1077,10 +1053,47 @@ export function generatePresellHTML(
     AFFILIATE_LINK: targetUrl,
   };
 
-  let html = PRESELL_TEMPLATE;
-  for (const [key, value] of Object.entries(replacements)) {
-    html = html.split('{{' + key + '}}').join(value ?? '');
+  // Build bonus cards HTML outside the main replacements object.
+  // Applied via a replacer *function* so any $ in prices/descriptions
+  // is never misread as a RegExp back-reference by String.replace().
+  let bonusesHtml = '';
+  try {
+    const bonusItems: any[] = Array.isArray(bonuses.items) ? bonuses.items : [];
+    if (bonusItems.length > 0) {
+      const freeLabel = labels.bonus_free_label ?? 'FREE';
+      const imgSlots = [11, 12, 18, 19, 20];
+      bonusesHtml = bonusItems
+        .filter((item: any) => item?.title)
+        .map((item: any, i: number) => {
+          const imgSrc = getImg(imgSlots[i] ?? -1) || item.image_url || '';
+          const imgHtml = imgSrc ? `<img src="${imgSrc}" alt="${item.title}">` : '';
+          return (
+            `<div class="bonus-card">` +
+              `<div class="bonus-img-wrap">${imgHtml}<span class="bonus-free-badge">${freeLabel}</span></div>` +
+              `<div class="bonus-body">` +
+                `<div class="bonus-title">${item.title}</div>` +
+                `<div class="bonus-price">${item.original_price ?? ''}</div>` +
+                `<div class="bonus-desc">${item.description ?? ''}</div>` +
+              `</div>` +
+            `</div>`
+          );
+        })
+        .join('');
+    }
+  } catch (e) {
+    console.error('[Template] BONUSES_HTML generation threw:', e);
   }
+
+  let html = PRESELL_TEMPLATE;
+  try {
+    for (const [key, value] of Object.entries(replacements)) {
+      html = html.split('{{' + key + '}}').join(value ?? '');
+    }
+  } catch (e) {
+    console.error('[Template] replacements loop threw:', e);
+  }
+
+  html = html.replace(/\{\{BONUSES_HTML\}\}/g, () => bonusesHtml);
 
   return html;
 }

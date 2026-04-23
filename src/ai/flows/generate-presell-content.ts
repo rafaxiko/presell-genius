@@ -524,6 +524,14 @@ Instrucao: Usa o angulo "${randomAngle}" como fio condutor de todo o copy.
     parsed._seed  = uniqueSeed;
     parsed._angle = randomAngle;
 
+    console.log('[Presell] Parsed JSON key structure:', JSON.stringify({
+      bonuses_enabled: parsed.bonuses?.enabled,
+      bonuses_items_type: Array.isArray(parsed.bonuses?.items) ? 'array' : typeof parsed.bonuses?.items,
+      bonuses_items: parsed.bonuses?.items,
+      ingredients_items_type: Array.isArray(parsed.ingredients?.items) ? 'array' : typeof parsed.ingredients?.items,
+      ingredients_items: parsed.ingredients?.items?.map((i: any) => ({ name: i?.name, benefit: (i?.benefit ?? '').slice(0, 60) })),
+    }));
+
     return parsed;
 
   } catch (error: any) {
