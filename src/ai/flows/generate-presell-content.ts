@@ -5,8 +5,9 @@ import {z} from 'genkit';
 import { fetchProductDNA, formatDNAForPrompt } from '../../lib/fetch-product-dna';
 import { jsonrepair } from 'jsonrepair';
 import { setLastRawGeminiResponse } from '../../lib/debug-store';
-import { createHash } from 'crypto';
-import { writeFileSync, readFileSync, existsSync } from 'fs';
+
+const CACHE_TTL_MS = 10 * 60 * 1000;
+const generationCache = new Map<string, { parsed: any; cachedAt: number }>();
 
 const GeneratePresellContentInputSchema = z.object({
   productName:          z.string().optional(),          // ← ANTI-ALUCINAÇÃO
@@ -394,22 +395,12 @@ export async function generatePresellContent(
   input: GeneratePresellContentInput
 ): Promise<GeneratePresellContentOutput> {
   try {
-    // 0. Generation cache — skip Gemini if same inputs seen in last 24h
-    const cacheKey = createHash('sha256')
-      .update(`${input.productName ?? ''}|${input.officialProductUrl ?? ''}|${input.templateType}`)
-      .digest('hex');
-    const cachePath = `/tmp/${cacheKey}.json`;
-    const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
-    if (existsSync(cachePath)) {
-      try {
-        const cached = JSON.parse(readFileSync(cachePath, 'utf8'));
-        if (Date.now() - new Date(cached.cachedAt).getTime() < CACHE_TTL_MS) {
-          console.log('[Cache] HIT —', cacheKey);
-          return cached.parsed;
-        }
-      } catch {
-        // corrupted cache file — ignore and regenerate
-      }
+    // 0. In-memory cache — skip Gemini for same productName+template within 10 min (warm instance)
+    const cacheKey = `${input.productName ?? ''}|${input.templateType}`;
+    const cached = generationCache.get(cacheKey);
+    if (cached && Date.now() - cached.cachedAt < CACHE_TTL_MS) {
+      console.log('[Cache] HIT —', cacheKey);
+      return cached.parsed;
     }
 
     // 1. Seed único para variação entre afiliados
@@ -584,13 +575,8 @@ Instrucao: Usa o angulo "${randomAngle}" como fio condutor de todo o copy.
       ingredients_items: parsed.ingredients?.items?.map((i: any) => ({ name: i?.name, benefit: (i?.benefit ?? '').slice(0, 60) })),
     }));
 
-    // Write to cache for future requests with same inputs
-    try {
-      writeFileSync(cachePath, JSON.stringify({ parsed, cachedAt: new Date().toISOString() }));
-      console.log('[Cache] WRITE —', cacheKey);
-    } catch (e) {
-      console.warn('[Cache] Failed to write cache:', e);
-    }
+    generationCache.set(cacheKey, { parsed, cachedAt: Date.now() });
+    console.log('[Cache] WRITE —', cacheKey);
 
     return parsed;
 
