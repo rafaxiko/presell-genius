@@ -433,6 +433,10 @@ Instrucao: Usa o angulo "${randomAngle}" como fio condutor de todo o copy.
     dnaContext = uniquenessBlock + dnaContext;
 
     // 4. Chamar Gemini (single attempt)
+    console.log('[Prompt] productName:', input.productName ?? '(empty)');
+    console.log('[Prompt] productInfo (first 1000):', (input.productInfo ?? '(empty)').slice(0, 1000));
+    console.log('[Prompt] salesPageDescription (first 500):', (input.salesPageDescription ?? '(empty)').slice(0, 500));
+    console.log('[Prompt] targetLanguage:', input.targetLanguage, '| templateType:', input.templateType, '| targetCountry:', input.targetCountry ?? '(none)');
     const { text } = await prompt({ ...input, dnaContext } as any);
 
     if (!text) throw new Error('Nenhum dado retornado pela IA.');
@@ -541,9 +545,7 @@ Instrucao: Usa o angulo "${randomAngle}" como fio condutor de todo o copy.
         { question: 'Where is it manufactured?',        answer: 'This product is manufactured in a GMP-certified facility that follows strict quality control standards.' },
       ];
     }
-    while (parsed.faq.items.length < 6) {
-      parsed.faq.items.push({ question: 'Have more questions?', answer: 'Contact our support team and we will be happy to help.' });
-    }
+    // Do not pad — template hides items whose question is empty
 
     // 8. Forçar cor do DNA se disponível
     if (dnaData?.success && parsed.meta) {

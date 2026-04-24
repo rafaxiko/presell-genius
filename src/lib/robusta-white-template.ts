@@ -640,15 +640,15 @@ ul{list-style:none;}
         <button class="faq-question">{{FAQ_Q3}}</button>
         <div class="faq-answer">{{FAQ_A3}}</div>
       </div>
-      <div class="faq-item">
+      <div class="faq-item" {{FAQ_ITEM4_HIDDEN}}>
         <button class="faq-question">{{FAQ_Q4}}</button>
         <div class="faq-answer">{{FAQ_A4}}</div>
       </div>
-      <div class="faq-item">
+      <div class="faq-item" {{FAQ_ITEM5_HIDDEN}}>
         <button class="faq-question">{{FAQ_Q5}}</button>
         <div class="faq-answer">{{FAQ_A5}}</div>
       </div>
-      <div class="faq-item">
+      <div class="faq-item" {{FAQ_ITEM6_HIDDEN}}>
         <button class="faq-question">{{FAQ_Q6}}</button>
         <div class="faq-answer">{{FAQ_A6}}</div>
       </div>
@@ -664,7 +664,7 @@ ul{list-style:none;}
     <div class="final-cta-card">
       <img class="final-cta-img" src="{{FINAL_CTA_IMAGE}}" alt="{{PRODUCT_NAME}}">
       <div class="final-cta-bundle">{{FINAL_CTA_BUNDLE_LABEL}}</div>
-      <div class="final-cta-price">{{FINAL_CTA_PRICE}}<small style="font-size:1rem;"> {{PER_BOTTLE_LABEL}}</small></div>
+      <div class="final-cta-price" {{FINAL_CTA_PRICE_HIDDEN}}>{{FINAL_CTA_PRICE}}<small style="font-size:1rem;"> {{PER_BOTTLE_LABEL}}</small></div>
       <div class="final-cta-original">{{FINAL_CTA_ORIGINAL}}</div>
       <div class="final-cta-perday">{{ONLY_LABEL}} {{FINAL_CTA_PER_DAY}} {{PER_DAY_LABEL}}</div>
       <div class="final-cta-trust">{{FINAL_CTA_TRUST_LINE}}</div>
@@ -1019,6 +1019,9 @@ export function generatePresellHTML(
     FAQ_A5: faq.items?.[4]?.answer ?? '',
     FAQ_Q6: faq.items?.[5]?.question ?? '',
     FAQ_A6: faq.items?.[5]?.answer ?? '',
+    FAQ_ITEM4_HIDDEN: (faq.items?.[3]?.question ?? '') ? '' : 'style="display:none"',
+    FAQ_ITEM5_HIDDEN: (faq.items?.[4]?.question ?? '') ? '' : 'style="display:none"',
+    FAQ_ITEM6_HIDDEN: (faq.items?.[5]?.question ?? '') ? '' : 'style="display:none"',
 
     // Final CTA — Issue 6: use 6-bottle image (index 4) matching best-value bundle
     FINAL_CTA_HEADLINE: finalCta.headline ?? '',
@@ -1026,6 +1029,7 @@ export function generatePresellHTML(
     FINAL_CTA_IMAGE: getImg(4) || getImg(2) || getImg(0),
     FINAL_CTA_BUNDLE_LABEL: finalCta.bundle_label ?? '',
     FINAL_CTA_PRICE: finalCta.price_per_bottle ?? '',
+    FINAL_CTA_PRICE_HIDDEN: (finalCta.price_per_bottle ?? '') ? '' : 'style="display:none"',
     FINAL_CTA_ORIGINAL: finalCta.price_original ?? '',
     FINAL_CTA_PER_DAY: finalCta.price_per_day ?? '',
     FINAL_CTA_TRUST_LINE: finalCta.trust_line ?? '',
